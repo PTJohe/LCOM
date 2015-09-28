@@ -59,8 +59,20 @@ int vt_print_char(char ch, char attr, int r, int c) {
 }
 
 int vt_print_string(char *str, char attr, int r, int c) {
+	int i, j;
+	int len = strlen(str);
+	char *video_ptr;
+	video_ptr = video_mem;
+	for (i = 1; i < r; i++){
+		video_ptr = video_ptr + scr_width*2;
+	}
+	video_ptr = video_ptr + c * 2;
+	for (j = 0; j < len; j++, video_ptr++){
+		*video_ptr = str[j];
+		video_ptr++;
+		*video_ptr = attr;
+	}
 
-  /* To complete ... */
 
 }
 
