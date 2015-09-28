@@ -16,21 +16,46 @@ static unsigned scr_width;	/* Width of screen in columns */
 static unsigned scr_lines;	/* Height of screen in lines */
 
 void vt_fill(char ch, char attr) {
+  int k;
+  char *video_ptr;
+  video_ptr = video_mem;
   
-  /* To complete */
+  for (k = 0; k < scr_width * scr_lines; k++, video_ptr++){
+	  *video_ptr = ch; /* First byte, is for the character to display */
+	  video_ptr++; /* Point to Second byte of Video RAM*/
+	  *video_ptr = attr; /* Second byte, is for the attribute of character */
+  }
   
 }
 
 void vt_blank() {
 
-  /* To complete ... */
+  char *video_ptr;
+  video_ptr = video_mem;
+  int j;
+  for (j = 0; j < scr_width * scr_lines; j++, video_ptr++){
+	  *video_ptr = 0x00;
+	  video_ptr++;
+	  *video_ptr = 0x00;
+  }
+
 
 }
 
 int vt_print_char(char ch, char attr, int r, int c) {
   
-  /* To complete ... */
+	char *video_ptr;
+	video_ptr = video_mem;
+	int i;
+	int row = r;
+	for (i = 0; i < row; i++){
+		video_ptr = video_ptr + scr_width*2;
+	}
+	video_ptr = video_ptr + c * 2;
 
+	*video_ptr = ch;
+	video_ptr++;
+	*video_ptr = attr;
 }
 
 int vt_print_string(char *str, char attr, int r, int c) {
