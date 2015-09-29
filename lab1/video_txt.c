@@ -129,15 +129,19 @@ int vt_print_int(int num, char attr, int r, int c) {
 
 int vt_draw_frame(int width, int height, char attr, int r, int c) {
 	//Checks if frame is within the screen dimensions
-	/*if ((c + width > scr_width) !! (r + height) > scr_height)) {
+	if (c + width >= scr_width){
+		printf("%s \n", "ERROR: Frame out of bounds");
 		return 1;
-	}*/
+	}
+	else if (r + height >= scr_lines){
+		printf("%s \n", "ERROR: Frame out of bounds");
+		return 1;
+	}
 
-	/*int i;
+	int i;
 	char *video_ptr;
 	video_ptr = video_mem;
 	video_ptr = video_ptr + (c * 2 + r * scr_width * 2);
-
 
 	//Draw upper left corner
 	*video_ptr = UL_CORNER;
@@ -157,10 +161,48 @@ int vt_draw_frame(int width, int height, char attr, int r, int c) {
 	*video_ptr = UR_CORNER;
 	video_ptr++;
 	*video_ptr = attr;
+	video_ptr--;
+
+	//Draw right bar
+	for (i = 0; i < height - 2; i++) {
+		video_ptr += scr_width * 2;
+		*video_ptr = VERT_BAR;
+		video_ptr++;
+		*video_ptr = attr;
+		video_ptr--;
+	}
+	video_ptr += scr_width * 2;
+
+	//Draw lower right corner
+	*video_ptr = LR_CORNER;
 	video_ptr++;
+	*video_ptr = attr;
+	video_ptr -= 3;
+
+	//Draw lower bar
+	for (i = 0; i < width; i++) {
+		*video_ptr = HOR_BAR;
+		video_ptr++;
+		*video_ptr = attr;
+		video_ptr -= 3;
+	}
+
+	//Draw lower left corner
+	*video_ptr = LL_CORNER;
+	video_ptr++;
+	*video_ptr = attr;
+	video_ptr--;
+
+	//Draw left bar
+	for (i = 0; i < height - 2; i++) {
+		video_ptr -= scr_width * 2;
+		*video_ptr = VERT_BAR;
+		video_ptr++;
+		*video_ptr = attr;
+		video_ptr--;
+	}
 
 	return 0;
-	*/
 }
 
 /*
