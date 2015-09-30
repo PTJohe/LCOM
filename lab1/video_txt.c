@@ -3,6 +3,8 @@
 #include <sys/mman.h>
 
 #include <assert.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "vt_info.h"
 
@@ -16,68 +18,53 @@ static unsigned scr_width; /* Width of screen in columns */
 static unsigned scr_lines; /* Height of screen in lines */
 
 void vt_fill(char ch, char attr) {
-	int k;
-	char *video_ptr;
-	video_ptr = video_mem;
-
-	for (k = 0; k < scr_width * scr_lines; k++, video_ptr++) {
-		*video_ptr = ch; /* First byte, is for the character to display */
-		video_ptr++; /* Point to Second byte of Video RAM*/
-		*video_ptr = attr; /* Second byte, is for the attribute of character */
-	}
+  char *video_ptr;
+  video_ptr = video_mem;
+  int i;
+  for (i = 0; i < scr_width * scr_lines; i++, video_ptr++){
+	  *video_ptr = ch; /* First byte, is for the character to display */
+	  video_ptr++;
+	  *video_ptr = attr; /* Point to Second byte of Video RAM. Second byte, is for the attribute of character */
+  }
 
 }
 
 void vt_blank() {
-
-	char *video_ptr;
-	video_ptr = video_mem;
-	int j;
-	for (j = 0; j < scr_width * scr_lines; j++, video_ptr++) {
-		*video_ptr = 0x00;
-		video_ptr++;
-		*video_ptr = 0x00;
-	}
-
-	//vt_fill(0x00, 0x00);
-
+  vt_fill(0x00, 0x00);
+  return;
 }
 
 int vt_print_char(char ch, char attr, int r, int c) {
-
+	if (r >= scr_lines || c >= scr_width || r < 0 || c < 0)
+		return EXIT_FAILURE;
 	char *video_ptr;
 	video_ptr = video_mem;
 	int i;
-	int row = r;
-	for (i = 0; i < row; i++) {
-		video_ptr = video_ptr + scr_width * 2;
+	for (i = 1; i < r; i++){
+		video_ptr = video_ptr + scr_width*2;
 	}
 	video_ptr = video_ptr + c * 2;
 
 	*video_ptr = ch;
 	video_ptr++;
 	*video_ptr = attr;
-
-	return 0;
 }
 
 int vt_print_string(char *str, char attr, int r, int c) {
-
+	if (r >= scr_lines || c >= scr_width || r < 0 || c < 0)
+		return EXIT_FAILURE;
 	int i, j;
 	int len = strlen(str);
 	char *video_ptr;
 	video_ptr = video_mem;
-	for (i = 0; i < r; i++) {
+	for (i = 1; i < r; i++){
 		video_ptr = video_ptr + scr_width * 2;
 	}
 	video_ptr = video_ptr + c * 2;
-	for (j = 0; j < len; j++, video_ptr++) {
-		*video_ptr = str[j];
-		video_ptr++;
-		*video_ptr = attr;
-	}
 
-	return 0;
+	for (j = 0; j < len; j++, video_ptr++){
+		vt_print_char(str[j], attr, r , c + j);
+	}
 }
 
 int vt_print_int(int num, char attr, int r, int c) {
@@ -130,11 +117,11 @@ int vt_print_int(int num, char attr, int r, int c) {
 int vt_draw_frame(int width, int height, char attr, int r, int c) {
 	//Checks if frame is within the screen dimensions
 	if (c + width >= scr_width){
-		printf("%s \n", "ERROR: Frame out of bounds");
+		printf("\n %s \n\n", "ERROR: Frame out of bounds");
 		return 1;
 	}
 	else if (r + height >= scr_lines){
-		printf("%s \n", "ERROR: Frame out of bounds");
+		printf(" \n %s \n", "ERROR: Frame out of bounds");
 		return 1;
 	}
 
