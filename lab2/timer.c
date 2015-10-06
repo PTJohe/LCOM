@@ -6,6 +6,15 @@ int timer_set_square(unsigned long timer, unsigned long freq) {
 	return 1;
 }
 
+
+/* --- DÚVIDAS ----
+
+// ESCLARECER DIFERENÇA ENTRE "int sys_outb" e "int sys_inb" !!!
+// O QUE É TIMER_RB_SEL(n)         BIT((n)+1) ??
+
+
+*/
+
 int timer_subscribe_int(void ) {
 
 	return 1;
