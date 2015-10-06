@@ -9,9 +9,10 @@ int timer_set_square(unsigned long timer, unsigned long freq) {
 
 /* --- DÚVIDAS ----
 
+// NÃO ESTÁ A DAR PARA ADICIONAR O LAB2.C !!
 // ESCLARECER DIFERENÇA ENTRE "int sys_outb" e "int sys_inb" !!!
 // O QUE É TIMER_RB_SEL(n)         BIT((n)+1) ??
-
+// VERIFICAR SE MAKEFILE ESTÁ CORRETO !!
 
 */
 
