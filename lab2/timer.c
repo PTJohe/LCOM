@@ -1,5 +1,7 @@
 #include <minix/syslib.h>
 #include <minix/drivers.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int timer_set_square(unsigned long timer, unsigned long freq) {
 
@@ -8,8 +10,7 @@ int timer_set_square(unsigned long timer, unsigned long freq) {
 
 
 /* --- DÚVIDAS ----
-
-// NÃO ESTÁ A DAR PARA ADICIONAR O LAB2.C !!
+ *
 // ESCLARECER DIFERENÇA ENTRE "int sys_outb" e "int sys_inb" !!!
 // O QUE É TIMER_RB_SEL(n)         BIT((n)+1) ??
 // VERIFICAR SE MAKEFILE ESTÁ CORRETO !!
@@ -31,8 +32,15 @@ void timer_int_handler() {
 }
 
 int timer_get_conf(unsigned long timer, unsigned char *st) {
-	
-	return 1;
+	unsigned long cmd = TIMER_RB_CMD | TIMER_SEL(timer) | TIMER_RB_COUNT;
+	if (timer > 2 || timer < 0){
+		return EXIT_FAILURE;
+	}
+	else {
+		sys_outb(TIMER_CTRL, cmd);
+		sys_inb(TIMER_0 + timer, st);
+		return 0;
+	}
 }
 
 int timer_display_conf(unsigned char conf) {
@@ -51,6 +59,8 @@ int timer_test_int(unsigned long time) {
 }
 
 int timer_test_config(unsigned long timer) {
-	
+	unsigned char valor_st, conf;
+	timer_get_conf(timer, &valor_st);
+	timer_display_conf(conf)
 	return 1;
 }
