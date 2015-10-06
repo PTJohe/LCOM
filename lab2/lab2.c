@@ -56,7 +56,7 @@ static int proc_args(int argc, char *argv[]) {
   	  }
   	  if( (frequency = parse_ulong(argv[2], 16)) == ULONG_MAX )
   		  return 1;
-  	  printf("timer_test:: timer_test_square(%d)\n", (unsigned)freq);
+  	  printf("timer_test:: timer_test_square(%d)\n", (unsigned)frequency);
   	  return timer_test_square(frequency);
 
     } else if (strncmp(argv[1], "int", strlen("int")) == 0) {
