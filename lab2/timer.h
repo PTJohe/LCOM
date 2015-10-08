@@ -9,9 +9,9 @@
 
 /**
  * @brief Configures a timer to generate a square wave
- * 
+ *
  * Does not change the LSB (BCD/binary) of the timer's control word.
- * 
+ *
  * @param timer Timer to configure. (Ranges from 0 to 2)
  * @param freq Frequency of the square wave to generate
  * @return Return 0 upon success and non-zero otherwise
@@ -50,10 +50,10 @@ int timer_get_conf(unsigned long timer, unsigned char *st);
 
 /**
  * @brief Shows timer configuration
- * 
+ *
  * Displays in a human friendly way, the configuration of a timer
- *  as read via the read-back command, by providing the values 
- *  (and meanings) of the different components of a timer configuration 
+ *  as read via the read-back command, by providing the values
+ *  (and meanings) of the different components of a timer configuration
  *
  * @param conf configuration to display in human friendly way
  * @return Return 0 upon success and non-zero otherwise

@@ -1,15 +1,20 @@
 #include <minix/syslib.h>
 #include <minix/drivers.h>
 #include <stdio.h>
-#include "timer.h"
+//#include "timer.h"
 #include "i8254.h"
 #include <limits.h>
 #include <errno.h>
 
+static int proc_args(int argc, char *argv[]);
+static unsigned long parse_ulong(char *str, int base);
+static long parse_long(char *str, int base);
+static void print_usage(char *argv[]);
+
 int main(int argc, char **argv) {
 
   /* Initialize service */
-
+	printf("hdhc");
   sef_startup();
 
   if ( argc == 1 ) {
@@ -74,6 +79,7 @@ static int proc_args(int argc, char *argv[]) {
     	printf("timer_test: non valid function \"%s\" to test\n", argv[1]);
     	return 1;
     }
+}
 
 
 
