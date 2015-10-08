@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "i8254.h"
-//#include "timer.h"
+#include "timer.h"
 
 int timer_set_square(unsigned long timer, unsigned long freq) {
 
@@ -25,7 +25,6 @@ void timer_int_handler() {
 }
 
 int timer_get_conf(unsigned long timer, unsigned char *st) {
-	//unsigned long st_new;
 
 	char buf[12];
 	sprintf(buf, "TIMER_SEL", timer);
@@ -34,8 +33,7 @@ int timer_get_conf(unsigned long timer, unsigned char *st) {
 		return EXIT_FAILURE;
 	} else {
 		sys_outb(TIMER_CTRL, cmd);
-		sys_inb(TIMER_0 + timer, /*&st_new*/ (unsigned long*) st);
-		//*st = st_new;
+		sys_inb(TIMER_0 + timer, (unsigned long*) st);
 		return 0;
 	}
 }
