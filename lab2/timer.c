@@ -6,8 +6,30 @@
 #include "timer.h"
 
 int timer_set_square(unsigned long timer, unsigned long freq) {
+	char buf[12];
+	sprintf(buf, "TIMER_SEL", timer);
+	unsigned long div = (TIMER_FREQ / freq);
+	unsigned long LSB = div;
+	unsigned long MSB = (div >> 8);
+	unsigned char conf, port;
+	if (freq == 0 || TIMER_FREQ < freq)
+		return EXIT_FAILURE;
+	int i = timer_get_conf(timer, &conf);
+	if (i != 0)
+		return EXIT_FAILURE;
+	port = (TIMER_0 + timer);
+	unsigned char counting_mode;
+	if (conf == 0)
+		counting_mode = TIMER_BIN;
+	else if (conf == 1)
+		counting_mode = TIMER_BCD;
+	if (sys_outb(TIMER_CTRL, (int) buf | TIMER_LSB_MSB | TIMER_SQR_WAVE | counting_mode ) != OK
+				|| sys_outb(port, LSB) != OK
+				|| sys_outb(port, MSB) != OK)
+		return EXIT_FAILURE;
+	else
+		return EXIT_SUCCESS;
 
-	return 1;
 }
 
 int timer_subscribe_int(void) {
@@ -79,17 +101,17 @@ int timer_display_conf(unsigned char conf) {
 	else
 		printf("Binary\n");
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int timer_test_square(unsigned long freq) {
-
-	return 1;
+	timer_set_square(0, freq);
+	return 0;
 }
 
 int timer_test_int(unsigned long time) {
 
-	return 1;
+	return EXIT_FAILURE;
 }
 
 int timer_test_config(unsigned long timer) {
@@ -97,7 +119,7 @@ int timer_test_config(unsigned long timer) {
 	timer_get_conf(timer, &conf);
 	timer_display_conf(conf);
 	if (conf = 0xB6)
-		return 0;
+		return EXIT_SUCCESS;
 	else
-		return 1;
+		return EXIT_FAILURE;
 }
