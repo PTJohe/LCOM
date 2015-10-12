@@ -1,9 +1,13 @@
 #include <minix/syslib.h>
 #include <minix/drivers.h>
+#include <minix/com.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "i8254.h"
 #include "timer.h"
+
+static int hook_id;
+static int counter;
 
 int timer_set_square(unsigned long timer, unsigned long freq) {
 	char buf[12];
@@ -34,16 +38,23 @@ int timer_set_square(unsigned long timer, unsigned long freq) {
 
 int timer_subscribe_int(void) {
 
-	return 1;
+	hook_id = 0; // CERTO ???
+	if (sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id) == OK && sys_irqenable(&hook_id) == OK)
+		return EXIT_SUCCESS;
+	else
+		return EXIT_FAILURE;
 }
 
 int timer_unsubscribe_int() {
 
-	return 1;
+	if (sys_irqrmpolicy(&hook_id) != OK)
+		return EXIT_FAILURE;
+	else
+		return EXIT_SUCCESS;
 }
 
 void timer_int_handler() {
-
+	counter = counter + 1;
 }
 
 int timer_get_conf(unsigned long timer, unsigned char *st) {
@@ -110,8 +121,37 @@ int timer_test_square(unsigned long freq) {
 }
 
 int timer_test_int(unsigned long time) {
-
-	return EXIT_FAILURE;
+	counter = 0; // initialize "counter" global variable
+	int irq_set = timer_subscribe_int();
+	int interrupt = BIT(irq_set);
+	int r;
+	int ipc_status;
+	message msg;
+	while( (time * 60) >= counter ) { /* You may want to use a different condition */
+		/* Get a request message. */
+		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0 ) {
+				printf("driver_receive failed with: %d", r);
+				continue;
+			}
+		if (is_ipc_notify(ipc_status)) { /* received notification */
+			switch (_ENDPOINT_P(msg.m_source)) {
+			case HARDWARE: /* hardware interrupt notification */
+				if (msg.NOTIFY_ARG & interrupt) {
+					timer_int_handler();
+						if (counter % 60 == 0)
+							printf("1 segundo decorrido, Interrupcoes totais (60/segundo): %d \n", counter); // 60 INTERRUPÇOES POR SEGUNDO PORQUE??
+				}
+				break;
+			default:
+				break; /* no other notifications expected: do nothing */
+				}
+			}
+		else { /* received a standard message, not a notification */
+					/* no standard messages expected: do nothing */
+		}
+	}
+	timer_unsubscribe_int();
+	return EXIT_SUCCESS;
 }
 
 int timer_test_config(unsigned long timer) {

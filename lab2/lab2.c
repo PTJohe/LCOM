@@ -1,7 +1,7 @@
 #include <minix/syslib.h>
 #include <minix/drivers.h>
 #include <stdio.h>
-//#include "timer.h"
+#include "timer.h"
 #include "i8254.h"
 #include <limits.h>
 #include <errno.h>
@@ -45,11 +45,11 @@ static int proc_args(int argc, char *argv[]) {
   		  printf("timer_test: wrong no of arguments for test of timer_test_config \n");
   		  return 1;
   	  }
-	  if( (timer = parse_ulong(argv[2], 16)) == ULONG_MAX )
+	  if( (timer = parse_ulong(argv[2], 10)) == ULONG_MAX )
 		  return 1;
 	  if (timer < 0 || timer > 2 )
 		  return 1;
-	  printf("timer_test:: timer_test_config(%d)\n", (unsigned)timer);
+	  printf("timer_test:: timer_test_config(%ul)\n", timer);
 	  timer_test_config(timer);
 	  return 0;
 
@@ -58,9 +58,9 @@ static int proc_args(int argc, char *argv[]) {
   		  printf("timer_test: wrong no of arguments for test of timer_test_square \n");
   		  return 1;
   	  }
-  	  if( (frequency = parse_ulong(argv[2], 16)) == ULONG_MAX )
+  	  if( (frequency = parse_ulong(argv[2], 10)) == ULONG_MAX )
   		  return 1;
-  	  printf("timer_test:: timer_test_square(%d)\n", (unsigned) frequency);
+  	  printf("timer_test:: timer_test_square(%ul)\n", frequency);
   	  return timer_test_square(frequency);
 
     } else if (strncmp(argv[1], "int", strlen("int")) == 0) {
@@ -68,9 +68,9 @@ static int proc_args(int argc, char *argv[]) {
   		  printf("timer_test: wrong no of arguments for test of timer_test_int \n");
   		  return 1;
   	  }
-  	  if( (time = parse_ulong(argv[2], 16)) == ULONG_MAX )
+  	  if( (time = parse_ulong(argv[2], 10)) == ULONG_MAX )
   		  return 1;
-  	  printf("timer_test:: timer_test_int(%d)\n", (unsigned)time);
+  	  printf("timer_test:: timer_test_int(%ul)\n", time);
   	  timer_test_int(time);
   	  return 1;
 
@@ -101,4 +101,5 @@ static unsigned long parse_ulong(char *str, int base) {
 
   /* Successful conversion */
   return val;
+
 }
