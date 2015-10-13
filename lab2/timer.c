@@ -16,8 +16,15 @@ int timer_set_square(unsigned long timer, unsigned long freq) {
 	unsigned long LSB = div;
 	unsigned long MSB = (div >> 8);
 	unsigned char conf, port;
-	if (freq == 0 || TIMER_FREQ < freq)
+	if (freq < 19){
+		printf("Error: Frequency must be greater than 18 Hz.\n");
+		printf("OVERFLOW -> (Clock signal frequency)/freq must have a maximum of 16 bits.\n");
 		return EXIT_FAILURE;
+	}
+	else if (TIMER_FREQ < freq){
+		printf("Error: Frequency must be less than 1193182 Hz (clock signal frequency).\n");
+		return EXIT_FAILURE;
+	}
 	int i = timer_get_conf(timer, &conf);
 	if (i != 0)
 		return EXIT_FAILURE;
