@@ -45,7 +45,7 @@ int timer_set_square(unsigned long timer, unsigned long freq) {
 
 int timer_subscribe_int(void) {
 
-	hook_id = 0; // CERTO ???
+	hook_id = 0;
 	if (sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id) == OK && sys_irqenable(&hook_id) == OK)
 		return EXIT_SUCCESS;
 	else
@@ -70,6 +70,7 @@ int timer_get_conf(unsigned long timer, unsigned char *st) {
 	sprintf(buf, "TIMER_SEL", timer);
 	unsigned long cmd = (TIMER_RB_CMD | (int) buf | TIMER_RB_COUNT_);
 	if (timer > 2 || timer < 0) {
+		printf("Error: Timer value should be 0, 1 or 2.\n");
 		return EXIT_FAILURE;
 	} else {
 		sys_outb(TIMER_CTRL, cmd);
@@ -128,6 +129,10 @@ int timer_test_square(unsigned long freq) {
 }
 
 int timer_test_int(unsigned long time) {
+	if(time == 0){
+		printf("Error: Time interval must be positive.\n");
+		return EXIT_FAILURE;
+	}
 	counter = 0; // initialize "counter" global variable
 	int irq_set = timer_subscribe_int();
 	int interrupt = BIT(irq_set);
@@ -146,7 +151,7 @@ int timer_test_int(unsigned long time) {
 				if (msg.NOTIFY_ARG & interrupt) {
 					timer_int_handler();
 						if (counter % 60 == 0)
-							printf("1 segundo decorrido, Interrupcoes totais (60/segundo): %d \n", counter); // 60 INTERRUPÇOES POR SEGUNDO PORQUE??
+							printf("1 segundo decorrido, Interrupcoes totais (60/segundo): %d \n", counter);
 				}
 				break;
 			default:
