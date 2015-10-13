@@ -31,6 +31,7 @@
 #define TIMER_SEL2		BIT(7)   /**< @brief Control Word for Timer 2 */
 #define TIMER_RB_CMD		(BIT(7)|BIT(6))  /**< @brief Read Back Command */
 
+
 /* Register selection: bits 5 and 4 */
 
 #define TIMER_LSB		BIT(4)  /**< @brief Initialize Counter LSB only */

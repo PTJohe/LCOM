@@ -151,6 +151,7 @@ int timer_test_int(unsigned long time) {
 		}
 	}
 	timer_unsubscribe_int();
+	printf("Timer_test_int concluido.\n");
 	return EXIT_SUCCESS;
 }
 
