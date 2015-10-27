@@ -8,7 +8,7 @@ int kbd_subscribe_int();
 
 int kbd_unsubscribe_int();
 
-unsigned long keyboard_int_handler();
+unsigned long keyboard_int_handler_C();
 
 unsigned long issue_data_KBC(unsigned char data);
 

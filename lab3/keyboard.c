@@ -22,7 +22,7 @@ int kbd_unsubscribe_int() {
 		return EXIT_FAILURE;
 }
 
-unsigned long keyboard_int_handler() {
+unsigned long keyboard_int_handler_C() {
 	unsigned long data;
 	unsigned long stat;
 	while (1) {
@@ -58,7 +58,7 @@ unsigned long issue_commandArgument_KBC(unsigned char command,
 	unsigned long stat = 0;
 	unsigned long verify;
 	verify = issue_data_KBC(command);
-	if (verify == 1)
+	if (verify == EXIT_FAILURE)
 		return EXIT_FAILURE;
 	if (sys_inb(KBC_OUT_BUF, &stat) == OK) {
 		if (stat == ACK) {

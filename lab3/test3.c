@@ -20,6 +20,7 @@ int kbd_test_scan(unsigned short ass) {
 	//sys_outb(KBC_IN_BUF, 0xF4);
 
 	while (scancode != MAKE_ESC_CODE) {
+
 		/* Get a request message. */
 		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
 			printf("driver_receive failed with: %d", r);
@@ -29,35 +30,34 @@ int kbd_test_scan(unsigned short ass) {
 			switch (_ENDPOINT_P(msg.m_source)) {
 			case HARDWARE: /* hardware interrupt notification */
 				if (msg.NOTIFY_ARG & irq_set) {
-					if (ass == 0) {
-						scancode = keyboard_int_handler();
-						if (scancode == 0xE0) {
-							state = 1;
-							break;
-						} else {
-							if (scancode & BIT(7))
-								printf("Breakcode: ");
-							else
-								printf("Makecode: ");
+					if (ass == 0)
+						scancode = keyboard_int_handler_C();
+					else if (ass == 1)
+						scancode = keyboard_int_handler_assembly();
+					if (scancode == 0xE0) {
+						state = 1;
+						break;
+					} else {
+						if (scancode & BIT(7))
+							printf("Breakcode: ");
+						else
+							printf("Makecode: ");
 
-							if (state == 1) {
-								printf("0xE0%02X\n", scancode);
-								state = 0;
-								break;
-							} else if (state == 0)
-								printf("0x%02X\n", scancode);
-						}
+						if (state == 1) {
+							printf("0xE0%02X\n", scancode);
+							state = 0;
+							break;
+						} else if (state == 0)
+							printf("0x%02X\n", scancode);
 					}
 				} else
 					return EXIT_FAILURE;
-				break; /* no other notifications expected: do nothing */
 			default:
-				break;
+				break; /* no other notifications expected: do nothing */
 			}
 		} else { /* received a standard message, not a notification */
 			/* no standard messages expected: do nothing */
 		}
-
 	}
 	kbd_unsubscribe_int();
 	printf("kbd_test_scan concluido.\n");
@@ -65,8 +65,17 @@ int kbd_test_scan(unsigned short ass) {
 }
 
 int kbd_test_leds(unsigned short n, unsigned short *leds) {
-	if (kbd_subscribe_int() == EXIT_FAILURE)
+	if (kbd_subscribe_int() == EXIT_FAILURE) {
+		printf("ERROR: kbd_subscribe_int() failed!");
 		return EXIT_FAILURE;
+	}
+
+	timer_counter = 0; // initialize "counter" global variable
+	int irq_set = timer_subscribe_int();
+	if (irq_set < 0) {
+		printf("ERROR: timer_subscribe_int failed!");
+		return EXIT_FAILURE;
+	}
 
 	unsigned long stat = 0;
 	unsigned int l;
@@ -74,43 +83,88 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 	int scrollLock = 0;
 	int numLock = 0;
 	int i = 0;
-	unsigned short (*arg) = 0;
-	/*for (l = 0; l < n; l++) {
-	 if (leds[l] == 0 || leds[l] == 1 || leds[l] == 2)
-	 *arg ^= leds[l];
-	 printf("szfzdfg");
-	 issue_commandArgument_KBC(KBD_TOGGLE_LEDS, *arg, stat);
-	 timer_interrupt(1); // "The function kbd_test_leds() should process each element of the toggle array once per second"
-	 }
-	 kbd_unsubscribe_int();*/
+	unsigned short *arg;
 
-	while (i < n) {
-		if (issue_commandArgument_KBC(KBD_TOGGLE_LEDS,
-				(scrollLock | numLock | capsLock) ^ BIT(leds[i]))
-				!= EXIT_SUCCESS) {
-			printf("ERROR: failed to write to KBD!");
-			return EXIT_FAILURE;
+	int interrupt = BIT(irq_set);
+	int r;
+	int ipc_status;
+	message msg;
+	while (i < n) { /* You may want to use a different condition */
+		/* Get a request message. */
+		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+			printf("driver_receive failed with: %d", r);
+			continue;
 		}
-		switch (leds[i]) {
-		case 0:
-			scrollLock = (scrollLock ^ BIT(0));
-			break;
-		case 1:
-			numLock = (numLock ^ BIT(1));
-			break;
-		case 2:
-			capsLock = (capsLock ^ BIT(2));
-			break;
-		default:
-			break;
+		if (is_ipc_notify(ipc_status)) { /* received notification */
+			switch (_ENDPOINT_P(msg.m_source)) {
+			case HARDWARE: /* hardware interrupt notification */
+				if (msg.NOTIFY_ARG & interrupt) {
+					timer_int_handler();
+					if (timer_counter % 60 == 0) {
+						if (issue_commandArgument_KBC(KBD_TOGGLE_LEDS,
+								(scrollLock | numLock | capsLock) ^ BIT(leds[i]))
+								!= EXIT_SUCCESS) {
+							printf("ERROR: failed to write to KBD!");
+							return EXIT_FAILURE;
+						}
+						switch (leds[i]) {
+						case 0:
+							scrollLock = (scrollLock ^ BIT(0));
+							break;
+						case 1:
+							numLock = (numLock ^ BIT(1));
+							break;
+						case 2:
+							capsLock = (capsLock ^ BIT(2));
+							break;
+						default:
+							break;
+						}
+						i++;
+					}
+				}
+				break;
+			default:
+				break; /* no other notifications expected: do nothing */
+			}
 		}
-		i++;
-		timer_interrupt(1);
 	}
-	kbd_unsubscribe_int();
+	if (kbd_unsubscribe_int() == EXIT_FAILURE) {
+		printf("ERROR: kbd_unsubscribe_int failed!");
+		return EXIT_FAILURE;
+	}
+	if (timer_unsubscribe_int() == EXIT_FAILURE) {
+		printf("ERROR: timer_unsubscribe_int failed!");
+		return EXIT_FAILURE;
+	}
 	printf("kbd_test_leds concluido.\n");
 	return EXIT_SUCCESS;
+
 }
+
+/*while (i < n) {
+ if (issue_commandArgument_KBC(KBD_TOGGLE_LEDS,
+ (scrollLock | numLock | capsLock) ^ BIT(leds[i]))
+ != EXIT_SUCCESS) {
+ printf("ERROR: failed to write to KBD!");
+ return EXIT_FAILURE;
+ }
+ switch (leds[i]) {
+ case 0:
+ scrollLock = (scrollLock ^ BIT(0));
+ break;
+ case 1:
+ numLock = (numLock ^ BIT(1));
+ break;
+ case 2:
+ capsLock = (capsLock ^ BIT(2));
+ break;
+ default:
+ break;
+ }
+ i++;
+ timer_wait(1);
+ }*/
 
 int kbd_test_timed_scan(unsigned short n) {
 	int kb_irq = kbd_subscribe_int();
@@ -140,7 +194,7 @@ int kbd_test_timed_scan(unsigned short n) {
 			case HARDWARE: /* hardware interrupt notification */
 				if (msg.NOTIFY_ARG & kb_irq) {
 					time = 0;
-					scancode = keyboard_int_handler();
+					scancode = keyboard_int_handler_C();
 					if (scancode == 0xE0) {
 						state = 1;
 						break;

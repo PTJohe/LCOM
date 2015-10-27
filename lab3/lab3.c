@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 static void print_usage(char *argv[]) {
 	printf("Usage: one of the following:\n"
 			"\t service run %s -args \"scan <IH>\" \n"
-			"\t service run %s -args \"leds <no elems> <leds array>\" \n"
+			"\t service run %s -args \"leds <leds array>\" \n"
 			"\t service run %s -args \"timed_scan <timeout>\" \n", argv[0],
 			argv[0], argv[0]);
 }
@@ -34,50 +34,52 @@ static void print_usage(char *argv[]) {
 static int proc_args(int argc, char *argv[]) {
 
 	unsigned long ass, nElems, timeout;
+	unsigned short* leds;
 
 	/* check the function to test: if the first characters match, accept it */
 	if (strncmp(argv[1], "scan", strlen("scan")) == 0) {
 		if (argc != 3) {
 			printf(
 					"kbd_test:: wrong no of arguments for test of kbd_test_scan() \n");
-			return 1;
+			return EXIT_FAILURE;
 		}
 		printf("kbd_test::kbd_test_scan()\n");
 		if ((ass = parse_ulong(argv[2], 10)) == ULONG_MAX)
-			return 1;
+			return EXIT_FAILURE;
 		kbd_test_scan(ass);
-		return 0;
+		return EXIT_SUCCESS;
 	} else if (strncmp(argv[1], "leds", strlen("leds")) == 0) {
-		if (argc < 4) {
-			printf(
-					"kbd_test:: wrong no of arguments for test of kbd_test_leds() \n");
-			return 1;
+		if (argc < 2) {
+			printf("kbd_test:: wrong no of arguments for test of kbd_test_leds() \n");
+			return EXIT_FAILURE;
 		}
 		printf("kbd_test::kbd_test_leds() \n");
-		if ((nElems = parse_ulong(argv[2], 10)) == ULONG_MAX)
-			return 1;
-		unsigned short toggle[nElems];
-		int i = 0;
-		for (i; i < nElems; i++) {
-			if ((toggle[i] = parse_ulong(argv[i + 2], 10)) == ULONG_MAX)
-				return 1;
+
+		nElems = argc - 2;
+		leds = malloc(nElems * sizeof(unsigned short));
+
+		unsigned short i;
+		for (i = 0; i < nElems; i++) {
+			if (leds[i] = parse_ulong(argv[2 + i], 10) == ULONG_MAX)
+				return EXIT_FAILURE;
 		}
-		kbd_test_leds(nElems, toggle);
-		return 0;
+		kbd_test_leds(nElems, leds);
+		return EXIT_SUCCESS;
+
 	} else if (strncmp(argv[1], "timed_scan", strlen("timed_scan")) == 0) {
 		if (argc != 3) {
 			printf(
 					"kbd_test:: wrong no of arguments for test of kbd_test_timed_scan() \n");
-			return 1;
+			return EXIT_FAILURE;
 		}
 		printf("kbd_test::kbd_test_timed_scan() \n");
 		if ((timeout = parse_ulong(argv[2], 10)) == ULONG_MAX)
-			return 1;
+			return EXIT_FAILURE;
 		kbd_test_timed_scan(timeout);
-		return 0;
+		return EXIT_SUCCESS;
 	} else {
 		printf("kbd_test: non valid function \"%s\" to test\n", argv[1]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 }
 

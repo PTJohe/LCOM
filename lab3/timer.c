@@ -1,6 +1,12 @@
 #include "timer.h"
 #include "i8042.h"
 
+#include <minix/syslib.h>
+#include <minix/drivers.h>
+#include <minix/com.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <minix/drivers.h>
 
 int timer_subscribe_int(void) {
@@ -21,7 +27,11 @@ int timer_unsubscribe_int() {
 		return EXIT_SUCCESS;
 }
 
-int timer_interrupt(unsigned long time) {
+void timer_int_handler() {
+	timer_counter = timer_counter + 1;
+}
+
+int timer_wait(unsigned long time) {
 	if (time == 0) {
 		printf("Error: Time interval must be positive.\n");
 		return EXIT_FAILURE;
@@ -29,6 +39,11 @@ int timer_interrupt(unsigned long time) {
 
 	timer_counter = 0; // initialize "counter" global variable
 	int irq_set = timer_subscribe_int();
+	if (irq_set < 0) {
+		printf("ERROR: timer_subscribe_int failed!");
+		return EXIT_FAILURE;
+	}
+
 	int interrupt = BIT(irq_set);
 	int r;
 	int ipc_status;
@@ -43,7 +58,7 @@ int timer_interrupt(unsigned long time) {
 			switch (_ENDPOINT_P(msg.m_source)) {
 			case HARDWARE: /* hardware interrupt notification */
 				if (msg.NOTIFY_ARG & interrupt) {
-					timer_counter += 1;
+					timer_int_handler();
 				}
 				break;
 			default:
@@ -53,6 +68,10 @@ int timer_interrupt(unsigned long time) {
 			/* no standard messages expected: do nothing */
 		}
 	}
-	timer_unsubscribe_int();
+	if (timer_unsubscribe_int() != 0) {
+		printf("ERROR: timer_unsubscribe_int failed!");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
+
