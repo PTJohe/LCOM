@@ -39,7 +39,7 @@ unsigned long keyboard_int_handler_C() {
 	}
 }
 
-unsigned long issue_data_KBC(unsigned char data) {
+unsigned short issue_data_KBC(unsigned char data) {
 	unsigned long stat = 0;
 	if (sys_inb(KBC_STAT_REG, &stat) == OK) {
 		if ((stat & KBC_IBF) == 0) {
@@ -53,8 +53,8 @@ unsigned long issue_data_KBC(unsigned char data) {
 	}
 }
 
-unsigned long issue_commandArgument_KBC(unsigned char command,
-		unsigned long argument) {
+unsigned short issue_commandArgument_KBC(unsigned short command,
+		unsigned short argument) {
 	unsigned long stat = 0;
 	unsigned long verify;
 	verify = issue_data_KBC(command);

@@ -83,13 +83,12 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 	int scrollLock = 0;
 	int numLock = 0;
 	int i = 0;
-	unsigned short *arg;
 
 	int interrupt = BIT(irq_set);
 	int r;
 	int ipc_status;
 	message msg;
-	while (i < n) { /* You may want to use a different condition */
+	while ( 60 >= timer_counter) { /* You may want to use a different condition */
 		/* Get a request message. */
 		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
 			printf("driver_receive failed with: %d", r);
@@ -99,7 +98,6 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 			switch (_ENDPOINT_P(msg.m_source)) {
 			case HARDWARE: /* hardware interrupt notification */
 				if (msg.NOTIFY_ARG & interrupt) {
-					timer_int_handler();
 					if (timer_counter % 60 == 0) {
 						if (issue_commandArgument_KBC(KBD_TOGGLE_LEDS,
 								(scrollLock | numLock | capsLock) ^ BIT(leds[i]))
@@ -110,6 +108,7 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 						switch (leds[i]) {
 						case 0:
 							scrollLock = (scrollLock ^ BIT(0));
+
 							break;
 						case 1:
 							numLock = (numLock ^ BIT(1));
@@ -123,6 +122,7 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 						i++;
 					}
 				}
+				timer_counter++;
 				break;
 			default:
 				break; /* no other notifications expected: do nothing */

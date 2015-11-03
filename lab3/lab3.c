@@ -60,7 +60,8 @@ static int proc_args(int argc, char *argv[]) {
 
 		unsigned short i;
 		for (i = 0; i < nElems; i++) {
-			if (leds[i] = parse_ulong(argv[2 + i], 10) == ULONG_MAX)
+			leds[i] = parse_ulong(argv[2 + i], 10);
+			if (leds[i] == ULONG_MAX)
 				return EXIT_FAILURE;
 		}
 		kbd_test_leds(nElems, leds);
