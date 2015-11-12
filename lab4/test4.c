@@ -283,10 +283,8 @@ unsigned long check_hor_line(ev_type_t event, short length, short tolerance, int
 
 unsigned long gesture_int_handler(short length, unsigned short tolerance){
 	unsigned short leftmousebutton, rightmousebutton, middlemousebutton, x_sign, y_sign, x_overflow, y_overflow;
-//	printf("here");
 		if (mouse_int_handler() == EXIT_FAILURE)
 			return EXIT_FAILURE;
-		printf("here");
 		leftmousebutton = packet[0] & LEFT_BUTTON;
 		rightmousebutton = packet[0] & RIGHT_BUTTON;
 		middlemousebutton = packet[0] & MIDDLE_BUTTON;
@@ -316,8 +314,6 @@ unsigned long gesture_int_handler(short length, unsigned short tolerance){
 			else if ((packet[0] & Y_SIGN) == 0)
 				packet[2] = packet[2];
 		}
-		ev_type_t event;
-		printf("bsdfnsd");
 		if (leftmousebutton){
 			event = RDOW;
 			if (check_hor_line(event, length, tolerance, packet[1], packet[2]) != EXIT_FAILURE)
@@ -362,7 +358,6 @@ int test_gesture(short length, unsigned short tolerance) {
 				switch (_ENDPOINT_P(msg.m_source)) {
 				case HARDWARE: /* hardware interrupt notification */
 					if (msg.NOTIFY_ARG & irq_set) {
-						printf("afnd");
 						if (gesture_int_handler(length, tolerance) == EXIT_FAILURE)
 							return EXIT_FAILURE;
 						else
