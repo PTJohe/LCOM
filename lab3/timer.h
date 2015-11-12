@@ -8,7 +8,6 @@ int timer_subscribe_int(void);
 
 int timer_unsubscribe_int();
 
-int timer_interrupt(unsigned long time);
-
+void timer_int_handler();
 
 #endif

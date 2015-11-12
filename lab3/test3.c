@@ -17,7 +17,6 @@ int kbd_test_scan(unsigned short ass) {
 	int state = 0;
 	unsigned long scancode = 0;
 	message msg;
-	//sys_outb(KBC_IN_BUF, 0xF4);
 
 	while (scancode != MAKE_ESC_CODE) {
 
@@ -83,7 +82,7 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 	int scrollLock = 0;
 	int numLock = 0;
 	int i = 0;
-
+	unsigned long KBD_response;
 	int interrupt = BIT(irq_set);
 	int r;
 	int ipc_status;
@@ -99,27 +98,47 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 			case HARDWARE: /* hardware interrupt notification */
 				if (msg.NOTIFY_ARG & interrupt) {
 					if (timer_counter % 60 == 0) {
-						if (issue_commandArgument_KBC(KBD_TOGGLE_LEDS,
-								(scrollLock | numLock | capsLock) ^ BIT(leds[i]))
-								!= EXIT_SUCCESS) {
+						/*if (KBC_issue_command_mouse(WRITE_BYTE_TO_MOUSE) == EXIT_FAILURE)
+									return EXIT_FAILURE;
+								if (issue_argument_KBC(argument) == EXIT_FAILURE)
+									return EXIT_FAILURE;
+								if (read_data_OUTBUF_from_KBC(&KBC_value) == EXIT_FAILURE)
+									return EXIT_FAILURE;
+								if (KBC_response == ACK)
+									return EXIT_SUCCESS;
+								else
+									return EXIT_FAILURE;*/
+						if (KBC_issue_command(KBD_TOGGLE_LEDS) == EXIT_SUCCESS){
+							if (issue_argument_KBC( (scrollLock | numLock | capsLock) ^ BIT(leds[i])) == EXIT_SUCCESS){
+								if (read_data_OUTBUF_from_KBC(&KBD_response) == EXIT_SUCCESS){
+									if (KBD_response == ACK){
+								switch (leds[i]) {
+								case 0:
+									scrollLock = (scrollLock ^ BIT(0));
+									break;
+								case 1:
+									numLock = (numLock ^ BIT(1));
+									break;
+								case 2:
+									capsLock = (capsLock ^ BIT(2));
+									break;
+								default:
+									break;
+								}
+								i++;
+							}
+								}
+							}
+							else{
+								printf("ERROR: failed to write to KBD!");
+								return EXIT_FAILURE;
+							}
+
+						}
+						else{
 							printf("ERROR: failed to write to KBD!");
 							return EXIT_FAILURE;
 						}
-						switch (leds[i]) {
-						case 0:
-							scrollLock = (scrollLock ^ BIT(0));
-
-							break;
-						case 1:
-							numLock = (numLock ^ BIT(1));
-							break;
-						case 2:
-							capsLock = (capsLock ^ BIT(2));
-							break;
-						default:
-							break;
-						}
-						i++;
 					}
 				}
 				timer_counter++;
@@ -142,37 +161,13 @@ int kbd_test_leds(unsigned short n, unsigned short *leds) {
 
 }
 
-/*while (i < n) {
- if (issue_commandArgument_KBC(KBD_TOGGLE_LEDS,
- (scrollLock | numLock | capsLock) ^ BIT(leds[i]))
- != EXIT_SUCCESS) {
- printf("ERROR: failed to write to KBD!");
- return EXIT_FAILURE;
- }
- switch (leds[i]) {
- case 0:
- scrollLock = (scrollLock ^ BIT(0));
- break;
- case 1:
- numLock = (numLock ^ BIT(1));
- break;
- case 2:
- capsLock = (capsLock ^ BIT(2));
- break;
- default:
- break;
- }
- i++;
- timer_wait(1);
- }*/
-
 int kbd_test_timed_scan(unsigned short n) {
 	int kb_irq = kbd_subscribe_int();
 	int timer_irq = timer_subscribe_int();
 
-	if (kb_irq < 0 || timer_irq < 0) {
+	if (kb_irq == EXIT_FAILURE || timer_irq == EXIT_FAILURE) {
 		printf("ERROR: failed to subscribe interrupts.\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	int r;
@@ -219,6 +214,9 @@ int kbd_test_timed_scan(unsigned short n) {
 			default:
 				break;
 			}
+		}
+		else { /* received a standard message, not a notification */
+							/* no standard messages expected: do nothing */
 		}
 	}
 

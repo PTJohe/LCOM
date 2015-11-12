@@ -73,7 +73,7 @@ static int proc_args(int argc, char *argv[]) {
 		}
 		if( (time = parse_ulong(argv[2], 10)) == ULONG_MAX )
 		return 1;
-		else if(time = parse_ulong(argv[2], 10)) < 0) {
+		else if(time = parse_ulong(argv[2], 10) < 0) {
 			printf("Error: Time interval must be positive.");
 			return 1;
 		}
