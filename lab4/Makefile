@@ -1,11 +1,11 @@
-# Makefile for the lab3
+# Makefile for the lab4
 
 COMPILER_TYPE= gnu
 
 CC=gcc
 
-PROG=	lab3
-SRCS=	lab3.c test3.c keyboard.c timer.c handler.S
+PROG=	lab4
+SRCS=	lab4.c test4.c mouse.c keyboard.c timer.c
 
 CCFLAGS= -Wall
 

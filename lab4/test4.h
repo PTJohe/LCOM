@@ -1,11 +1,44 @@
 #ifndef __TEST4_H
 #define __TEST4_H
 
+#include <minix/syslib.h>
+#include <minix/drivers.h>
+#include <minix/com.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <minix/sysutil.h>
+
+#include "mouse.h"
+#include "timer.h"
+#include "keyboard.h"
+#include "i8042.h"
+
+typedef enum {INIT, DRAW, COMP} state_t;
+typedef enum {RDOW, RUP, MOVE} ev_type_t;
+
 /** @defgroup test4 test4
  * @{
  *
  * Functions for testing the kbd code
  */
+
+/**
+ *@brief To test packet handler
+ *
+ *
+ *
+ * @param cnt Number of packets to receive and display before exiting
+ */
+
+unsigned long packet_int_handler();
+
+/**
+ * @brief To test async handler
+ *
+ *
+ */
+
+unsigned long async_int_handler();
 
 /**
  * @brief To test packet reception via interrupts
@@ -42,6 +75,22 @@ int test_async(unsigned short idle_time);
  */
 int test_config(void);
 
+/**
+ * @brief to check if line exceeds specific horizontal tolerance
+ *
+ * @param structure event_t which stores events type
+ *
+ * @return Return 0 upon success and non-zero otherwise
+ */
+
+unsigned long check_hor_line(ev_type_t evt, short tolerance, short length, int deltaX, int deltaY);
+
+/**
+ * @brief To test_gesture handler
+ *
+ */
+
+unsigned long gesture_int_handler(short length, unsigned short tolerance);
 
 /**
  * @brief To test state machine implementation
@@ -61,3 +110,5 @@ int test_config(void);
 
 
 int test_gesture(short length, unsigned short tolerance);
+
+#endif /* __TEST4_H */

@@ -1,4 +1,5 @@
 #include <minix/drivers.h>
+
 #include "test4.h"
 
 static void print_usage(char *argv[]);
@@ -11,14 +12,13 @@ int main(int argc, char *argv[]) {
 	sef_startup();
 
 	/* Enable IO-sensitive operations for ourselves (used in lab3 to allow user level programs to executo I/O instructions)
-	sys_enable_iop(SELF);
+	 sys_enable_iop(SELF);
 	 */
 
 	if (argc == 1) {
 		print_usage(argv);
 		return 0;
-	}
-	else {
+	} else {
 		proc_args(argc, argv);
 	}
 	return 0;
@@ -33,55 +33,62 @@ static void print_usage(char *argv[]) {
 			argv[0], argv[0], argv[0], argv[0]);
 }
 
-static int proc_args(int argc, char *argv[]){
+static int proc_args(int argc, char *argv[]) {
 	unsigned short cnt, idle_time, tolerance;
 	short length;
 
-	 /* check the function to test: if the first characters match, accept it */
-	  if (strncmp(argv[1], "packet", strlen("packet")) == 0) {
-		  if( argc != 3 ) {
-			  printf("test_packet: wrong no of arguments for test of test_packet \n");
-			  return EXIT_FAILURE;
-		  }
-		  printf("test:: packet(%d)\n", (unsigned short) cnt);
-		  cnt = parse_ulong(argv[2], 16);
-		  if( cnt == ULONG_MAX || cnt < 1 )
-			  return EXIT_FAILURE;
-		  test_packet(cnt);
-		  return EXIT_SUCCESS;
-	  } else if (strncmp(argv[1], "async", strlen("async")) == 0) {
-		  if( argc != 3 ) {
-			  printf("test_async: wrong no of arguments for test of test_async() \n");
-			  return EXIT_FAILURE;
-		  }
-		  printf("test:: async(%d)\n", (unsigned short) idle_time);
-		  idle_time = parse_ulong(argv[2], 16)
-		  if( idle_time == ULONG_MAX )
-			  return EXIT_FAILURE;
-		  test_async(idle_time);
-		  return EXIT_SUCCESS;
-	  } else if (strncmp(argv[1], "config", strlen("config")) == 0) {
-		  if( argc != 2 ) {
-			  printf("test_config: wrong no of arguments for test of test_config() \n");
-			  return EXIT_FAILURE;
-		  }
-		  printf("test:: config()\n");
-		  test_config();
-		  return EXIT_SUCCESS;
-	  } else if (strncmp(argv[1], "gesture", strlen("gesture")) == 0) {
-		  if( argc != 4 ) {
-			  printf("test_gesture: wrong no of arguments for test of test_gesture() \n");
-			  return EXIT_FAILURE;
-		  }
-		  printf("test:: gesture(%d, %d)\n", (unsigned short) length, (unsigned short) tolerance);
-		  length = parse_ulong(argv[2], 10);
-		  tolerance = parse_ulong(argv[3], 10));
-		  if( length == ULONG_MAX )
-			  return EXIT_FAILURE;
-		  if( tolerance == ULONG_MAX )
-			  return EXIT_FAILURE;
-		  test_gesture(length, tolerance);
-		  return EXIT_SUCCESS;
+	/* check the function to test: if the first characters match, accept it */
+	if (strncmp(argv[1], "packet", strlen("packet")) == 0) {
+		if (argc != 3) {
+			printf(
+					"test_packet: wrong no of arguments for test of test_packet \n");
+			return EXIT_FAILURE;
+		}
+		cnt = parse_ulong(argv[2], 10);
+		printf("test:: packet(%d)\n", (unsigned short) cnt);
+
+		if (cnt == ULONG_MAX || cnt < 1)
+			return EXIT_FAILURE;
+		test_packet(cnt);
+		return EXIT_SUCCESS;
+	} else if (strncmp(argv[1], "async", strlen("async")) == 0) {
+		if (argc != 3) {
+			printf(
+					"test_async: wrong no of arguments for test of test_async() \n");
+			return EXIT_FAILURE;
+		}
+		idle_time = parse_ulong(argv[2], 10);
+		printf("test:: async(%d)\n", (unsigned short) idle_time);
+		if (idle_time == ULONG_MAX)
+			return EXIT_FAILURE;
+		test_async(idle_time);
+		return EXIT_SUCCESS;
+	} else if (strncmp(argv[1], "config", strlen("config")) == 0) {
+		if (argc != 2) {
+			printf(
+					"test_config: wrong no of arguments for test of test_config() \n");
+			return EXIT_FAILURE;
+		}
+		printf("test:: config()\n");
+		test_config();
+		return EXIT_SUCCESS;
+	} else if (strncmp(argv[1], "gesture", strlen("gesture")) == 0) {
+		if (argc != 4) {
+			printf(
+					"test_gesture: wrong no of arguments for test of test_gesture() \n");
+			return EXIT_FAILURE;
+		}
+		length = parse_ulong(argv[2], 10);
+		tolerance = parse_ulong(argv[3], 10);
+		printf("test:: gesture(%d, %d)\n", (unsigned short) length,
+				(unsigned short) tolerance);
+		if (length == ULONG_MAX)
+			return EXIT_FAILURE;
+		if (tolerance == ULONG_MAX)
+			return EXIT_FAILURE;
+		test_gesture(length, tolerance);
+		return EXIT_SUCCESS;
+	}
 }
 
 static unsigned long parse_ulong(char *str, int base) {
@@ -96,7 +103,7 @@ static unsigned long parse_ulong(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("kbd_test: parse_ulong: no digits were found in %s \n", str);
+		printf("mouse_test: parse_ulong: no digits were found in %s \n", str);
 		return ULONG_MAX;
 	}
 
@@ -117,7 +124,7 @@ static long parse_long(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("kbd_test: parse_long: no digits were found in %s \n", str);
+		printf("mouse_test: parse_long: no digits were found in %s \n", str);
 		return LONG_MAX;
 	}
 
