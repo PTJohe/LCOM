@@ -1,6 +1,6 @@
 #include <minix/drivers.h>
 
-#include "test4.h"
+#include "test5.h"
 
 static void print_usage(char *argv[]);
 static int proc_args(int argc, char *argv[]);
