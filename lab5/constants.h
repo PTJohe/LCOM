@@ -1,0 +1,18 @@
+#ifndef __CONSTANTS_H
+#define __CONSTANTS_H
+
+#define DELAY_US 20000
+
+// VBE FUNCTIONS
+
+#define MODE_640_480 0x101
+#define MODE_800_600 0x103
+#define MODE_1024_768 0x105
+#define MODE_1280_1024 0x107
+#define VBE_CONTROLLER_INFO 0x00
+#define VBE_MODE_INFO 0x01
+#define SET_VBE_MODE 0x02
+
+//
+
+#endif /* __CONSTANTS_H */

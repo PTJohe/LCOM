@@ -8,12 +8,8 @@ static unsigned long parse_ulong(char *str, int base);
 static long parse_long(char *str, int base);
 
 int main(int argc, char *argv[]) {
-	/* Initialize service */
+	/* Initialize service (synchronize with the RS) */
 	sef_startup();
-
-	/* Enable IO-sensitive operations for ourselves (used in lab3 to allow user level programs to executo I/O instructions)
-	 sys_enable_iop(SELF);
-	 */
 
 	if (argc == 1) {
 		print_usage(argv);
@@ -38,7 +34,7 @@ static void print_usage(char *argv[]) {
 static int proc_args(int argc, char *argv[]) {
 	unsigned short mode, delay, x, y, size, xi, yi, xf, yf, hor, delta, time;
 	unsigned long color;
-	unsigned char* xpm[];
+	//unsigned char* xpm[];
 
 	/* check the function to test: if the first characters match, accept it */
 	if (strncmp(argv[1], "init", strlen("init")) == 0) {
@@ -52,7 +48,7 @@ static int proc_args(int argc, char *argv[]) {
 		printf("test:: init(%d, %d)\n", (unsigned short) mode, (unsigned short) delay);
 		if (mode == ULONG_MAX || delay == ULONG_MAX)
 			return EXIT_FAILURE;
-		test_packet(mode, delay);
+		test_init(mode, delay);
 		return EXIT_SUCCESS;
 	} else if (strncmp(argv[1], "square", strlen("square")) == 0) {
 		if (argc != 6) {
@@ -83,7 +79,7 @@ static int proc_args(int argc, char *argv[]) {
 		if (xi == ULONG_MAX || yi == ULONG_MAX || xf == ULONG_MAX || yf == ULONG_MAX || color == ULONG_MAX)
 			return EXIT_FAILURE;
 		printf("test:: line(%d, %d, %d, %d, %d)\n", (unsigned short) xi, (unsigned short) yi, (unsigned short) xf, (unsigned short) yf, (unsigned long) color);
-		test_config(xi, yi, xf, yf, color);
+		test_line(xi, yi, xf, yf, color);
 		return EXIT_SUCCESS;
 	} /*else if (strncmp(argv[1], "xpm", strlen("xpm")) == 0) {
 		if (argc != 5) {
@@ -128,6 +124,7 @@ static int proc_args(int argc, char *argv[]) {
 		printf("test:: controller()\n");
 		test_controller();
 		return EXIT_SUCCESS;
+}
 }
 
 static unsigned long parse_ulong(char *str, int base) {

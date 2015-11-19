@@ -11,9 +11,6 @@
 #define PB2OFF(x) ((x) & 0x0FFFF)
 
 int vbe_get_mode_info(unsigned short mode, vbe_mode_info_t *vmi_p) {
-  
-  /* To be completed */
-  
   return 1;
 }
 
