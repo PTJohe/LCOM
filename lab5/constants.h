@@ -2,17 +2,27 @@
 #define __CONSTANTS_H
 
 #define DELAY_US 20000
+#define BIT(n) (0x01 << n)
 
 // VBE FUNCTIONS
 
-#define MODE_640_480 0x101
-#define MODE_800_600 0x103
-#define MODE_1024_768 0x105
-#define MODE_1280_1024 0x107
-#define VBE_CONTROLLER_INFO 0x00
-#define VBE_MODE_INFO 0x01
-#define SET_VBE_MODE 0x02
+#define MODE_640_480 		0x101
+#define MODE_800_600 		0x103
+#define MODE_1024_768 		0x105
+#define MODE_1280_1024 		0x107
+#define VBE_CONTROLLER_INFO 	0x00
+#define VBE_MODE_INFO 			0x01
+#define SET_VBE_MODE 			0x02
 
-//
+// VBE RETURN VALUES
+#define VBE_INTERRUPT	 	0x10  /* BIOS video services */
+#define VBE_FUNCTION		0x4F
+#define VBE_FUNCTION_SUPPORTED			0x4F
+#define VBE_FUNCTION_CALL_SUCCESSFUL	0x00
+#define VBE_FUNCTION_CALL_FAILED		0x01
+#define VBE_FUNCTION_NOT_SUPPORTED		0x02
+#define VBE_FUNCTION_CALL_INVALID		0x03
+
+
 
 #endif /* __CONSTANTS_H */
