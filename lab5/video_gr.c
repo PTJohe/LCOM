@@ -40,7 +40,7 @@ void *vg_init(unsigned short mode) {
 		printf("set_vbe_mode: sys_int86() failed \n");
 	}
 
-	//chamar funçao vbe get mode info
+	//chamar funcao vbe get mode info
 
 	h_res = H_RES;
 	v_res = V_RES;

@@ -43,7 +43,7 @@ static int proc_args(int argc, char *argv[]) {
 					"test_init: wrong no of arguments for test_init \n");
 			return EXIT_FAILURE;
 		}
-		mode = parse_ulong(argv[2], 10);
+		mode = parse_ulong(argv[2], 16);
 		delay = parse_ulong(argv[3], 10);
 		printf("test:: init(%d, %d)\n", (unsigned short) mode, (unsigned short) delay);
 		if (mode == ULONG_MAX || delay == ULONG_MAX)
