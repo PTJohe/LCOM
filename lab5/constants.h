@@ -1,5 +1,5 @@
-#ifndef _CONSTANTS_H
-#define _CONSTANTS_H
+#ifndef __CONSTANTS_H
+#define __CONSTANTS_H
 
 #define BIT(n) (0x01 << n)
 
