@@ -4,11 +4,10 @@
 #include "constants.h"
 
 int kbd_subscribe_int() {
-
-	int bitmask = BIT(KBC_HOOK_BIT); /* KBC_HOOK_BIT = hook_id_keyboard = 1 */
+	int hook_id_keyboard = BIT(KBC_HOOK_BIT); /* KBC_HOOK_BIT = hook_id_keyboard = 1 */
 	if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE,
 			&hook_id_keyboard) == OK && sys_irqenable(&hook_id_keyboard) == OK)
-		return bitmask;
+		return hook_id_keyboard;
 	else
 		return EXIT_FAILURE;
 }
@@ -39,20 +38,20 @@ unsigned long keyboard_int_handler_C() {
 	}
 }
 
-unsigned short read_data_OUTBUF_from_KBC(unsigned long* data){
+unsigned short read_data_OUTBUF_from_KBC(unsigned long* data) {
 	unsigned long status_register;
 	while (1) {
-			if (sys_inb(KBC_STAT_REG, &status_register) != OK)
+		if (sys_inb(KBC_STAT_REG, &status_register) != OK)
+			return EXIT_FAILURE;
+		if (status_register & KBC_OBF) {
+			if (sys_inb(KBC_OUT_BUF, data) == OK) {
+				if ((status_register & (PAR_ERR | TO_ERR)) == 0)
+					return EXIT_SUCCESS;
+			} else
 				return EXIT_FAILURE;
-			if (status_register & KBC_OBF) {
-				if (sys_inb(KBC_OUT_BUF, data) == OK) {
-					if ((status_register & (PAR_ERR | TO_ERR)) == 0)
-						return EXIT_SUCCESS;
-				} else
-					return EXIT_FAILURE;
-			}
-			tickdelay(micros_to_ticks(DELAY_US));
 		}
+		tickdelay(micros_to_ticks(DELAY_US));
+	}
 
 }
 
@@ -69,7 +68,7 @@ unsigned short KBC_issue_command_mouse(unsigned char command) {
 
 	}
 }
-unsigned short issue_argument_KBC(unsigned char argument){
+unsigned short issue_argument_KBC(unsigned char argument) {
 	unsigned long stat = 0;
 	if (sys_inb(KBC_STAT_REG, &stat) == OK) {
 		if ((stat & KBC_IBF) == 0) {

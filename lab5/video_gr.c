@@ -3,6 +3,7 @@
 #include <machine/int86.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include "math.h"
 
 #include "video_gr.h"
 #include "constants.h"
@@ -93,4 +94,41 @@ int vg_exit() {
 		return 1;
 	} else
 		return 0;
+}
+
+char* getVideoMem() {
+
+	return video_mem;
+}
+
+unsigned getHRes() {
+
+	return h_res;
+}
+
+unsigned getVRes() {
+
+	return v_res;
+}
+
+void swap(unsigned short* xi, unsigned short* xf) {
+	unsigned short temp = *xi;
+	*xi = *xf;
+	*xf = temp;
+}
+
+//Round function, introduced in Minix 3.3.0
+double round(double x) {
+	double t;
+	if (x >= 0.0) {
+		t = ceil(x);
+		if (t - x > 0.5)
+			t -= 1.0;
+		return (t);
+	} else {
+		t = ceil(-x);
+		if (t + x > 0.5)
+			t -= 1.0;
+		return (-t);
+	}
 }

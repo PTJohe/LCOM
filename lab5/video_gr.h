@@ -27,6 +27,15 @@ void *vg_init(unsigned short mode);
  */
 int vg_exit(void);
 
- /** @} end of video_gr */
- 
+char* getVideoMem();
+unsigned getHRes();
+unsigned getVRes();
+void swap(unsigned short* xi, unsigned short* xf);
+double round(double x);
+
+
+/** @} end of video_gr */
+
+
+
 #endif /* __VIDEO_GR_H */
