@@ -1,7 +1,6 @@
 #ifndef __TEST5_H
 #define __TEST5_H
 
-#include "constants.h"
 #include <minix/syslib.h>
 #include <minix/drivers.h>
 #include "lmlib.h"

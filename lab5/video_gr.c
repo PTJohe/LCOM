@@ -1,10 +1,11 @@
-#include "video_gr.h"
-
 #include <minix/syslib.h>
 #include <minix/drivers.h>
 #include <machine/int86.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+
+#include "video_gr.h"
+#include "constants.h"
 #include "vbe.h"
 
 /* Constants for VBE 0x105 mode */

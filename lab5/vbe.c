@@ -3,6 +3,8 @@
 #include <machine/int86.h>
 
 #include "vbe.h"
+#include "constants.h"
+
 #include "lmlib.h"
 
 #define LINEAR_MODEL_BIT 14
@@ -29,7 +31,6 @@ int vbe_get_mode_info(unsigned short mode, vbe_mode_info_t *vmi_p) {
 	if (sys_int86(&info) == OK) {
 		if (info.u.w.ax == VBE_FUNCTION_SUPPORTED
 				| VBE_FUNCTION_CALL_SUCCESSFUL) {
-			//*vmi_p = *((vbe_mode_info_t *) video.virtual);
 			memcpy(vmi_p, video.virtual, 256);
 			lm_free(&video);
 			return EXIT_SUCCESS;

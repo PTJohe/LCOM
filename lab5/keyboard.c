@@ -1,7 +1,7 @@
-#include "keyboard.h"
-#include "i8042.h"
-
 #include <minix/drivers.h>
+
+#include "keyboard.h"
+#include "constants.h"
 
 int kbd_subscribe_int() {
 
@@ -82,46 +82,3 @@ unsigned short issue_argument_KBC(unsigned char argument){
 	}
 
 }
-
-
-// issue_data_KBC(write byte to mouse)
-
-/*unsigned short issue_data_KBC(unsigned char data) {
-        unsigned long stat = 0;
-        if (sys_inb(KBC_STAT_REG, &stat) == OK) {
-                if ((stat & KBC_IBF) == 0) {
-                        if (sys_outb(KBC_CMD_REG, data) == OK)
-                                return EXIT_SUCCESS;
-                        else
-                                return EXIT_FAILURE;
-                }
-                tickdelay(micros_to_ticks(DELAY_US));
-        }
-}*/
-
-/*unsigned short issue_commandArgument_KBC(unsigned short command,
-		unsigned short argument) {
-	unsigned long stat = 0;
-	unsigned long verify;
-	verify = issue_command_KBC(command);
-	if (verify == EXIT_FAILURE)
-		return EXIT_FAILURE;
-	if (sys_inb(KBC_OUT_BUF, &stat) == OK) {
-		if (stat == ACK) {
-			issue_argument_KBC(argument);
-			if (sys_inb(KBC_OUT_BUF, &stat) == OK) {
-				switch (stat) {
-				case ACK:
-					return EXIT_SUCCESS;
-				case RESEND:
-					sys_inb(KBC_OUT_BUF, &stat);
-				case ERROR:
-					return EXIT_FAILURE;
-				}
-			}
-
-		}
-	} else
-		return EXIT_FAILURE;
-
-}*/

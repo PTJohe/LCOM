@@ -4,6 +4,7 @@
 #define BIT(n) (0x01 << n)
 
 #define TIMER0_IRQ 0    /**< @brief Timer 0 IRQ line */
+#define TIMER_DEFAULT_FREQ	60 /**< @brief Default frequency */
 #define KBC_IRQ 1 /**< @brief Keyboard IRQ line */
 
 

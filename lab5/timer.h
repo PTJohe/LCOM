@@ -4,8 +4,6 @@
 static int timer_counter;
 static int hook_id_timer;
 
-#define TIMER_DEFAULT_FREQ 60 /**< @brief Default frequency of timer */
-
 /**
  * @brief Subscribes and enables Timer 0 interrupts
  *

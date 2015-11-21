@@ -1,9 +1,13 @@
 #include "test5.h"
-#include "vbe.h"
-#include "video_gr.h"
+
+#include <unistd.h>
+#include "constants.h"
+
 #include "timer.h"
 #include "keyboard.h"
-#include <unistd.h>
+#include "vbe.h"
+#include "video_gr.h"
+
 
 void *test_init(unsigned short mode, unsigned short delay) {
 
@@ -55,8 +59,12 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		unsigned short yf, unsigned long color) {
 
-	/* To be completed */
+	vg_init(0x105);
 
+
+
+	vg_exit();
+	return EXIT_SUCCESS;
 }
 
 int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {

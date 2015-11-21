@@ -2,7 +2,6 @@
 #define __VBE_H
 
 #include <stdint.h>
-#include "constants.h"
 
 /** @defgroup vbe vbe
  * @{
@@ -29,7 +28,6 @@ typedef struct {
   uint16_t BytesPerScanLine; 	/**< @brief bytes per scan line */
 
   /* Mandatory information for VBE 1.2 and above */
-
   uint16_t XResolution;      	/**< @brief horizontal resolution in pixels/characters */
   uint16_t YResolution;      	/**< @brief vertical resolution in pixels/characters */
   uint8_t XCharSize; 		/**< @brief character cell width in pixels */
@@ -43,7 +41,6 @@ typedef struct {
   uint8_t Reserved1;		/**< @brief reserved for page function */
 
   /* Direct Color fields (required for direct/6 and YUV/7 memory models) */
-  
   uint8_t RedMaskSize;		/* size of direct color red mask in bits */
   uint8_t RedFieldPosition;	/* bit position of lsb of red mask */
   uint8_t GreenMaskSize;		/* size of direct color green mask in bits */
@@ -74,7 +71,6 @@ typedef struct {
   uint32_t MaxPixelClock; 	         /* maximum pixel clock (in Hz) for graphics mode */
   uint8_t Reserved4[190]; 		 /* remainder of ModeInfoBlock */
 } __attribute__((packed)) vbe_mode_info_t;
-
 /** @} end of vbe_mode_info_t*/
 
 /**
@@ -92,5 +88,4 @@ typedef struct {
 int vbe_get_mode_info(unsigned short mode, vbe_mode_info_t *vmi_p);
 
  /** @} end of vbe */
-
 #endif /* __VBE_H */

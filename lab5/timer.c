@@ -1,13 +1,11 @@
 #include "timer.h"
-#include "i8042.h"
+#include "constants.h"
 
 #include <minix/syslib.h>
 #include <minix/drivers.h>
 #include <minix/com.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <minix/drivers.h>
 
 int timer_subscribe_int(void) {
 	hook_id_timer = 0;
