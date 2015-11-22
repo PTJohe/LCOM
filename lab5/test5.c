@@ -55,7 +55,25 @@ void *test_init(unsigned short mode, unsigned short delay) {
 int test_square(unsigned short x, unsigned short y, unsigned short size,
 		unsigned long color) {
 
-	/* To be completed */
+	char* video_mem = vg_init(MODE_1024_768);
+	unsigned h_res = getHRes();
+	unsigned v_res = getVRes();
+	if ((x + size) > h_res || (y + size) > v_res) {
+		vg_exit();
+		printf("square side could not be higher than Horizontal/Vertical resolution\n");
+		return EXIT_FAILURE;
+	}
+	int l, c;
+	for (l = 0; l < size; l++) {
+		for (c = 0; c < size; c++) {
+			video_mem = getVideoMem();
+			video_mem = video_mem + (h_res * (y + l)) + (x + c);
+			*video_mem = color;
+		}
+	}
+	sleep(2);
+	vg_exit();
+	return EXIT_SUCCESS;
 
 }
 

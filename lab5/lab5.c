@@ -62,7 +62,7 @@ static int proc_args(int argc, char *argv[]) {
 		x = parse_ushort(argv[2], 10);
 		y = parse_ushort(argv[3], 10);
 		size = parse_ushort(argv[4], 10);
-		color = parse_ulong(argv[5], 10);
+		color = parse_ulong(argv[5], 16);
 		printf("test:: square(%d, %d, %d, %d)\n", x, y, size, color);
 		if (x == USHRT_MAX || y == USHRT_MAX || size == USHRT_MAX
 				|| color == USHRT_MAX)
