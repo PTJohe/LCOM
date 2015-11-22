@@ -1,24 +1,27 @@
-#include <minix/drivers.h>
-
 #include "keyboard.h"
 #include "constants.h"
 
+#include <minix/syslib.h>
+#include <minix/drivers.h>
+#include <minix/com.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 int kbd_subscribe_int() {
-	int hook_id_keyboard = BIT(KBC_HOOK_BIT); /* KBC_HOOK_BIT = hook_id_keyboard = 1 */
+	hook_id_keyboard = KBC_IRQ;
+	int bitmask = BIT(hook_id_keyboard); //KBC_IRQ = hook_id_keyboard = 1
 	if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE,
-			&hook_id_keyboard) == OK && sys_irqenable(&hook_id_keyboard) == OK)
-		return hook_id_keyboard;
+			&hook_id_keyboard) == OK)
+		return bitmask;
 	else
 		return EXIT_FAILURE;
 }
 
 int kbd_unsubscribe_int() {
-
-	if (sys_irqdisable(&hook_id_keyboard) == OK
-			&& sys_irqrmpolicy(&hook_id_keyboard) == OK)
-		return EXIT_SUCCESS;
-	else
+	if (sys_irqrmpolicy(&hook_id_keyboard) != OK)
 		return EXIT_FAILURE;
+	else
+		return EXIT_SUCCESS;
 }
 
 unsigned long keyboard_int_handler_C() {

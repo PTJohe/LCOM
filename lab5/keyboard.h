@@ -1,7 +1,7 @@
 #ifndef __KEYBOARD_H
 #define __KEYBOARD_H
 
-static int hook_id_keyboard = 1;
+static int hook_id_keyboard;
 
 /**
  * @brief Subscribe the keyboard interrupts
@@ -16,7 +16,7 @@ int kbd_subscribe_int();
  * @return Return 0 upon success and non-zero otherwise
  */
 int kbd_unsubscribe_int();
-
+int kbd_scan_c(int *apt);
 /**
  * @brief Handle keyboard interrupts
  *

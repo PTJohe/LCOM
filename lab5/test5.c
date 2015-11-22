@@ -64,16 +64,17 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 
 	char *video_mem = vg_init(MODE_1024_768);
 
-	/*unsigned char kbd_hook_bit;
-	 if (kbd_hook_bit = kbd_subscribe_int() == EXIT_FAILURE) {
-	 vg_exit();
-	 printf("ERROR: Failed to subscribe keyboard interrupt!\n");
-	 return EXIT_FAILURE;
-	 }*/
+	unsigned char kbd_hook_bit;
+	if (kbd_hook_bit = kbd_subscribe_int() == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
 
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
-	if ((xf >= h_res || xi < 0) || (yf >= v_res || yi < 0)) {
+	if ((xf >= h_res || xf < 0 || xi >= h_res || xi < 0)
+			|| (yf >= v_res || yf < 0 || yi >= v_res || yi < 0)) {
 		vg_exit();
 		kbd_unsubscribe_int();
 		printf("ERROR: Invalid coordinates!\n");
@@ -127,10 +128,28 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 	//Wait until user presses ESC
 	int r, ipc_status;
 	message msg;
+	unsigned long scancode = 0;
 
-	sleep(2);
+	while (scancode != BREAK_ESC_CODE) {
+		//Get a request message.
+		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+			printf("driver_receive failed with: %d", r);
+			continue;
+		}
+		if (is_ipc_notify(ipc_status)) { //received notification
+			switch (_ENDPOINT_P(msg.m_source)) {
+			case HARDWARE: //hardware interrupt notification
+				if (msg.NOTIFY_ARG & kbd_hook_bit) { //subscribed interrupt
+					scancode = keyboard_int_handler_C();
+				}
+				break;
+			default:
+				break; //no other notifications expected: do nothing
+			}
+		}
+	}
 
-	//kbd_unsubscribe_int();
+	kbd_unsubscribe_int();
 	vg_exit();
 	return EXIT_SUCCESS;
 }
