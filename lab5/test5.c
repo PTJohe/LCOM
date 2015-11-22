@@ -56,19 +56,23 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 		unsigned long color) {
 
 	char* video_mem = vg_init(MODE_1024_768);
+
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
-	if ((x + size) > h_res || (y + size) > v_res) {
+	if ((x >= h_res || x < 0) || (y >= v_res || y < 0)) {
 		vg_exit();
-		printf("square side could not be higher than Horizontal/Vertical resolution\n");
+		printf("ERROR: Invalid coordinates!\n");
 		return EXIT_FAILURE;
 	}
-	int l, c;
-	for (l = 0; l < size; l++) {
-		for (c = 0; c < size; c++) {
-			video_mem = getVideoMem();
-			video_mem = video_mem + (h_res * (y + l)) + (x + c);
-			*video_mem = color;
+
+	int line, column;
+	for (line = 0; line < size; line++) {
+		for (column = 0; column < size; column++) {
+			if (x + column < h_res || h_res * (y + line) < v_res) {
+				video_mem = getVideoMem();
+				video_mem = video_mem + (h_res * (y + line)) + (x + column);
+				*video_mem = color;
+			}
 		}
 	}
 	sleep(10);
