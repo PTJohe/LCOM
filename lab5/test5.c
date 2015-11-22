@@ -9,6 +9,7 @@
 #include "video_gr.h"
 #include "read_xpm.h"
 #include "pixmap.h"
+#include "sprite.h"
 
 void *test_init(unsigned short mode, unsigned short delay) {
 	//Switch to the specified mode
@@ -19,10 +20,10 @@ void *test_init(unsigned short mode, unsigned short delay) {
 	vbe_get_mode_info(mode, &vbe_mode_info);
 
 	//Wait delay seconds.
-	unsigned char timer_hook_bit;
+	int timer_hook_bit;
 	if (timer_hook_bit = timer_subscribe_int() < 0) {
 		vg_exit();
-		printf("ERROR: Failed to subscribe timer interrupt.");
+		printf("ERROR: Failed to subscribe timer interrupt!\n");
 		return NULL;
 	}
 	int r, ipc_status;
@@ -95,10 +96,11 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 		}
 		if (is_ipc_notify(ipc_status)) { //received notification
 			switch (_ENDPOINT_P(msg.m_source)) {
-			case HARDWARE: /* hardware interrupt notification */
+			case HARDWARE: //hardware interrupt notification
 				if (msg.NOTIFY_ARG & kbd_hook_bit) {
 					scancode = keyboard_int_handler_C();
 				}
+				break;
 			default:
 				break; //no other notifications expected: do nothing
 			}
@@ -189,10 +191,11 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		}
 		if (is_ipc_notify(ipc_status)) { //received notification
 			switch (_ENDPOINT_P(msg.m_source)) {
-			case HARDWARE: /* hardware interrupt notification */
+			case HARDWARE: //hardware interrupt notification
 				if (msg.NOTIFY_ARG & kbd_hook_bit) {
 					scancode = keyboard_int_handler_C();
 				}
+				break;
 			default:
 				break; //no other notifications expected: do nothing
 			}
@@ -226,6 +229,7 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 		return EXIT_FAILURE;
 	}
 
+	//Draw XPM
 	int i, j;
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
@@ -256,10 +260,11 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 		}
 		if (is_ipc_notify(ipc_status)) { //received notification
 			switch (_ENDPOINT_P(msg.m_source)) {
-			case HARDWARE: /* hardware interrupt notification */
+			case HARDWARE: //hardware interrupt notification
 				if (msg.NOTIFY_ARG & kbd_hook_bit) {
 					scancode = keyboard_int_handler_C();
 				}
+				break;
 			default:
 				break; //no other notifications expected: do nothing
 			}
@@ -277,8 +282,72 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 
 	char* video_mem = vg_init(MODE_1024_768);
 
-	sleep(2);
+	Sprite *sprite = create_sprite(xpm, xi, yi);
+	unsigned short speed = delta / time;
+
+	unsigned h_res = getHRes();
+	unsigned v_res = getVRes();
+	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+		vg_exit();
+		printf("ERROR: Invalid coordinates!\n");
+		return EXIT_FAILURE;
+	}
+
+	unsigned char timer_hook_bit;
+	if (timer_hook_bit = timer_subscribe_int() < 0) {
+		vg_exit();
+		printf("ERROR: Failed to subscribe timer interrupt!\n");
+		return EXIT_FAILURE;
+	}
+	int kbd_hook_bit = kbd_subscribe_int();
+	if (kbd_hook_bit == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
+
+	int counter = 0;
+	int r, ipc_status;
+	message msg;
+	unsigned long scancode = 0;
+
+	while (scancode != BREAK_ESC_CODE) {
+		//Get a request message.
+		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+			printf("driver_receive failed with: %d", r);
+			continue;
+		}
+		if (is_ipc_notify(ipc_status)) { //received notification
+			switch (_ENDPOINT_P(msg.m_source)) {
+			case HARDWARE: //hardware interrupt notification
+				if (msg.NOTIFY_ARG & kbd_hook_bit) {
+					scancode = keyboard_int_handler_C();
+				} else if (msg.NOTIFY_ARG & BIT(timer_hook_bit)) {
+					counter++;
+					if ((counter % 60 == 0) && (counter * 60 <= time)) {
+						if (hor == 0)
+							drawPixmap(sprite->x + (speed * (counter / 60)),
+									sprite->y, sprite->map, sprite->width,
+									sprite->height);
+						else
+							drawPixmap(sprite->x,
+									sprite->y + (speed * (counter / 60)),
+									sprite->map, sprite->width, sprite->height);
+					}
+				}
+				break;
+			default:
+				break; //no other notifications expected: do nothing
+			}
+		}
+	}
+	timer_unsubscribe_int();
+	kbd_unsubscribe_int();
 	vg_exit();
+	printf("counter = %d\n", counter);
+	printf("x = %d, y = %d, hor = %d, delta = %d, time = %d\n", xi, yi, hor,
+			delta, time);
+	printf("lab5::test_move() concluido.\n");
 	return EXIT_SUCCESS;
 
 }

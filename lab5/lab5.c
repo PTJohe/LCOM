@@ -36,9 +36,9 @@ static void print_usage(char *argv[]) {
 }
 
 static int proc_args(int argc, char *argv[]) {
-	unsigned short mode, delay, x, y, size, xi, yi, xf, yf, xpm, hor, delta,
-			time;
+	unsigned short mode, delay, x, y, size, xi, yi, xf, yf, xpm, hor, time;
 	unsigned long color;
+	short delta;
 
 	/* check the function to test: if the first characters match, accept it */
 	if (strncmp(argv[1], "init", strlen("init")) == 0) {
@@ -103,53 +103,38 @@ static int proc_args(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 		return test_xpm(xi, yi, getPixmap(xpm));
+	} else if (strncmp(argv[1], "move", strlen("move")) == 0) {
+		if (argc != 8) {
+			printf("test_move: wrong no of arguments for test_move() \n");
+			return EXIT_FAILURE;
+		}
+		xi = parse_ushort(argv[2], 10);
+		yi = parse_ushort(argv[3], 10);
+		xpm = parse_ushort(argv[4], 10);
+		hor = parse_ushort(argv[5], 10);
+		delta = parse_short(argv[6], 10);
+		time = parse_ushort(argv[7], 10);
+
+		if (xi == USHRT_MAX || yi == USHRT_MAX || xpm == USHRT_MAX
+				|| hor == USHRT_MAX || delta == SHRT_MAX || time == USHRT_MAX)
+			return EXIT_FAILURE;
+		if (getPixmap(xpm) == NULL) {
+			printf("ERROR: Could not find xpm.\n");
+			return EXIT_FAILURE;
+		}
+		printf("test:: move(%d, %d, %d, %d, %d)\n", xi, yi, xpm, hor, delta,
+				time);
+		return test_move(xi, yi, getPixmap(xpm), hor, delta, time);
+	} else if (strncmp(argv[1], "controller", strlen("controller")) == 0) {
+		if (argc != 2) {
+			printf(
+					"test_controller: wrong no of arguments for test_controller() \n");
+			return EXIT_FAILURE;
+		}
+		printf("test:: controller()\n");
+		test_controller();
+		return EXIT_SUCCESS;
 	}
-	/*else if (strncmp(argv[1], "xpm", strlen("xpm")) == 0) {
-	 if (argc != 5) {
-	 printf(
-	 "test_xpm: wrong no of arguments for test_xpm() \n");
-	 return EXIT_FAILURE;
-	 }
-	 xi = parse_ulong(argv[2], 10);
-	 yi = parse_ulong(argv[3], 10);
-
-
-	 printf("test:: xpm(%d, %d)\n", (unsigned short) length,
-	 (unsigned short) tolerance);
-	 if (length == ULONG_MAX)
-	 return EXIT_FAILURE;
-	 if (tolerance == ULONG_MAX)
-	 return EXIT_FAILURE;
-	 test_gesture(length, tolerance);
-	 return EXIT_SUCCESS;
-	 } else if (strncmp(argv[1], "move", strlen("move")) == 0) {
-	 if (argc != 8) {
-	 printf("test_move: wrong no of arguments for test_move() \n");
-	 return EXIT_FAILURE;
-	 }
-	 xi = parse_ulong(argv[2], 10);
-	 yi = parse_ulong(argv[3], 10);
-
-
-	 printf("test:: move(%d, %d)\n", (unsigned short) length,
-	 (unsigned short) tolerance);
-	 if (length == ULONG_MAX)
-	 return EXIT_FAILURE;
-	 if (tolerance == ULONG_MAX)
-	 return EXIT_FAILURE;
-	 test_gesture(length, tolerance);
-	 return EXIT_SUCCESS;
-	 }else if (strncmp(argv[1], "controller", strlen("controller")) == 0) {
-	 if (argc != 2) {
-	 printf(
-	 "test_controller: wrong no of arguments for test_controller() \n");
-	 return EXIT_FAILURE;
-	 }
-	 printf("test:: controller()\n");
-	 test_controller();
-	 return EXIT_SUCCESS;
-	 }
-	 */
 }
 
 static long parse_long(char *str, int base) {

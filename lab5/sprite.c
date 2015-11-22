@@ -2,7 +2,7 @@
 #include "read_xpm.h"
 #include <stdlib.h>
 
-Sprite * create_sprite(char *pic[], char *base) {
+Sprite * create_sprite(char *pic[], int xi, int yi) {
 	//allocate space for the "object"
 	Sprite *sp = (Sprite *) malloc(sizeof(Sprite));
 	if (sp == NULL)
@@ -13,6 +13,8 @@ Sprite * create_sprite(char *pic[], char *base) {
 		free(sp);
 		return NULL;
 	}
+	sp->x = xi;
+	sp->y = yi;
 	return sp;
 }
 
@@ -31,7 +33,6 @@ int animate_sprite(Sprite *sp, char *base) {
 static int check_collision(Sprite *sp, char *base) {
 //...
 }
-
-static int draw_sprite(Sprite *sp, char *base) {
-//...
+void move_cursor(Sprite *sp, int xstep, int ystep, char *base) {
+	//...
 }

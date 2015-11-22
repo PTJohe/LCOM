@@ -118,3 +118,22 @@ double round(double x) {
 		return (-t);
 	}
 }
+
+int drawPixmap(int xi, int yi, char *pixmap, int width, int height) {
+	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+		printf("ERROR: Invalid coordinates!\n");
+		return EXIT_FAILURE;
+	}
+
+	int line, column;
+	for (line = 0; line < height; line++) {
+		for (column = 0; column < width; column++) {
+			if (xi + column < h_res || h_res * (yi + line) < v_res) {
+				video_mem = getVideoMem();
+				video_mem = video_mem + (h_res * (yi + line)) + xi + column;
+				*video_mem = pixmap[column + (line * width)];
+			}
+		}
+	}
+	return EXIT_SUCCESS;
+}

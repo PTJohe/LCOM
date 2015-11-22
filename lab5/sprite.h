@@ -18,18 +18,16 @@
  * other graphical objects or the screen limits.
  */
 typedef struct {
-  int x,y;             /**< current sprite position */
-  int width, height;   /**< sprite dimensions */
-  int xspeed, yspeed;  /**< current speeds in the x and y direction */
-  char *map;           /**< the sprite pixmap (use read_xpm()) */
+	int x, y; /**< current sprite position */
+	int width, height; /**< sprite dimensions */
+	int xspeed, yspeed; /**< current speeds in the x and y direction */
+	char *map; /**< the sprite pixmap (use read_xpm()) */
 } Sprite;
 
-/** Creates with random speeds (not zero) and position
- * (within the screen limits), a new sprite with pixmap "pic", in
- * memory whose address is "base";
+/** Creates a new sprite with pixmap "pic", in position (xi,yi).
  * Returns NULL on invalid pixmap.
  */
-Sprite * create_sprite(char *pic[], char *base);
+Sprite * create_sprite(char *pic[], int xi, int yi);
 
 /** Animate the sprite "fig" according to its attributes in memory,
  * whose address is "base".  The animation detects the screen borders
