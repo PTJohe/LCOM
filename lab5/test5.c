@@ -71,7 +71,7 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 			*video_mem = color;
 		}
 	}
-	sleep(2);
+	sleep(10);
 	vg_exit();
 	return EXIT_SUCCESS;
 
