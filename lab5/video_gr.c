@@ -9,20 +9,6 @@
 #include "constants.h"
 #include "vbe.h"
 
-/* Constants for VBE 0x105 mode */
-
-/* The physical address may vary from VM to VM.
- * At one time it was 0xD0000000
- *  #define VRAM_PHYS_ADDR    0xD0000000 
- * Currently on lab B107 is 0xF0000000
- * Better run my version of lab5 as follows:
- *     service run `pwd`/lab5 -args "mode 0x105"
- */
-#define VRAM_PHYS_ADDR	0xF0000000
-#define H_RES             1024
-#define V_RES		  768
-#define BITS_PER_PIXEL	  8
-
 /* Private global variables */
 
 static char *video_mem; /* Process address to which VRAM is mapped */

@@ -7,9 +7,10 @@
 #include "keyboard.h"
 #include "vbe.h"
 #include "video_gr.h"
+#include "read_xpm.h"
+#include "pixmap.h"
 
 void *test_init(unsigned short mode, unsigned short delay) {
-
 	//Switch to the specified mode
 	char* video_mem = vg_init(mode);
 
@@ -19,7 +20,7 @@ void *test_init(unsigned short mode, unsigned short delay) {
 
 	//Wait delay seconds.
 	unsigned char timer_hook_bit;
-	if (timer_hook_bit = timer_subscribe_int() == EXIT_FAILURE) {
+	if (timer_hook_bit = timer_subscribe_int() < 0) {
 		vg_exit();
 		printf("ERROR: Failed to subscribe timer interrupt.");
 		return NULL;
@@ -61,14 +62,15 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		unsigned short yf, unsigned long color) {
 
-	vg_init(0x105);
+	char *video_mem = vg_init(MODE_1024_768);
 
 	/*unsigned char kbd_hook_bit;
-	if (kbd_hook_bit = kbd_subscribe_int() == EXIT_FAILURE) {
-		vg_exit();
-		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
-		return EXIT_FAILURE;
-	}*/
+	 if (kbd_hook_bit = kbd_subscribe_int() == EXIT_FAILURE) {
+	 vg_exit();
+	 printf("ERROR: Failed to subscribe keyboard interrupt!\n");
+	 return EXIT_FAILURE;
+	 }*/
+
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
 	if ((xf >= h_res || xi < 0) || (yf >= v_res || yi < 0)) {
@@ -77,8 +79,6 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		printf("ERROR: Invalid coordinates!\n");
 		return EXIT_FAILURE;
 	}
-
-	char *video_mem;
 
 	/*
 	 * Adapted from DDA Line Drawing Algorithm
@@ -137,8 +137,39 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 
 int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 
-	/* To be completed */
+	char* video_mem = vg_init(MODE_1024_768);
 
+	int width, height;
+	char* pixmap = read_xpm(xpm, &width, &height);
+
+	if (pixmap == NULL) {
+		vg_exit();
+		printf("ERROR: Failed to read xpm.\n");
+		return EXIT_FAILURE;
+	}
+
+	unsigned h_res = getHRes();
+	unsigned v_res = getVRes();
+	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+		vg_exit();
+		printf("ERROR: Invalid coordinates!\n");
+		return EXIT_FAILURE;
+	}
+
+	int i, j;
+	for (i = 0; i < height; i++) {
+		for (j = 0; j < width; j++) {
+			if (xi + j < h_res || h_res * (yi + i) < v_res) {
+				video_mem = getVideoMem();
+				video_mem = video_mem + (h_res * (yi + i)) + xi + j;
+				*video_mem = pixmap[j + i * width];
+			}
+		}
+	}
+
+	sleep(2);
+	vg_exit();
+	return EXIT_SUCCESS;
 }
 
 int test_move(unsigned short xi, unsigned short yi, char *xpm[],

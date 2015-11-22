@@ -92,5 +92,20 @@
 #define VBE_FUNCTION_NOT_SUPPORTED		0x02
 #define VBE_FUNCTION_CALL_INVALID		0x03
 
+
+/* Constants for VBE 0x105 mode */
+
+/* The physical address may vary from VM to VM.
+ * At one time it was 0xD0000000
+ *  #define VRAM_PHYS_ADDR    0xD0000000
+ * Currently on lab B107 is 0xF0000000
+ * Better run my version of lab5 as follows:
+ *     service run `pwd`/lab5 -args "mode 0x105"
+ */
+#define VRAM_PHYS_ADDR	0xF0000000
+#define H_RES             1024
+#define V_RES		  768
+#define BITS_PER_PIXEL	  8
+
 //==========================================================================================
 #endif

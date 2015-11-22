@@ -18,7 +18,6 @@ int timer_subscribe_int(void) {
 }
 
 int timer_unsubscribe_int() {
-
 	if (sys_irqrmpolicy(&hook_id_timer) != OK && sys_irqdisable(&hook_id_timer) != OK)
 		return EXIT_FAILURE;
 	else

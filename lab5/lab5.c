@@ -1,6 +1,7 @@
 #include <minix/drivers.h>
 
 #include "test5.h"
+#include "pixmap.h"
 
 static void print_usage(char *argv[]);
 static int proc_args(int argc, char *argv[]);
@@ -35,9 +36,9 @@ static void print_usage(char *argv[]) {
 }
 
 static int proc_args(int argc, char *argv[]) {
-	unsigned short mode, delay, x, y, size, xi, yi, xf, yf, hor, delta, time;
+	unsigned short mode, delay, x, y, size, xi, yi, xf, yf, xpm, hor, delta,
+			time;
 	unsigned long color;
-	//unsigned char* xpm[];
 
 	/* check the function to test: if the first characters match, accept it */
 	if (strncmp(argv[1], "init", strlen("init")) == 0) {
@@ -52,6 +53,7 @@ static int proc_args(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		test_init(mode, delay);
 		return EXIT_SUCCESS;
+
 	} else if (strncmp(argv[1], "square", strlen("square")) == 0) {
 		if (argc != 6) {
 			printf("test_square: wrong no of arguments for test_square() \n");
@@ -60,13 +62,13 @@ static int proc_args(int argc, char *argv[]) {
 		x = parse_ushort(argv[2], 10);
 		y = parse_ushort(argv[3], 10);
 		size = parse_ushort(argv[4], 10);
-		color = parse_ushort(argv[5], 10);
+		color = parse_ulong(argv[5], 10);
 		printf("test:: square(%d, %d, %d, %d)\n", x, y, size, color);
 		if (x == USHRT_MAX || y == USHRT_MAX || size == USHRT_MAX
 				|| color == USHRT_MAX)
 			return EXIT_FAILURE;
-		test_square(x, y, size, color);
-		return EXIT_SUCCESS;
+		return test_square(x, y, size, color);
+
 	} else if (strncmp(argv[1], "line", strlen("line")) == 0) {
 		if (argc != 7) {
 			printf("test_line: wrong no of arguments for test_line() \n");
@@ -76,14 +78,33 @@ static int proc_args(int argc, char *argv[]) {
 		yi = parse_ushort(argv[3], 10);
 		xf = parse_ushort(argv[4], 10);
 		yf = parse_ushort(argv[5], 10);
-		color = parse_ushort(argv[6], 16);
+		color = parse_ulong(argv[6], 16);
 		if (xi == USHRT_MAX || yi == USHRT_MAX || xf == USHRT_MAX
 				|| yf == USHRT_MAX || color == USHRT_MAX)
 			return EXIT_FAILURE;
+
 		printf("test:: line(%d, %d, %d, %d, %d)\n", xi, yi, xf, yf, color);
-		test_line(xi, yi, xf, yf, color);
-		return EXIT_SUCCESS;
-	} /*else if (strncmp(argv[1], "xpm", strlen("xpm")) == 0) {
+		return test_line(xi, yi, xf, yf, color);
+
+	} else if (strncmp(argv[1], "xpm", strlen("xpm")) == 0) {
+		if (argc != 5) {
+			printf("test_xpm: wrong no of arguments for test_xpm() \n");
+			return EXIT_FAILURE;
+		}
+		xi = parse_ushort(argv[2], 10);
+		yi = parse_ushort(argv[3], 10);
+		xpm = parse_ushort(argv[4], 10);
+
+		if (xi == USHRT_MAX || yi == USHRT_MAX || xpm == USHRT_MAX)
+			return EXIT_FAILURE;
+
+		if (getPixmap(xpm) == NULL) {
+			printf("ERROR: Could not find xpm.\n");
+			return EXIT_FAILURE;
+		}
+		return test_xpm(xi, yi, getPixmap(xpm));
+	}
+	/*else if (strncmp(argv[1], "xpm", strlen("xpm")) == 0) {
 	 if (argc != 5) {
 	 printf(
 	 "test_xpm: wrong no of arguments for test_xpm() \n");
@@ -118,16 +139,17 @@ static int proc_args(int argc, char *argv[]) {
 	 return EXIT_FAILURE;
 	 test_gesture(length, tolerance);
 	 return EXIT_SUCCESS;
-	 }*/else if (strncmp(argv[1], "controller", strlen("controller")) == 0) {
-		if (argc != 2) {
-			printf(
-					"test_controller: wrong no of arguments for test_controller() \n");
-			return EXIT_FAILURE;
-		}
-		printf("test:: controller()\n");
-		test_controller();
-		return EXIT_SUCCESS;
-	}
+	 }else if (strncmp(argv[1], "controller", strlen("controller")) == 0) {
+	 if (argc != 2) {
+	 printf(
+	 "test_controller: wrong no of arguments for test_controller() \n");
+	 return EXIT_FAILURE;
+	 }
+	 printf("test:: controller()\n");
+	 test_controller();
+	 return EXIT_SUCCESS;
+	 }
+	 */
 }
 
 static long parse_long(char *str, int base) {
