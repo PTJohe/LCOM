@@ -11,14 +11,15 @@ int kbd_subscribe_int() {
 	hook_id_keyboard = KBC_IRQ;
 	int bitmask = BIT(hook_id_keyboard); //KBC_IRQ = hook_id_keyboard = 1
 	if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE,
-			&hook_id_keyboard) == OK)
+			&hook_id_keyboard) == OK && sys_irqenable(&hook_id_keyboard) == OK)
 		return bitmask;
 	else
 		return EXIT_FAILURE;
 }
 
 int kbd_unsubscribe_int() {
-	if (sys_irqrmpolicy(&hook_id_keyboard) != OK)
+	if (sys_irqdisable(&hook_id_keyboard) == OK
+			&& sys_irqrmpolicy(&hook_id_keyboard) == OK)
 		return EXIT_FAILURE;
 	else
 		return EXIT_SUCCESS;

@@ -23,3 +23,15 @@ void destroy_sprite(Sprite *sp, char *base) {
 	free(sp);
 	sp = NULL;
 }
+
+int animate_sprite(Sprite *sp, char *base) {
+//...
+}
+
+static int check_collision(Sprite *sp, char *base) {
+//...
+}
+
+static int draw_sprite(Sprite *sp, char *base) {
+//...
+}

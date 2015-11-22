@@ -75,23 +75,46 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 			}
 		}
 	}
-	sleep(10);
-	vg_exit();
-	return EXIT_SUCCESS;
 
+	//Wait until user presses ESC
+	int kbd_hook_bit = kbd_subscribe_int();
+	if (kbd_hook_bit == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
+	int r, ipc_status;
+	message msg;
+	unsigned long scancode = 0;
+
+	while (scancode != BREAK_ESC_CODE) {
+		//Get a request message.
+		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+			printf("driver_receive failed with: %d", r);
+			continue;
+		}
+		if (is_ipc_notify(ipc_status)) { //received notification
+			switch (_ENDPOINT_P(msg.m_source)) {
+			case HARDWARE: /* hardware interrupt notification */
+				if (msg.NOTIFY_ARG & kbd_hook_bit) {
+					scancode = keyboard_int_handler_C();
+				}
+			default:
+				break; //no other notifications expected: do nothing
+			}
+		}
+	}
+
+	kbd_unsubscribe_int();
+	vg_exit();
+	printf("lab5::test_square() concluido.\n");
+	return EXIT_SUCCESS;
 }
 
 int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		unsigned short yf, unsigned long color) {
 
 	char *video_mem = vg_init(MODE_1024_768);
-
-	unsigned char kbd_hook_bit;
-	if (kbd_hook_bit = kbd_subscribe_int() == EXIT_FAILURE) {
-		vg_exit();
-		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
-		return EXIT_FAILURE;
-	}
 
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
@@ -148,6 +171,12 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 	}
 
 	//Wait until user presses ESC
+	int kbd_hook_bit = kbd_subscribe_int();
+	if (kbd_hook_bit == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
 	int r, ipc_status;
 	message msg;
 	unsigned long scancode = 0;
@@ -160,11 +189,10 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		}
 		if (is_ipc_notify(ipc_status)) { //received notification
 			switch (_ENDPOINT_P(msg.m_source)) {
-			case HARDWARE: //hardware interrupt notification
-				if (msg.NOTIFY_ARG & kbd_hook_bit) { //subscribed interrupt
+			case HARDWARE: /* hardware interrupt notification */
+				if (msg.NOTIFY_ARG & kbd_hook_bit) {
 					scancode = keyboard_int_handler_C();
 				}
-				break;
 			default:
 				break; //no other notifications expected: do nothing
 			}
@@ -173,6 +201,7 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 
 	kbd_unsubscribe_int();
 	vg_exit();
+	printf("lab5::test_line() concluido.\n");
 	return EXIT_SUCCESS;
 }
 
@@ -208,15 +237,49 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 		}
 	}
 
-	sleep(2);
+	//Wait until user presses ESC
+	int kbd_hook_bit = kbd_subscribe_int();
+	if (kbd_hook_bit == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
+	int r, ipc_status;
+	message msg;
+	unsigned long scancode = 0;
+
+	while (scancode != BREAK_ESC_CODE) {
+		//Get a request message.
+		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
+			printf("driver_receive failed with: %d", r);
+			continue;
+		}
+		if (is_ipc_notify(ipc_status)) { //received notification
+			switch (_ENDPOINT_P(msg.m_source)) {
+			case HARDWARE: /* hardware interrupt notification */
+				if (msg.NOTIFY_ARG & kbd_hook_bit) {
+					scancode = keyboard_int_handler_C();
+				}
+			default:
+				break; //no other notifications expected: do nothing
+			}
+		}
+	}
+
+	kbd_unsubscribe_int();
 	vg_exit();
+	printf("lab5::test_xpm() concluido.\n");
 	return EXIT_SUCCESS;
 }
 
 int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		unsigned short hor, short delta, unsigned short time) {
 
-	/* To be completed */
+	char* video_mem = vg_init(MODE_1024_768);
+
+	sleep(2);
+	vg_exit();
+	return EXIT_SUCCESS;
 
 }
 
