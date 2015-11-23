@@ -43,13 +43,14 @@ static int proc_args(int argc, char *argv[]) {
 	/* check the function to test: if the first characters match, accept it */
 	if (strncmp(argv[1], "init", strlen("init")) == 0) {
 		if (argc != 4) {
-			printf("test_init: wrong no of arguments for test_init \n");
+			printf("lab5::test_init: wrong no of arguments for test_init \n");
 			return EXIT_FAILURE;
 		}
 		mode = parse_ushort(argv[2], 16);
 		delay = parse_ushort(argv[3], 10);
-		printf("test:: init(0x%x, %d)\n", mode, delay);
-		if (mode == USHRT_MAX || delay == USHRT_MAX){
+
+		printf("lab5::test_init(0x%X, %d)\n", mode, delay);
+		if (mode == USHRT_MAX || delay == USHRT_MAX) {
 			printf("ERROR: Invalid arguments!\n");
 			return EXIT_FAILURE;
 		}
@@ -58,22 +59,26 @@ static int proc_args(int argc, char *argv[]) {
 
 	} else if (strncmp(argv[1], "square", strlen("square")) == 0) {
 		if (argc != 6) {
-			printf("test_square: wrong no of arguments for test_square() \n");
+			printf(
+					"lab5::test_square: wrong no of arguments for test_square() \n");
 			return EXIT_FAILURE;
 		}
 		x = parse_ushort(argv[2], 10);
 		y = parse_ushort(argv[3], 10);
 		size = parse_ushort(argv[4], 10);
 		color = parse_ulong(argv[5], 16);
-		printf("test:: square(%d, %d, %d, %d)\n", x, y, size, color);
+
+		printf("lab5::test_square(%d, %d, %d, %d)\n", x, y, size, color);
 		if (x == USHRT_MAX || y == USHRT_MAX || size == USHRT_MAX
-				|| color == USHRT_MAX)
+				|| color == USHRT_MAX) {
+			printf("ERROR: Invalid arguments!\n");
 			return EXIT_FAILURE;
+		}
 		return test_square(x, y, size, color);
 
 	} else if (strncmp(argv[1], "line", strlen("line")) == 0) {
 		if (argc != 7) {
-			printf("test_line: wrong no of arguments for test_line() \n");
+			printf("lab5::test_line: wrong no of arguments for test_line() \n");
 			return EXIT_FAILURE;
 		}
 		xi = parse_ushort(argv[2], 10);
@@ -81,25 +86,29 @@ static int proc_args(int argc, char *argv[]) {
 		xf = parse_ushort(argv[4], 10);
 		yf = parse_ushort(argv[5], 10);
 		color = parse_ulong(argv[6], 16);
-		if (xi == USHRT_MAX || yi == USHRT_MAX || xf == USHRT_MAX
-				|| yf == USHRT_MAX || color == USHRT_MAX)
-			return EXIT_FAILURE;
 
-		printf("test:: line(%d, %d, %d, %d, %d)\n", xi, yi, xf, yf, color);
+		printf("lab5::test_line(%d, %d, %d, %d, %d)\n", xi, yi, xf, yf, color);
+		if (xi == USHRT_MAX || yi == USHRT_MAX || xf == USHRT_MAX
+				|| yf == USHRT_MAX || color == USHRT_MAX) {
+			printf("ERROR: Invalid arguments!\n");
+			return EXIT_FAILURE;
+		}
 		return test_line(xi, yi, xf, yf, color);
 
 	} else if (strncmp(argv[1], "xpm", strlen("xpm")) == 0) {
 		if (argc != 5) {
-			printf("test_xpm: wrong no of arguments for test_xpm() \n");
+			printf("lab5::test_xpm: wrong no of arguments for test_xpm() \n");
 			return EXIT_FAILURE;
 		}
 		xi = parse_ushort(argv[2], 10);
 		yi = parse_ushort(argv[3], 10);
 		xpm = parse_ushort(argv[4], 10);
 
-		if (xi == USHRT_MAX || yi == USHRT_MAX || xpm == USHRT_MAX)
+		printf("lab5::test_xpm(%d, %d, %d)\n", xi, yi, xpm);
+		if (xi == USHRT_MAX || yi == USHRT_MAX || xpm == USHRT_MAX) {
+			printf("ERROR: Invalid arguments!\n");
 			return EXIT_FAILURE;
-
+		}
 		if (getPixmap(xpm) == NULL) {
 			printf("ERROR: Could not find xpm.\n");
 			return EXIT_FAILURE;
@@ -107,7 +116,7 @@ static int proc_args(int argc, char *argv[]) {
 		return test_xpm(xi, yi, getPixmap(xpm));
 	} else if (strncmp(argv[1], "move", strlen("move")) == 0) {
 		if (argc != 8) {
-			printf("test_move: wrong no of arguments for test_move() \n");
+			printf("lab5::test_move: wrong no of arguments for test_move() \n");
 			return EXIT_FAILURE;
 		}
 		xi = parse_ushort(argv[2], 10);
@@ -117,25 +126,26 @@ static int proc_args(int argc, char *argv[]) {
 		delta = parse_short(argv[6], 10);
 		time = parse_ushort(argv[7], 10);
 
+		printf("lab5::test_move(%d, %d, %d, %d, %d)\n", xi, yi, xpm, hor, delta,
+				time);
 		if (xi == USHRT_MAX || yi == USHRT_MAX || xpm == USHRT_MAX
-				|| hor == USHRT_MAX || delta == SHRT_MAX || time == USHRT_MAX)
+				|| hor == USHRT_MAX || delta == SHRT_MAX || time == USHRT_MAX) {
+			printf("ERROR: Invalid arguments!\n");
 			return EXIT_FAILURE;
+		}
 		if (getPixmap(xpm) == NULL) {
 			printf("ERROR: Could not find xpm.\n");
 			return EXIT_FAILURE;
 		}
-		printf("test:: move(%d, %d, %d, %d, %d)\n", xi, yi, xpm, hor, delta,
-				time);
 		return test_move(xi, yi, getPixmap(xpm), hor, delta, time);
 	} else if (strncmp(argv[1], "controller", strlen("controller")) == 0) {
 		if (argc != 2) {
 			printf(
-					"test_controller: wrong no of arguments for test_controller() \n");
+					"lab5::test_controller: wrong no of arguments for test_controller() \n");
 			return EXIT_FAILURE;
 		}
-		printf("test:: controller()\n");
-		test_controller();
-		return EXIT_SUCCESS;
+		printf("lab5::test_controller()\n");
+		return test_controller();
 	}
 }
 
