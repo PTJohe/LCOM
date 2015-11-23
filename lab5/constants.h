@@ -10,7 +10,7 @@
 
 #define TIMER0_IRQ 0    /**< @brief Timer 0 IRQ line */
 #define TIMER_FREQ  1193182    /**< @brief Clock frequency for timer in PC and AT */
-#define TIMER_DEFAULT_FREQ 60 /**< @brief Default interrupt frequency of timer = 60 Hz */
+#define TIMER_DEFAULT_FREQ 60.0 /**< @brief Default interrupt frequency of timer = 60 Hz */
 
 //I/O port addresses
 #define TIMER_0			0x40 /**< @brief Timer 0 count register */

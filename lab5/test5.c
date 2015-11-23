@@ -230,16 +230,7 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 	}
 
 	//Draw XPM
-	int i, j;
-	for (i = 0; i < height; i++) {
-		for (j = 0; j < width; j++) {
-			if (xi + j < h_res || h_res * (yi + i) < v_res) {
-				video_mem = getVideoMem();
-				video_mem = video_mem + (h_res * (yi + i)) + xi + j;
-				*video_mem = pixmap[j + i * width];
-			}
-		}
-	}
+	drawPixmap((int) xi, (int) yi, pixmap, width, height);
 
 	//Wait until user presses ESC
 	int kbd_hook_bit = kbd_subscribe_int();
@@ -283,7 +274,7 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 	char* video_mem = vg_init(MODE_1024_768);
 
 	Sprite *sprite = create_sprite(xpm, xi, yi);
-	unsigned short speed = delta / time;
+	float speed = delta / (time * TIMER_DEFAULT_FREQ);
 
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
@@ -324,14 +315,14 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 					scancode = keyboard_int_handler_C();
 				} else if (msg.NOTIFY_ARG & BIT(timer_hook_bit)) {
 					counter++;
-					if ((counter % 60 == 0) && (counter * 60 <= time)) {
+					if (counter / 60 < time) {
 						if (hor == 0)
-							drawPixmap(sprite->x + (speed * (counter / 60)),
+							drawPixmap((int) (sprite->x + (speed * counter)),
 									sprite->y, sprite->map, sprite->width,
 									sprite->height);
 						else
 							drawPixmap(sprite->x,
-									sprite->y + (speed * (counter / 60)),
+									(int) (sprite->y + (speed * counter)),
 									sprite->map, sprite->width, sprite->height);
 					}
 				}
@@ -344,12 +335,8 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 	timer_unsubscribe_int();
 	kbd_unsubscribe_int();
 	vg_exit();
-	printf("counter = %d\n", counter);
-	printf("x = %d, y = %d, hor = %d, delta = %d, time = %d\n", xi, yi, hor,
-			delta, time);
 	printf("lab5::test_move() concluido.\n");
 	return EXIT_SUCCESS;
-
 }
 
 int test_controller() {

@@ -119,7 +119,7 @@ double round(double x) {
 	}
 }
 
-int drawPixmap(int xi, int yi, char *pixmap, int width, int height) {
+int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
 	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
 		printf("ERROR: Invalid coordinates!\n");
 		return EXIT_FAILURE;
@@ -129,11 +129,14 @@ int drawPixmap(int xi, int yi, char *pixmap, int width, int height) {
 	for (line = 0; line < height; line++) {
 		for (column = 0; column < width; column++) {
 			if (xi + column < h_res || h_res * (yi + line) < v_res) {
-				video_mem = getVideoMem();
-				video_mem = video_mem + (h_res * (yi + line)) + xi + column;
-				*video_mem = pixmap[column + (line * width)];
+				*(double_buffer + (h_res * (yi + line))
+						+ (xi + column) * bits_per_pixel / 8) = pixmap[column
+						+ (line * width)];
 			}
 		}
 	}
+	memcpy(mouse_buffer, double_buffer, h_res * v_res * bits_per_pixel / 8);
+	memcpy(video_mem, mouse_buffer, h_res * v_res * bits_per_pixel / 8);
+
 	return EXIT_SUCCESS;
 }
