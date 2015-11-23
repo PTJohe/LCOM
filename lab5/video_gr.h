@@ -32,7 +32,8 @@ unsigned getHRes();
 unsigned getVRes();
 void swap(unsigned short* xi, unsigned short* xf);
 double round(double x);
-
+int clearPixmap(int xi, int yi, int width, int height);
+int drawPixmap(int xi, int yi, char* pixmap, int width, int height);
 
 /** @} end of video_gr */
 

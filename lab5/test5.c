@@ -283,6 +283,11 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		printf("ERROR: Invalid coordinates!\n");
 		return EXIT_FAILURE;
 	}
+	if (hor != 0 && hor != 1) {
+		vg_exit();
+		printf("ERROR: Invalid direction!\n");
+		return EXIT_FAILURE;
+	}
 
 	unsigned char timer_hook_bit;
 	if (timer_hook_bit = timer_subscribe_int() < 0) {
@@ -316,14 +321,21 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 				} else if (msg.NOTIFY_ARG & BIT(timer_hook_bit)) {
 					counter++;
 					if (counter / 60 < time) {
-						if (hor == 0)
+						if (hor == 0) {
+							clearPixmap(
+									(int) (sprite->x + (speed * (counter - 1))),
+									sprite->y, sprite->width, sprite->height);
 							drawPixmap((int) (sprite->x + (speed * counter)),
 									sprite->y, sprite->map, sprite->width,
 									sprite->height);
-						else
+						} else if (hor == 1) {
+							clearPixmap(sprite->x,
+									(int) (sprite->y + (speed * (counter - 1))),
+									sprite->width, sprite->height);
 							drawPixmap(sprite->x,
 									(int) (sprite->y + (speed * counter)),
 									sprite->map, sprite->width, sprite->height);
+						}
 					}
 				}
 				break;

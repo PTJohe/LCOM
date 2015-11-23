@@ -22,7 +22,6 @@ static unsigned int video_mem_size;
 static unsigned int bytes_per_pixel;
 
 static char *double_buffer;
-static char *mouse_buffer;
 
 void *vg_init(unsigned short mode) {
 	struct reg86u r;
@@ -57,10 +56,7 @@ void *vg_init(unsigned short mode) {
 			if (video_mem != MAP_FAILED) {
 				if ((double_buffer = malloc(h_res * v_res * bits_per_pixel / 8))
 						!= NULL) {
-					if ((mouse_buffer = malloc(
-							h_res * v_res * bits_per_pixel / 8)) != NULL) {
-						return video_mem;
-					}
+					return video_mem;
 				}
 			}
 		}
@@ -118,7 +114,24 @@ double round(double x) {
 		return (-t);
 	}
 }
+int clearPixmap(int xi, int yi, int width, int height) {
+	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+		printf("ERROR: Invalid coordinates!\n");
+		return EXIT_FAILURE;
+	}
+	int line, column;
+	for (line = 0; line < height; line++) {
+		for (column = 0; column < width; column++) {
+			if (xi + column < h_res || h_res * (yi + line) < v_res) {
+				*(double_buffer + (h_res * (yi + line))
+						+ (xi + column) * bits_per_pixel / 8) = 0x00;
+			}
+		}
+	}
+	memcpy(video_mem, double_buffer, h_res * v_res * bits_per_pixel / 8);
 
+	return EXIT_SUCCESS;
+}
 int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
 	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
 		printf("ERROR: Invalid coordinates!\n");
@@ -135,8 +148,7 @@ int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
 			}
 		}
 	}
-	memcpy(mouse_buffer, double_buffer, h_res * v_res * bits_per_pixel / 8);
-	memcpy(video_mem, mouse_buffer, h_res * v_res * bits_per_pixel / 8);
+	memcpy(video_mem, double_buffer, h_res * v_res * bits_per_pixel / 8);
 
 	return EXIT_SUCCESS;
 }
