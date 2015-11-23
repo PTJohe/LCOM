@@ -2,6 +2,9 @@
 #define __VBE_H
 
 #include <stdint.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
 
 /** @defgroup vbe vbe
  * @{
@@ -86,6 +89,34 @@ typedef struct {
  * @return 0 on success, non-zero otherwise
  */
 int vbe_get_mode_info(unsigned short mode, vbe_mode_info_t *vmi_p);
+
+/** @name VBE Info Block */
+/**@{
+ *
+ * Packed VBE Info Block
+ */
+
+typedef struct {
+	char VbeSignature[4]; /* VBE Signature */
+	uint16_t VbeVersion; /* VBE Version */
+	phys_bytes OemStringPtr; /* Pointer to OEM String */
+	uint8_t Capabilities; /* Capabilities of graphics controller */
+	phys_bytes VideoModePtr; /* Pointer to VideoModeList */
+	uint16_t TotalMemory; /* Number of 64kb memory blocks */
+
+/* These fields are only filled in when 'VBE2' is preset in the VbeSignature field on entry to Function 00h.*/
+
+	uint16_t OemSoftwareRev; /* VBE implementation Software revision */
+	phys_bytes OemVendorNamePtr; /* Pointer to Vendor Name String */
+	phys_bytes OemProductNamePtr; /* Pointer to Product Name String */
+	phys_bytes OemProductRevPtr; /* Pointer to Product Revision String */
+	uint8_t Reserved[222]; /* Reserved for VBE implementation scratch area */
+	uint8_t OemData[256]; /* Data Area for OEM Strings */
+} __attribute__((packed)) vbe_info_block_t;
+
+/** @} end of vbe_info_block_t*/
+
+int vbe_get_info_block(vbe_info_block_t *vib_p, uint16_t **VideoModeList, unsigned *nr_of_video_modes);
 
  /** @} end of vbe */
 #endif /* __VBE_H */

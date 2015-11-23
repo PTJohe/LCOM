@@ -456,7 +456,35 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 
 int test_controller() {
 
-	/* To be completed */
+	/*if (lm_init())
+	 return EXIT_FAILURE;*/
+	uint16_t *VideoModeList;
+	unsigned nr_of_video_modes;
+	vbe_info_block_t vib;
+	vbe_get_info_block(&vib, &VideoModeList, &nr_of_video_modes);
+	printf("Capabilities: 0x%X\n", vib.Capabilities);
+	if (vib.Capabilities & BIT(0) == 0)
+		printf("DAC is fixed width, with 6 bits per primary color.\n");
+	else
+		printf("DAC width is switchable to 8 bits per primary color.\n");
+	if (vib.Capabilities & BIT(1) == 0)
+		printf("Controller is VGA compatible.\n");
+	else
+		printf("Controller isn't VGA compatible.\n");
+	if (vib.Capabilities & BIT(2) == 0)
+		printf("Normal RAMDAC operation.\n");
+	else
+		printf(
+				"When programming large block of information to the RAMDAC, use the blank bit in Function 09h.\n");
+	printf("Video modes (in hexadecimal) supported: ");
+	size_t m;
+	if (nr_of_video_modes > 0)
+		printf("0x%X\n", VideoModeList[0]);
+	for (m = 1; m < nr_of_video_modes; m++)
+		printf("0x%X\n", VideoModeList[m]);
+	free(VideoModeList);
+	printf("Size of VRAM memory: %lu kb\n", vib.TotalMemory * 64);
+	return EXIT_SUCCESS;
 
 }
 
