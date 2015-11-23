@@ -73,9 +73,9 @@ int vg_exit() {
 
 	if (sys_int86(&reg86) != OK) {
 		printf("\tvg_exit(): sys_int86() failed \n");
-		return 1;
+		return EXIT_FAILURE;
 	} else
-		return 0;
+		return EXIT_SUCCESS;
 }
 
 char* getVideoMem() {
@@ -122,9 +122,10 @@ int clearPixmap(int xi, int yi, int width, int height) {
 	int line, column;
 	for (line = 0; line < height; line++) {
 		for (column = 0; column < width; column++) {
-			if (xi + column < h_res || h_res * (yi + line) < v_res) {
-				*(double_buffer + (h_res * (yi + line))
-						+ (xi + column) * bits_per_pixel / 8) = 0x00;
+			if ((xi + column < h_res) && (yi + line < v_res)) {
+				*(double_buffer
+						+ ((h_res * (yi + line)) + (xi + column))
+								* bits_per_pixel / 8) = 0x00;
 			}
 		}
 	}
@@ -141,9 +142,10 @@ int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
 	int line, column;
 	for (line = 0; line < height; line++) {
 		for (column = 0; column < width; column++) {
-			if (xi + column < h_res || h_res * (yi + line) < v_res) {
-				*(double_buffer + (h_res * (yi + line))
-						+ (xi + column) * bits_per_pixel / 8) = pixmap[column
+			if ((xi + column < h_res) && (yi + line < v_res)) {
+				*(double_buffer
+						+ ((h_res * (yi + line)) + (xi + column))
+								* bits_per_pixel / 8) = pixmap[column
 						+ (line * width)];
 			}
 		}

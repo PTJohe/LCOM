@@ -48,9 +48,11 @@ static int proc_args(int argc, char *argv[]) {
 		}
 		mode = parse_ushort(argv[2], 16);
 		delay = parse_ushort(argv[3], 10);
-		printf("test:: init(%d, %d)\n", mode, delay);
-		if (mode == USHRT_MAX || delay == USHRT_MAX)
+		printf("test:: init(0x%x, %d)\n", mode, delay);
+		if (mode == USHRT_MAX || delay == USHRT_MAX){
+			printf("ERROR: Invalid arguments!\n");
 			return EXIT_FAILURE;
+		}
 		test_init(mode, delay);
 		return EXIT_SUCCESS;
 

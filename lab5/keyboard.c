@@ -18,8 +18,8 @@ int kbd_subscribe_int() {
 }
 
 int kbd_unsubscribe_int() {
-	if (sys_irqdisable(&hook_id_keyboard) == OK
-			&& sys_irqrmpolicy(&hook_id_keyboard) == OK)
+	if (sys_irqdisable(&hook_id_keyboard) != OK
+			&& sys_irqrmpolicy(&hook_id_keyboard) != OK)
 		return EXIT_FAILURE;
 	else
 		return EXIT_SUCCESS;

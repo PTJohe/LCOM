@@ -12,23 +12,41 @@
 #include "sprite.h"
 
 void *test_init(unsigned short mode, unsigned short delay) {
+
+	//Check if mode is a valid VBE mode
+	if (mode < 0x100 || mode > 0x11B) {
+		printf("ERROR: Non-VBE mode!\n");
+		return NULL;
+	}
+
 	//Switch to the specified mode
 	char* video_mem = vg_init(mode);
+	if (video_mem == NULL) {
+		printf("ERROR: Could not initialize video module!\n");
+		return NULL;
+	}
 
 	//Get physical address of video RAM
 	vbe_mode_info_t vbe_mode_info;
 	vbe_get_mode_info(mode, &vbe_mode_info);
+	if (&vbe_mode_info < 0) {
+		printf("ERROR: Could not get VBE mode info!\n");
+		return NULL;
+	}
 
-	//Wait delay seconds.
+	//Subscribe timer interrupt
 	int timer_hook_bit;
 	if (timer_hook_bit = timer_subscribe_int() < 0) {
 		vg_exit();
 		printf("ERROR: Failed to subscribe timer interrupt!\n");
 		return NULL;
 	}
+
 	int r, ipc_status;
 	message msg;
 	unsigned counter = 0;
+
+	//Wait delay seconds.
 	while (counter < delay * TIMER_DEFAULT_FREQ) {
 		//Get a request message.
 		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -44,20 +62,33 @@ void *test_init(unsigned short mode, unsigned short delay) {
 			}
 		}
 	}
-	timer_unsubscribe_int();
+
+	//Unsubscribe timer interrupt
+	if (timer_unsubscribe_int() == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to unsubscribe timer interrupt!\n");
+		return NULL;
+	}
 
 	//Return to text mode
 	vg_exit();
 
 	printf("\nVRAM physical address: 0x%X\n", vbe_mode_info.PhysBasePtr);
+	printf("lab5::test_init() concluido.\n");
 	return video_mem;
 }
 
 int test_square(unsigned short x, unsigned short y, unsigned short size,
 		unsigned long color) {
 
+	//Switch to the 0x105 mode
 	char* video_mem = vg_init(MODE_1024_768);
+	if (video_mem == NULL) {
+		printf("ERROR: Could not initialize video module!\n");
+		return EXIT_FAILURE;
+	}
 
+	//Check if coordinates are valid
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
 	if ((x >= h_res || x < 0) || (y >= v_res || y < 0)) {
@@ -66,10 +97,11 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 		return EXIT_FAILURE;
 	}
 
+	//Draw a square at the specified position
 	int line, column;
 	for (line = 0; line < size; line++) {
 		for (column = 0; column < size; column++) {
-			if (x + column < h_res || h_res * (y + line) < v_res) {
+			if ((x + column < h_res) && (y + line < v_res)) {
 				video_mem = getVideoMem();
 				video_mem = video_mem + (h_res * (y + line)) + (x + column);
 				*video_mem = color;
@@ -77,17 +109,19 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 		}
 	}
 
-	//Wait until user presses ESC
+	//Subscribe keyboard interrupt
 	int kbd_hook_bit = kbd_subscribe_int();
 	if (kbd_hook_bit == EXIT_FAILURE) {
 		vg_exit();
 		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
 		return EXIT_FAILURE;
 	}
+
 	int r, ipc_status;
 	message msg;
 	unsigned long scancode = 0;
 
+	//Wait until user presses ESC
 	while (scancode != BREAK_ESC_CODE) {
 		//Get a request message.
 		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -107,8 +141,16 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 		}
 	}
 
-	kbd_unsubscribe_int();
+	//Unsubscribe keyboard interrupt
+	if (kbd_unsubscribe_int() == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to unsubscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
+
+	//Return to text mode
 	vg_exit();
+
 	printf("lab5::test_square() concluido.\n");
 	return EXIT_SUCCESS;
 }
@@ -116,21 +158,25 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		unsigned short yf, unsigned long color) {
 
-	char *video_mem = vg_init(MODE_1024_768);
+	//Switch to the 0x105 mode
+	char* video_mem = vg_init(MODE_1024_768);
+	if (video_mem == NULL) {
+		printf("ERROR: Could not initialize video module!\n");
+		return EXIT_FAILURE;
+	}
 
+	//Check if coordinates are valid
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
 	if ((xf >= h_res || xf < 0 || xi >= h_res || xi < 0)
 			|| (yf >= v_res || yf < 0 || yi >= v_res || yi < 0)) {
 		vg_exit();
-		kbd_unsubscribe_int();
 		printf("ERROR: Invalid coordinates!\n");
 		return EXIT_FAILURE;
 	}
 
-	/*
-	 * Adapted from DDA Line Drawing Algorithm
-	 */
+	//Adapted from DDA Line Drawing Algorithm
+	//Draw a line from the initial position to a specified position
 	double dX = abs(xf - xi);
 	double dY = abs(yf - yi);
 
@@ -172,17 +218,19 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		}
 	}
 
-	//Wait until user presses ESC
+	//Subscribe keyboard interrupt
 	int kbd_hook_bit = kbd_subscribe_int();
 	if (kbd_hook_bit == EXIT_FAILURE) {
 		vg_exit();
 		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
 		return EXIT_FAILURE;
 	}
+
 	int r, ipc_status;
 	message msg;
 	unsigned long scancode = 0;
 
+	//Wait until user presses ESC
 	while (scancode != BREAK_ESC_CODE) {
 		//Get a request message.
 		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -202,25 +250,41 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		}
 	}
 
-	kbd_unsubscribe_int();
+	//Unsubscribe keyboard interrupt
+	if (kbd_unsubscribe_int() == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to unsubscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
+
+	//Return to text mode
 	vg_exit();
+
 	printf("lab5::test_line() concluido.\n");
 	return EXIT_SUCCESS;
 }
 
 int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 
+	//Switch to the 0x105 mode
 	char* video_mem = vg_init(MODE_1024_768);
+	if (video_mem == NULL) {
+		printf("ERROR: Could not initialize video module!\n");
+		return EXIT_FAILURE;
+	}
 
+	//Draw the XPM at the specified position
 	int width, height;
 	char* pixmap = read_xpm(xpm, &width, &height);
 
+	//Check if the pixmap exists
 	if (pixmap == NULL) {
 		vg_exit();
 		printf("ERROR: Failed to read xpm.\n");
 		return EXIT_FAILURE;
 	}
 
+	//Check if coordinates are valid
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
 	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
@@ -232,17 +296,19 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 	//Draw XPM
 	drawPixmap((int) xi, (int) yi, pixmap, width, height);
 
-	//Wait until user presses ESC
+	//Subscribe keyboard interrupt
 	int kbd_hook_bit = kbd_subscribe_int();
 	if (kbd_hook_bit == EXIT_FAILURE) {
 		vg_exit();
 		printf("ERROR: Failed to subscribe keyboard interrupt!\n");
 		return EXIT_FAILURE;
 	}
+
 	int r, ipc_status;
 	message msg;
 	unsigned long scancode = 0;
 
+	//Wait until user presses ESC
 	while (scancode != BREAK_ESC_CODE) {
 		//Get a request message.
 		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -262,8 +328,16 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 		}
 	}
 
-	kbd_unsubscribe_int();
+	//Unsubscribe keyboard interrupt
+	if (kbd_unsubscribe_int() == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to unsubscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
+
+	//Return to text mode
 	vg_exit();
+
 	printf("lab5::test_xpm() concluido.\n");
 	return EXIT_SUCCESS;
 }
@@ -271,11 +345,14 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		unsigned short hor, short delta, unsigned short time) {
 
+	//Switch to the 0x105 mode
 	char* video_mem = vg_init(MODE_1024_768);
+	if (video_mem == NULL) {
+		printf("ERROR: Could not initialize video module!\n");
+		return EXIT_FAILURE;
+	}
 
-	Sprite *sprite = create_sprite(xpm, xi, yi);
-	float speed = delta / (time * TIMER_DEFAULT_FREQ);
-
+	//Check if coordinates are valid
 	unsigned h_res = getHRes();
 	unsigned v_res = getVRes();
 	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
@@ -283,12 +360,15 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		printf("ERROR: Invalid coordinates!\n");
 		return EXIT_FAILURE;
 	}
+
+	//Check if direction is valid. 0 = Horizontal, 1 = Vertical
 	if (hor != 0 && hor != 1) {
 		vg_exit();
 		printf("ERROR: Invalid direction!\n");
 		return EXIT_FAILURE;
 	}
 
+	//Subscribe timer and keyboard interrupts
 	unsigned char timer_hook_bit;
 	if (timer_hook_bit = timer_subscribe_int() < 0) {
 		vg_exit();
@@ -302,11 +382,16 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		return EXIT_FAILURE;
 	}
 
+	//Create sprite to be drawn
+	Sprite *sprite = create_sprite(xpm, xi, yi);
+	float speed = delta / (time * TIMER_DEFAULT_FREQ);
+
 	int counter = 0;
 	int r, ipc_status;
 	message msg;
 	unsigned long scancode = 0;
 
+	//Wait until user presses ESC
 	while (scancode != BREAK_ESC_CODE) {
 		//Get a request message.
 		if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -320,7 +405,9 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 					scancode = keyboard_int_handler_C();
 				} else if (msg.NOTIFY_ARG & BIT(timer_hook_bit)) {
 					counter++;
+					//Moves the sprite during the specified time
 					if (counter / 60 < time) {
+						//Horizontal movement
 						if (hor == 0) {
 							clearPixmap(
 									(int) (sprite->x + (speed * (counter - 1))),
@@ -328,7 +415,9 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 							drawPixmap((int) (sprite->x + (speed * counter)),
 									sprite->y, sprite->map, sprite->width,
 									sprite->height);
-						} else if (hor == 1) {
+						}
+						//Vertical movement
+						else if (hor == 1) {
 							clearPixmap(sprite->x,
 									(int) (sprite->y + (speed * (counter - 1))),
 									sprite->width, sprite->height);
@@ -344,9 +433,23 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 			}
 		}
 	}
-	timer_unsubscribe_int();
-	kbd_unsubscribe_int();
+
+	//Unsubscribe timer and keyboard interrupts
+	if (timer_unsubscribe_int() == EXIT_FAILURE) {
+		kbd_unsubscribe_int();
+		vg_exit();
+		printf("ERROR: Failed to unsubscribe timer interrupt!\n");
+		return EXIT_FAILURE;
+	}
+	if (kbd_unsubscribe_int() == EXIT_FAILURE) {
+		vg_exit();
+		printf("ERROR: Failed to unsubscribe keyboard interrupt!\n");
+		return EXIT_FAILURE;
+	}
+
+	//Return to text mode
 	vg_exit();
+
 	printf("lab5::test_move() concluido.\n");
 	return EXIT_SUCCESS;
 }
