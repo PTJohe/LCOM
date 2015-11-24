@@ -52,7 +52,6 @@ int vbe_get_info_block(vbe_info_block_t *vmi_p) {
 	info.u.b.intno = VBE_INTERRUPT;
 	info.u.b.ah = VBE_FUNCTION;
 	info.u.b.al = VBE_CONTROLLER_INFO;
-	info.u.w.ax = 0x4F00;
 	info.u.w.es = PB2BASE(video.phys);
 	info.u.w.di = PB2OFF(video.phys);
 
@@ -61,7 +60,7 @@ int vbe_get_info_block(vbe_info_block_t *vmi_p) {
 		lm_free(&video);
 		return EXIT_FAILURE;
 	}
-	memcpy(vmi_p, video.virtual, 256);
+	memcpy(vmi_p, video.virtual, 512);
 	lm_free(&video); //free memory
 	return EXIT_SUCCESS;
 }

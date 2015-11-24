@@ -312,14 +312,6 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		return EXIT_FAILURE;
 	}
 
-	//Check if direction is valid. 0 = Horizontal, 1 = Vertical, 2 = Diagonal
-	if (hor != 0 && hor != 1 && hor != 2) {
-		vg_exit();
-		printf(
-				"ERROR: Invalid direction! 0 = Horizontal, 1 = Vertical, 2 = Diagonal\n");
-		return EXIT_FAILURE;
-	}
-
 	//Subscribe timer and keyboard interrupts
 	unsigned char timer_hook_bit;
 	if (timer_hook_bit = timer_subscribe_int() < 0) {
@@ -359,33 +351,23 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 					counter++;
 					//Moves the sprite during the specified time
 					if (counter / 60 < time) {
-						//Horizontal movement
-						if (hor == 0) {
-							clearPixmap(
-									(int) (sprite->x + (speed * (counter - 1))),
-									sprite->y, sprite->width, sprite->height);
-							drawPixmap((int) (sprite->x + (speed * counter)),
-									sprite->y, sprite->map, sprite->width,
-									sprite->height);
-						}
 						//Vertical movement
-						else if (hor == 1) {
+						if (hor == 0) {
 							clearPixmap(sprite->x,
 									(int) (sprite->y + (speed * (counter - 1))),
 									sprite->width, sprite->height);
 							drawPixmap(sprite->x,
 									(int) (sprite->y + (speed * counter)),
 									sprite->map, sprite->width, sprite->height);
-						}
-						//Diagonal movement
-						else if (hor == 2) {
+						} else
+						//Horizontal movement
+						{
 							clearPixmap(
 									(int) (sprite->x + (speed * (counter - 1))),
-									(int) (sprite->y + (speed * (counter - 1))),
-									sprite->width, sprite->height);
+									sprite->y, sprite->width, sprite->height);
 							drawPixmap((int) (sprite->x + (speed * counter)),
-									(int) (sprite->y + (speed * counter)),
-									sprite->map, sprite->width, sprite->height);
+									sprite->y, sprite->map, sprite->width,
+									sprite->height);
 						}
 					}
 				}
@@ -396,7 +378,7 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		}
 	}
 
-	//Unsubscribe timer and keyboard interrupts
+//Unsubscribe timer and keyboard interrupts
 	if (timer_unsubscribe_int() == EXIT_FAILURE) {
 		kbd_unsubscribe_int();
 		vg_exit();
@@ -409,7 +391,7 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		return EXIT_FAILURE;
 	}
 
-	//Return to text mode
+//Return to text mode
 	vg_exit();
 
 	printf("lab5::test_move() concluido.\n");
@@ -444,22 +426,21 @@ int test_controller() {
 		printf(
 				"- When programming large block of information to the RAMDAC, use the blank bit in Function 09h.\n");
 
-	printf("Video modes (in hexadecimal) supported:\n");
+	printf("\nVideo modes (in hexadecimal) supported:\n");
 
-	short *videoMode = vbe_mode_info.VideoModePtr;
-	//videoMode = ((videoMode >> 12) & 0xF0000) + (videoMode & 0x0FFFF) + posicao;
-	int x = videoMode;
-	x = ((x >> 12) & 0xF0000) + (x & 0x0FFFF);
-	x = x + posicao;
-	videoMode = x;
+	short *videoMode = (short*) vbe_mode_info.VideoModePtr;
+	int x = (int) videoMode;
+	x = (x & 0xFFFF0000) >> 12;
+	x += (int) posicao;
+	videoMode = (short*) x;
 
 	while (*videoMode != -1) {
-		if (*videoMode != 0)
+		if (*videoMode >= 0x100 && *videoMode < 0x200)
 			printf("0x%X\t", *videoMode);
 		videoMode++;
 	}
 
-	printf("\nSize of VRAM memory: %lu kb\n", vbe_mode_info.TotalMemory * 64);
+	printf("\n\nSize of VRAM memory: %lu kb\n", vbe_mode_info.TotalMemory * 64);
 
 	printf("\nlab5::test_controller() concluido.\n");
 	return EXIT_SUCCESS;

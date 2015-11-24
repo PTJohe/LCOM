@@ -27,6 +27,9 @@ void *vg_init(unsigned short mode);
  */
 int vg_exit(void);
 
+/**
+ * @return Pointer to video_mem.
+ */
 char* getVideoMem();
 unsigned getHRes();
 unsigned getVRes();
