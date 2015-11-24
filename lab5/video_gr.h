@@ -30,10 +30,14 @@ int vg_exit(void);
 char* getVideoMem();
 unsigned getHRes();
 unsigned getVRes();
-void swap(unsigned short* xi, unsigned short* xf);
+void swap(int* xi, int* xf);
 double round(double x);
-int clearPixmap(int xi, int yi, int width, int height);
+
+void putPixel(int x, int y, unsigned long color);
+int drawSquare(int xi, int yi, int size, unsigned long color);
+int drawLine(int xi, int yi, int xf, int yf, unsigned long color);
 int drawPixmap(int xi, int yi, char* pixmap, int width, int height);
+int clearPixmap(int xi, int yi, int width, int height);
 
 /** @} end of video_gr */
 

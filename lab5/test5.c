@@ -98,16 +98,7 @@ int test_square(unsigned short x, unsigned short y, unsigned short size,
 	}
 
 	//Draw a square at the specified position
-	int line, column;
-	for (line = 0; line < size; line++) {
-		for (column = 0; column < size; column++) {
-			if ((x + column < h_res) && (y + line < v_res)) {
-				video_mem = getVideoMem();
-				video_mem = video_mem + (h_res * (y + line)) + (x + column);
-				*video_mem = color;
-			}
-		}
-	}
+	drawSquare((int) x, (int) y, (int) size, color);
 
 	//Subscribe keyboard interrupt
 	int kbd_hook_bit = kbd_subscribe_int();
@@ -175,48 +166,8 @@ int test_line(unsigned short xi, unsigned short yi, unsigned short xf,
 		return EXIT_FAILURE;
 	}
 
-	//Adapted from DDA Line Drawing Algorithm
 	//Draw a line from the initial position to a specified position
-	double dX = abs(xf - xi);
-	double dY = abs(yf - yi);
-
-	double m = dY / dX;
-
-	int stepX, stepY;
-	if (xf >= xi)
-		stepX = 1;
-	else
-		stepX = -1;
-	if (yf >= yi)
-		stepY = 1;
-	else
-		stepY = -1;
-
-	if (m <= 1) {
-		if (xi > xf) {
-			swap(&xi, &xf);
-			swap(&yi, &yf);
-			stepY = -stepY;
-		}
-		double y = yi;
-		for (xi; xi <= xf; xi++, y += stepY * m) {
-			video_mem = getVideoMem();
-			video_mem = video_mem + (h_res * (int) round(y)) + xi;
-			*video_mem = color;
-		}
-	} else {
-		if (yi > yf) {
-			swap(&xi, &xf);
-			swap(&yi, &yf);
-			stepX = -stepX;
-		}
-		double x = xi;
-		for (yi; yi <= yf; yi++, x += stepX / m) {
-			video_mem = getVideoMem();
-			video_mem = video_mem + (h_res * yi) + (int) round(x);
-			*video_mem = color;
-		}
-	}
+	drawLine((int) xi, (int) yi, (int) xf, (int) yf, color);
 
 	//Subscribe keyboard interrupt
 	int kbd_hook_bit = kbd_subscribe_int();
@@ -467,38 +418,48 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 
 int test_controller() {
 
-	if (lm_init() == NULL)
+	char* posicao = lm_init();
+	if (posicao == NULL)
 		return EXIT_FAILURE;
 
-	uint16_t *VideoModeList;
-	unsigned nr_of_video_modes;
-	vbe_info_block_t vib;
-	vbe_get_info_block(&vib, &VideoModeList, &nr_of_video_modes);
+	vbe_info_block_t vbe_mode_info;
+	vbe_get_info_block(&vbe_mode_info);
+	if (&vbe_mode_info < 0) {
+		printf("ERROR: Could not get VBE mode info!\n");
+		return EXIT_FAILURE;
+	}
 
-	printf("Capabilities: 0x%X\n", vib.Capabilities);
-	if (vib.Capabilities & BIT(0) == 0)
-		printf("DAC is fixed width, with 6 bits per primary color.\n");
+	printf("\nCapabilities:\n");
+	if (vbe_mode_info.Capabilities & BIT(0) == 0)
+		printf("- DAC is fixed width, with 6 bits per primary color.\n");
 	else
-		printf("DAC width is switchable to 8 bits per primary color.\n");
-	if (vib.Capabilities & BIT(1) == 0)
-		printf("Controller is VGA compatible.\n");
+		printf("- DAC width is switchable to 8 bits per primary color.\n");
+	if (vbe_mode_info.Capabilities & BIT(1) == 0)
+		printf("- Controller is VGA compatible.\n");
 	else
-		printf("Controller isn't VGA compatible.\n");
-	if (vib.Capabilities & BIT(2) == 0)
-		printf("Normal RAMDAC operation.\n");
+		printf("- Controller isn't VGA compatible.\n");
+	if (vbe_mode_info.Capabilities & BIT(2) == 0)
+		printf("- Normal RAMDAC operation.\n");
 	else
 		printf(
-				"When programming large block of information to the RAMDAC, use the blank bit in Function 09h.\n");
+				"- When programming large block of information to the RAMDAC, use the blank bit in Function 09h.\n");
 
-	printf("Video modes (in hexadecimal) supported: ");
-	if (nr_of_video_modes > 0)
-		printf("0x%X\n", VideoModeList[0]);
-	size_t m;
-	for (m = 1; m < nr_of_video_modes; m++)
-		printf("0x%X\n", VideoModeList[m]);
-	free(VideoModeList);
+	printf("Video modes (in hexadecimal) supported:\n");
 
-	printf("Size of VRAM memory: %lu kb\n", vib.TotalMemory * 64);
+	short *videoMode = vbe_mode_info.VideoModePtr;
+	//videoMode = ((videoMode >> 12) & 0xF0000) + (videoMode & 0x0FFFF) + posicao;
+	int x = videoMode;
+	x = ((x >> 12) & 0xF0000) + (x & 0x0FFFF);
+	x = x + posicao;
+	videoMode = x;
+
+	while (*videoMode != -1) {
+		if (*videoMode != 0)
+			printf("0x%X\t", *videoMode);
+		videoMode++;
+	}
+
+	printf("\nSize of VRAM memory: %lu kb\n", vbe_mode_info.TotalMemory * 64);
 
 	printf("\nlab5::test_controller() concluido.\n");
 	return EXIT_SUCCESS;

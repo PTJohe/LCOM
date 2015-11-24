@@ -17,10 +17,8 @@ int main(int argc, char *argv[]) {
 	if (argc == 1) {
 		print_usage(argv);
 		return EXIT_SUCCESS;
-	} else {
-		proc_args(argc, argv);
-	}
-	return EXIT_SUCCESS;
+	} else
+		return proc_args(argc, argv);
 }
 
 static void print_usage(char *argv[]) {
@@ -146,6 +144,10 @@ static int proc_args(int argc, char *argv[]) {
 		}
 		printf("lab5::test_controller()\n");
 		return test_controller();
+	} else{
+		printf("ERROR: Inexistent function!\n\n");
+		print_usage(argv);
+		return EXIT_FAILURE;
 	}
 }
 
@@ -162,8 +164,7 @@ static long parse_long(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("lab5::parse_long: no digits were found in %s \n",
-				str);
+		printf("lab5::parse_long: no digits were found in %s \n", str);
 		return LONG_MAX;
 	}
 
@@ -183,8 +184,7 @@ static unsigned long parse_ulong(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("lab5::parse_ulong: no digits were found in %s \n",
-				str);
+		printf("lab5::parse_ulong: no digits were found in %s \n", str);
 		return ULONG_MAX;
 	}
 
@@ -204,8 +204,7 @@ static short parse_short(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("lab5::parse_short: no digits were found in %s \n",
-				str);
+		printf("lab5::parse_short: no digits were found in %s \n", str);
 		return SHRT_MAX;
 	}
 
@@ -225,8 +224,7 @@ static unsigned short parse_ushort(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("lab5::parse_ushort: no digits were found in %s \n",
-				str);
+		printf("lab5::parse_ushort: no digits were found in %s \n", str);
 		return USHRT_MAX;
 	}
 

@@ -116,7 +116,7 @@ typedef struct {
 
 /** @} end of vbe_info_block_t*/
 
-int vbe_get_info_block(vbe_info_block_t *vib_p, uint16_t **VideoModeList, unsigned *nr_of_video_modes);
+int vbe_get_info_block(vbe_info_block_t *vmi_p);
 
  /** @} end of vbe */
 #endif /* __VBE_H */

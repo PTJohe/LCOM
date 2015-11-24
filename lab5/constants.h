@@ -107,5 +107,8 @@
 #define V_RES		  768
 #define BITS_PER_PIXEL	  8
 
+// COLOURS
+#define COLOUR_BLACK 0x00
+
 //==========================================================================================
 #endif

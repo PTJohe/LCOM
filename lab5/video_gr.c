@@ -93,8 +93,8 @@ unsigned getVRes() {
 	return v_res;
 }
 
-void swap(unsigned short* xi, unsigned short* xf) {
-	unsigned short temp = *xi;
+void swap(int* xi, int* xf) {
+	int temp = *xi;
 	*xi = *xf;
 	*xf = temp;
 }
@@ -114,18 +114,25 @@ double round(double x) {
 		return (-t);
 	}
 }
-int clearPixmap(int xi, int yi, int width, int height) {
+
+void putPixel(int x, int y, unsigned long color) {
+	//Color pixel of double buffer
+	//User is responsible for copying double_buffer into video_mem after drawing
+	*(double_buffer + ((h_res * y) + x) * bits_per_pixel / 8) = color;
+}
+
+int drawSquare(int xi, int yi, int size, unsigned long color) {
+	//Check if coordinates are valid
 	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
-		printf("ERROR: Invalid coordinates!\n");
 		return EXIT_FAILURE;
 	}
+
+	//Draw a square the specified position
 	int line, column;
-	for (line = 0; line < height; line++) {
-		for (column = 0; column < width; column++) {
+	for (line = 0; line < size; line++) {
+		for (column = 0; column < size; column++) {
 			if ((xi + column < h_res) && (yi + line < v_res)) {
-				*(double_buffer
-						+ ((h_res * (yi + line)) + (xi + column))
-								* bits_per_pixel / 8) = 0x00;
+				putPixel((xi + column), (yi + line), color);
 			}
 		}
 	}
@@ -133,20 +140,89 @@ int clearPixmap(int xi, int yi, int width, int height) {
 
 	return EXIT_SUCCESS;
 }
-int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
-	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
-		printf("ERROR: Invalid coordinates!\n");
+
+int drawLine(int xi, int yi, int xf, int yf, unsigned long color) {
+	//Check if coordinates are valid
+	if ((xf >= h_res || xf < 0 || xi >= h_res || xi < 0)
+			|| (yf >= v_res || yf < 0 || yi >= v_res || yi < 0)) {
 		return EXIT_FAILURE;
 	}
 
+	//Adapted from DDA Line Drawing Algorithm
+	double dX = abs(xf - xi);
+	double dY = abs(yf - yi);
+
+	double m = dY / dX;
+
+	int stepX, stepY;
+	if (xf >= xi)
+		stepX = 1;
+	else
+		stepX = -1;
+	if (yf >= yi)
+		stepY = 1;
+	else
+		stepY = -1;
+
+	if (m <= 1) {
+		if (xi > xf) {
+			swap(&xi, &xf);
+			swap(&yi, &yf);
+			stepY = -stepY;
+		}
+		double y = yi;
+		for (xi; xi <= xf; xi++, y += stepY * m) {
+			putPixel(xi, (int) round(y), color);
+		}
+	} else {
+		if (yi > yf) {
+			swap(&xi, &xf);
+			swap(&yi, &yf);
+			stepX = -stepX;
+		}
+		double x = xi;
+		for (yi; yi <= yf; yi++, x += stepX / m) {
+			putPixel((int) round(x), yi, color);
+		}
+	}
+	memcpy(video_mem, double_buffer, h_res * v_res * bits_per_pixel / 8);
+
+	return EXIT_SUCCESS;
+}
+
+int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
+	//Check if coordinates are valid
+	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+		return EXIT_FAILURE;
+	}
+
+	//Draw pixmap at the specified position
 	int line, column;
 	for (line = 0; line < height; line++) {
 		for (column = 0; column < width; column++) {
 			if ((xi + column < h_res) && (yi + line < v_res)) {
-				*(double_buffer
-						+ ((h_res * (yi + line)) + (xi + column))
-								* bits_per_pixel / 8) = pixmap[column
-						+ (line * width)];
+				putPixel((xi + column), (yi + line),
+						pixmap[column + (line * width)]);
+			}
+		}
+	}
+	memcpy(video_mem, double_buffer, h_res * v_res * bits_per_pixel / 8);
+
+	return EXIT_SUCCESS;
+}
+
+int clearPixmap(int xi, int yi, int width, int height) {
+	//Check if coordinates are valid
+	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+		return EXIT_FAILURE;
+	}
+
+	//Draw a black rectangle in the pixmap's position
+	int line, column;
+	for (line = 0; line < height; line++) {
+		for (column = 0; column < width; column++) {
+			if ((xi + column < h_res) && (yi + line < v_res)) {
+				putPixel((xi + column), (yi + line), COLOUR_BLACK);
 			}
 		}
 	}
