@@ -31,15 +31,43 @@ int vg_exit(void);
  * @return Pointer to video_mem.
  */
 char* getVideoMem();
+/**
+ * @return Horizontal resolution
+ */
 unsigned getHRes();
+/**
+ * @return Vertical resolution
+ */
 unsigned getVRes();
+
+/**
+ * Swaps two values
+ */
 void swap(int* xi, int* xf);
+/**
+ * Round function, introduced in Minix 3.3.0
+ */
 double round(double x);
 
+/**
+ * Colors a pixel in the double buffer
+ */
 void putPixel(int x, int y, unsigned long color);
+/**
+ * Draws square with a given color at the specified position
+ */
 int drawSquare(int xi, int yi, int size, unsigned long color);
+/**
+ * Draws line with a given color in the specified coordinates
+ */
 int drawLine(int xi, int yi, int xf, int yf, unsigned long color);
+/**
+ * Draws a pixmap in the specified position.
+ */
 int drawPixmap(int xi, int yi, char* pixmap, int width, int height);
+/**
+ * Clears the pixmap position.
+ */
 int clearPixmap(int xi, int yi, int width, int height);
 
 /** @} end of video_gr */
