@@ -280,7 +280,7 @@ int test_xpm(unsigned short xi, unsigned short yi, char *xpm[]) {
 	//Check if the pixmap exists
 	if (pixmap == NULL) {
 		vg_exit();
-		printf("ERROR: Failed to read xpm.\n");
+		printf("ERROR: Failed to read xpm!\n");
 		return EXIT_FAILURE;
 	}
 
@@ -361,10 +361,11 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 		return EXIT_FAILURE;
 	}
 
-	//Check if direction is valid. 0 = Horizontal, 1 = Vertical
-	if (hor != 0 && hor != 1) {
+	//Check if direction is valid. 0 = Horizontal, 1 = Vertical, 2 = Diagonal
+	if (hor != 0 && hor != 1 && hor != 2) {
 		vg_exit();
-		printf("ERROR: Invalid direction!\n");
+		printf(
+				"ERROR: Invalid direction! 0 = Horizontal, 1 = Vertical, 2 = Diagonal\n");
 		return EXIT_FAILURE;
 	}
 
@@ -425,6 +426,16 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 									(int) (sprite->y + (speed * counter)),
 									sprite->map, sprite->width, sprite->height);
 						}
+						//Diagonal movement
+						else if (hor == 2) {
+							clearPixmap(
+									(int) (sprite->x + (speed * (counter - 1))),
+									(int) (sprite->y + (speed * (counter - 1))),
+									sprite->width, sprite->height);
+							drawPixmap((int) (sprite->x + (speed * counter)),
+									(int) (sprite->y + (speed * counter)),
+									sprite->map, sprite->width, sprite->height);
+						}
 					}
 				}
 				break;
@@ -456,12 +467,14 @@ int test_move(unsigned short xi, unsigned short yi, char *xpm[],
 
 int test_controller() {
 
-	/*if (lm_init())
-	 return EXIT_FAILURE;*/
+	if (lm_init() == NULL)
+		return EXIT_FAILURE;
+
 	uint16_t *VideoModeList;
 	unsigned nr_of_video_modes;
 	vbe_info_block_t vib;
 	vbe_get_info_block(&vib, &VideoModeList, &nr_of_video_modes);
+
 	printf("Capabilities: 0x%X\n", vib.Capabilities);
 	if (vib.Capabilities & BIT(0) == 0)
 		printf("DAC is fixed width, with 6 bits per primary color.\n");
@@ -476,15 +489,18 @@ int test_controller() {
 	else
 		printf(
 				"When programming large block of information to the RAMDAC, use the blank bit in Function 09h.\n");
+
 	printf("Video modes (in hexadecimal) supported: ");
-	size_t m;
 	if (nr_of_video_modes > 0)
 		printf("0x%X\n", VideoModeList[0]);
+	size_t m;
 	for (m = 1; m < nr_of_video_modes; m++)
 		printf("0x%X\n", VideoModeList[m]);
 	free(VideoModeList);
-	printf("Size of VRAM memory: %lu kb\n", vib.TotalMemory * 64);
-	return EXIT_SUCCESS;
 
+	printf("Size of VRAM memory: %lu kb\n", vib.TotalMemory * 64);
+
+	printf("\nlab5::test_controller() concluido.\n");
+	return EXIT_SUCCESS;
 }
 

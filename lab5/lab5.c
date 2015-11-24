@@ -16,11 +16,11 @@ int main(int argc, char *argv[]) {
 
 	if (argc == 1) {
 		print_usage(argv);
-		return 0;
+		return EXIT_SUCCESS;
 	} else {
 		proc_args(argc, argv);
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 static void print_usage(char *argv[]) {
@@ -43,7 +43,7 @@ static int proc_args(int argc, char *argv[]) {
 	/* check the function to test: if the first characters match, accept it */
 	if (strncmp(argv[1], "init", strlen("init")) == 0) {
 		if (argc != 4) {
-			printf("lab5::test_init: wrong no of arguments for test_init \n");
+			printf("lab5::test_init: wrong no of arguments for test_init()\n");
 			return EXIT_FAILURE;
 		}
 		mode = parse_ushort(argv[2], 16);
@@ -60,7 +60,7 @@ static int proc_args(int argc, char *argv[]) {
 	} else if (strncmp(argv[1], "square", strlen("square")) == 0) {
 		if (argc != 6) {
 			printf(
-					"lab5::test_square: wrong no of arguments for test_square() \n");
+					"lab5::test_square: wrong no of arguments for test_square()\n");
 			return EXIT_FAILURE;
 		}
 		x = parse_ushort(argv[2], 10);
@@ -78,7 +78,7 @@ static int proc_args(int argc, char *argv[]) {
 
 	} else if (strncmp(argv[1], "line", strlen("line")) == 0) {
 		if (argc != 7) {
-			printf("lab5::test_line: wrong no of arguments for test_line() \n");
+			printf("lab5::test_line: wrong no of arguments for test_line()\n");
 			return EXIT_FAILURE;
 		}
 		xi = parse_ushort(argv[2], 10);
@@ -97,7 +97,7 @@ static int proc_args(int argc, char *argv[]) {
 
 	} else if (strncmp(argv[1], "xpm", strlen("xpm")) == 0) {
 		if (argc != 5) {
-			printf("lab5::test_xpm: wrong no of arguments for test_xpm() \n");
+			printf("lab5::test_xpm: wrong no of arguments for test_xpm()\n");
 			return EXIT_FAILURE;
 		}
 		xi = parse_ushort(argv[2], 10);
@@ -110,13 +110,13 @@ static int proc_args(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 		if (getPixmap(xpm) == NULL) {
-			printf("ERROR: Could not find xpm.\n");
+			printf("ERROR: Could not find xpm!\n");
 			return EXIT_FAILURE;
 		}
 		return test_xpm(xi, yi, getPixmap(xpm));
 	} else if (strncmp(argv[1], "move", strlen("move")) == 0) {
 		if (argc != 8) {
-			printf("lab5::test_move: wrong no of arguments for test_move() \n");
+			printf("lab5::test_move: wrong no of arguments for test_move()\n");
 			return EXIT_FAILURE;
 		}
 		xi = parse_ushort(argv[2], 10);
@@ -134,14 +134,14 @@ static int proc_args(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 		if (getPixmap(xpm) == NULL) {
-			printf("ERROR: Could not find xpm.\n");
+			printf("ERROR: Could not find xpm!\n");
 			return EXIT_FAILURE;
 		}
 		return test_move(xi, yi, getPixmap(xpm), hor, delta, time);
 	} else if (strncmp(argv[1], "controller", strlen("controller")) == 0) {
 		if (argc != 2) {
 			printf(
-					"lab5::test_controller: wrong no of arguments for test_controller() \n");
+					"lab5::test_controller: wrong no of arguments for test_controller()\n");
 			return EXIT_FAILURE;
 		}
 		printf("lab5::test_controller()\n");
@@ -162,7 +162,7 @@ static long parse_long(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("video_graphics: parse_long: no digits were found in %s \n",
+		printf("lab5::parse_long: no digits were found in %s \n",
 				str);
 		return LONG_MAX;
 	}
@@ -183,7 +183,7 @@ static unsigned long parse_ulong(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("video_graphics: parse_ulong: no digits were found in %s \n",
+		printf("lab5::parse_ulong: no digits were found in %s \n",
 				str);
 		return ULONG_MAX;
 	}
@@ -204,7 +204,7 @@ static short parse_short(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("video_graphics: parse_short: no digits were found in %s \n",
+		printf("lab5::parse_short: no digits were found in %s \n",
 				str);
 		return SHRT_MAX;
 	}
@@ -225,7 +225,7 @@ static unsigned short parse_ushort(char *str, int base) {
 	}
 
 	if (endptr == str) {
-		printf("video_graphics: parse_ushort: no digits were found in %s \n",
+		printf("lab5::parse_ushort: no digits were found in %s \n",
 				str);
 		return USHRT_MAX;
 	}
