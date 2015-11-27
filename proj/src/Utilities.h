@@ -111,32 +111,33 @@
  * COLOURS
  */
 
+#define COLOUR_BLACK		0x00
+#define COLOUR_WHITE 		0x3F
+#define COLOUR_GREY			0x07
 
-// BASIC COLOURS
-#define BLACK	RGB(0, 0, 0)
-#define WHITE 	RGB(255, 255, 255)
-#define RED		RGB(255, 0, 0)
-#define LIME	RGB(0, 255, 0)
-#define BLUE	RGB(0, 0, 255)
-#define YELLOW 	RGB(255, 255, 0)
-#define CYAN	RGB(0, 255, 255)
-#define PINK	RGB(255, 0, 255)
-#define SILVER	RGB(192, 192, 192)
-#define GREY	RGB(128, 128, 128)
-#define MAROON	RGB(128, 0, 0)
-#define	OLIVE	RGB(128, 128, 0)
-#define GREEN	RGB(0, 128, 0)
-#define TEAL	RGB(0, 128, 128)
-#define NAVY	RGB(0, 0, 128)
-#define PURPLE	RGB(128, 0, 128)
+#define COLOUR_RED			0x24
+#define COLOUR_GREEN		0x12
+#define COLOUR_BLUE 		0x09
 
+#define COLOUR_YELLOW 		0x36
+#define COLOUR_MAGENTA		0x25
+#define COLOUR_CYAN			0x1B
+
+#define COLOUR_DARK_RED 	0x04
+#define COLOUR_DARK_GREEN	0x10
+#define COLOUR_DARK_BLUE	0x01
+
+#define COLOUR_ORANGE		0x26
+#define COLOUR_BROWN		0x14
+#define COLOUR_PINK			0x2F
+#define COLOUR_PURPLE		0x05
 
 //==========================================================================================
 
 /**
  *  Converts RGB to Hex value.
  */
-unsigned long RGB(int r, int g, int b);
+int RGB(unsigned char r, unsigned char g, unsigned char b);
 /**
  * Swaps two values
  */

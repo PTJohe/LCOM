@@ -1,1 +1,1 @@
-service run `pwd`/proj
+service run `pwd`/src/proj

@@ -2,9 +2,19 @@
 
 
 // Converts RGB to Hex value.
-unsigned long RGB(int r, int g, int b) {
-	return ((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF);
+int RGB(unsigned char r, unsigned char g, unsigned char b) {
+	if (r < 0 || 255 < r || g < 0 || 255 < g || b < 0 || b > 255)
+		return -1;
+
+	int red, green, blue;
+	red = r * 31 / 255;
+	green = g * 63 / 255;
+	blue = b * 31 / 255;
+
+	return (red << 11) | (green << 5) | blue;
 }
+
+
 
 // Swaps two values
 void swap(int* xi, int* xf) {

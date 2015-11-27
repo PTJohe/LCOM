@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int kbd_subscribe_int() {
+int subscribeKeyboard() {
 	hook_id_keyboard = KBC_IRQ;
 	int bitmask = BIT(hook_id_keyboard); //KBC_IRQ = hook_id_keyboard = 1
 	if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE,
@@ -17,7 +17,7 @@ int kbd_subscribe_int() {
 		return EXIT_FAILURE;
 }
 
-int kbd_unsubscribe_int() {
+int unsubscribeKeyboard() {
 	if (sys_irqdisable(&hook_id_keyboard) != OK
 			&& sys_irqrmpolicy(&hook_id_keyboard) != OK)
 		return EXIT_FAILURE;
@@ -25,7 +25,7 @@ int kbd_unsubscribe_int() {
 		return EXIT_SUCCESS;
 }
 
-unsigned long kbd_read_scancode() {
+unsigned long readScancode() {
 	unsigned long data;
 	unsigned long stat;
 	while (1) {

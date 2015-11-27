@@ -1,4 +1,4 @@
-cd src
+cd code
 make clean install
 mv proj ../
 cd ..
