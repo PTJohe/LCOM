@@ -1,6 +1,5 @@
 #include "Utilities.h"
 
-
 // Converts RGB to Hex value.
 int RGB(unsigned char r, unsigned char g, unsigned char b) {
 	if (r < 0 || 255 < r || g < 0 || 255 < g || b < 0 || b > 255)

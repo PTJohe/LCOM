@@ -1,6 +1,21 @@
 #ifndef __CONSTANTS_H
 #define __CONSTANTS_H
 
+#include <stdio.h>
+
+//==========================================================================================
+
+// log data
+
+extern FILE* logfd;
+#define LOG_PATH "home/lcom/proj/log.txt"
+#define LOG(tag, msg) fprintf(logfd, "%s: %s\n", tag, msg)
+#define LOG_VAR(tag, var) fprintf(logfd, "%s: %d\n", tag, var)
+
+
+
+//==========================================================================================
+
 #define BIT(n) (0x01 << n)
 
 //==========================================================================================

@@ -7,7 +7,19 @@
 #include "Graphics.h"
 #include "Timer.h"
 
+FILE* logfd = NULL;
+
+void initLog(){
+	logfd = fopen(LOG_PATH, "w");
+	LOG("initLog", "logging successfully initialized");
+}
+
 int main(int argc, char *argv[]) {
+	/* initialize log data */
+
+	initLog();
+	LOG("main", "Starting program..");
+
 	/* Initialize service (synchronize with the RS) */
 	sef_startup();
 
