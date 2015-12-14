@@ -4,7 +4,7 @@
 static int timer_counter;
 static int hook_id_timer;
 
-/// Represents a Timer
+// Represents a Timer
 typedef struct {
 	int counter; ///< timer counter
 	int enabled; ///< bool indicating if timer is counting

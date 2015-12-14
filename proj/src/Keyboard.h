@@ -1,17 +1,9 @@
 #ifndef __KEYBOARD_H
 #define __KEYBOARD_H
 
-/** @defgroup Keyboard Keyboard
- * @{
- * Functions to manipulate keyboard
- */
-
 static int hook_id_keyboard;
 
-#define KEY_DOWN(k) (k) //Checks if a certain key was pressed
-#define KEY_UP(k)	(0x80 & k) //Checks if a certain key was released
-
-/// Keys
+// Keys
 typedef enum {
 	KEY_ESC = 0x0001,
 	KEY_W = 0x0011,

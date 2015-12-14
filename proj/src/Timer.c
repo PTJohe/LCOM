@@ -18,11 +18,11 @@ int subscribeTimer(void) {
 }
 
 int unsubscribeTimer() {
-	if (sys_irqrmpolicy(&hook_id_timer) != OK
-			&& sys_irqdisable(&hook_id_timer) != OK)
-		return EXIT_FAILURE;
-	else
+	if (sys_irqrmpolicy(&hook_id_timer) == OK
+			&& sys_irqdisable(&hook_id_timer) == OK)
 		return EXIT_SUCCESS;
+	else
+		return EXIT_FAILURE;
 }
 
 Timer* newTimer() {

@@ -13,8 +13,6 @@ int RGB(unsigned char r, unsigned char g, unsigned char b) {
 	return (red << 11) | (green << 5) | blue;
 }
 
-
-
 // Swaps two values
 void swap(int* xi, int* xf) {
 	int temp = *xi;

@@ -15,7 +15,7 @@ WallyNIX* startWallyNIX() {
 
 	wally->mode = MODE_1024_768;
 	wally->menu = 0;
-	wally->done = 0, wally->draw = 1;
+	wally->exit = 0, wally->draw = 1;
 	wally->scancode = 0;
 	wally->timer = newTimer();
 
@@ -52,7 +52,7 @@ void updateWallyNIX(WallyNIX* wally) {
 
 	if (wally->scancode != 0) {
 		if (wally->scancode == KEY_ESC)
-			wally->done = 1;
+			wally->exit = 1;
 		else if (wally->scancode == KEY_W) {
 			wally->scancode = 0;
 			wally->mode = 0x107;
@@ -75,6 +75,10 @@ void updateWallyNIX(WallyNIX* wally) {
 
 void drawWallyNIX(WallyNIX* wally) {
 	fillDisplay(COLOUR_WHITE);
+	drawRectangle(300, 200, 450, 500, COLOUR_GREEN);
+	drawRectangle(450, 200, 700, 500, COLOUR_RED);
+	drawCircle(450, 350, 75, COLOUR_YELLOW);
+	drawLine(425, 350, 475, 350, COLOUR_BLUE);
 }
 
 void stopWallyNIX(WallyNIX* wally) {

@@ -6,31 +6,25 @@
 #include "WallyNIX.h"
 #include "Graphics.h"
 #include "Timer.h"
-
-FILE* logfd = NULL;
-
-void initLog(){
-	logfd = fopen(LOG_PATH, "w");
-	LOG("initLog", "logging successfully initialized");
-}
+#include "Mouse.h"
 
 int main(int argc, char *argv[]) {
-	/* initialize log data */
-
-	initLog();
-	LOG("main", "Starting program..");
-
 	/* Initialize service (synchronize with the RS) */
 	sef_startup();
 
 	WallyNIX* wally = (WallyNIX*) startWallyNIX();
-	while (!wally->done) {
+	while (!wally->exit) {
 		updateWallyNIX(wally);
 
-		if (!wally->done) {
+		if (!wally->exit) {
 			if (wally->draw) {
 				drawWallyNIX(wally);
 			}
+			if(getMouse()->draw){
+				drawMouse();
+			}
+			copyMouseBuffer();
+			copyDoubleBuffer();
 		}
 	}
 	stopWallyNIX(wally);

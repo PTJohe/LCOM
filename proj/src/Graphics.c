@@ -11,18 +11,18 @@
 
 /* Private global variables */
 
-static char *video_mem; /* Process address to which VRAM is mapped */
-static char *phys_addr; /* Stores physical address of VRAM */
+static char *videoMem; /* Process address to which VRAM is mapped */
+static char *physAddr; /* Stores physical address of VRAM */
 
-static unsigned h_res; /* Horizontal screen resolution in pixels */
-static unsigned v_res; /* Vertical screen resolution in pixels */
-static unsigned bits_per_pixel; /* Number of VRAM bits per pixel */
+static unsigned hRes; /* Horizontal screen resolution in pixels */
+static unsigned vRes; /* Vertical screen resolution in pixels */
+static unsigned bitsPerPixel; /* Number of VRAM bits per pixel */
 
-static unsigned int video_mem_size;
-static unsigned int bytes_per_pixel;
+static unsigned int videoMemSize;
+static unsigned int bytesPerPixel;
 
-static char *double_buffer;
-static char *mouse_buffer;
+static char *doubleBuffer;
+static char *mouseBuffer;
 
 void *initGraphics(unsigned short mode) {
 	struct reg86u r;
@@ -30,34 +30,33 @@ void *initGraphics(unsigned short mode) {
 	r.u.w.bx = 1 << 14 | mode; // set bit 14: linear framebuffer
 	r.u.b.intno = 0x10;
 
-	vbe_mode_info_t vbe_mode_info;
+	vbe_mode_info_t vbeModeInfo;
 	if (sys_int86(&r) != OK) {
-		printf("set_vbe_mode: sys_int86() failed \n");
+		printf("\ninitGraphics: sys_int86() failed \n");
 	} else if (r.u.w.ax == VBE_FUNCTION_SUPPORTED | VBE_FUNCTION_CALL_SUCCESSFUL) {
-		if (vbe_get_mode_info(mode, &vbe_mode_info)) {
+		if (vbe_get_mode_info(mode, &vbeModeInfo)) {
 			return NULL;
 		} else {
-			h_res = vbe_mode_info.XResolution;
-			v_res = vbe_mode_info.YResolution;
-			bits_per_pixel = vbe_mode_info.BitsPerPixel;
-			video_mem_size = h_res * v_res * bits_per_pixel / 8;
+			hRes = vbeModeInfo.XResolution;
+			vRes = vbeModeInfo.YResolution;
+			bitsPerPixel = vbeModeInfo.BitsPerPixel;
+			videoMemSize = hRes * vRes * bitsPerPixel / 8;
 
 			//Allow memory mapping
 			struct mem_range mr;
-			unsigned mr_size;
-			mr.mr_base = vbe_mode_info.PhysBasePtr;
-			mr.mr_limit = mr.mr_base + video_mem_size;
+			mr.mr_base = vbeModeInfo.PhysBasePtr;
+			mr.mr_limit = mr.mr_base + videoMemSize;
 
 			if (sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mr))
 				return NULL;
 
 			//Map memory
-			video_mem = vm_map_phys(SELF, (void *) mr.mr_base, video_mem_size);
+			videoMem = vm_map_phys(SELF, (void *) mr.mr_base, videoMemSize);
 
-			if (video_mem != MAP_FAILED) {
-				if ((double_buffer = (char*) malloc(video_mem_size)) != NULL) {
-					if ((mouse_buffer = (char*) malloc(video_mem_size)) != NULL) {
-						return video_mem;
+			if (videoMem != MAP_FAILED) {
+				if ((doubleBuffer = (char*) malloc(videoMemSize)) != NULL) {
+					if ((mouseBuffer = (char*) malloc(videoMemSize)) != NULL) {
+						return videoMem;
 					}
 				}
 			}
@@ -74,45 +73,74 @@ int exitGraphics() {
 	reg86.u.b.al = 0x03; /* 80x25 text mode*/
 
 	if (sys_int86(&reg86) != OK) {
-		printf("\tvg_exit(): sys_int86() failed \n");
+		printf("\nexitGraphics(): sys_int86() failed \n");
 		return EXIT_FAILURE;
 	} else
 		return EXIT_SUCCESS;
 }
 
 char* getVideoMem() {
-	return video_mem;
+	return videoMem;
 }
 
 unsigned getHRes() {
-	return h_res;
+	return hRes;
 }
 
 unsigned getVRes() {
-	return v_res;
+	return vRes;
+}
+
+void copyDoubleBuffer() {
+	memcpy(mouseBuffer, doubleBuffer, videoMemSize);
+}
+void copyMouseBuffer() {
+	memcpy(videoMem, mouseBuffer, videoMemSize);
 }
 
 //==========================================================================================
-int fillDisplay(unsigned long color) {
+int fillDisplay(unsigned long colour) {
 	char *pixel;
-	for (pixel = double_buffer;
-			pixel < double_buffer + video_mem_size;
-			pixel++) {
-		*pixel = color;
+	for (pixel = doubleBuffer; pixel < doubleBuffer + videoMemSize; pixel++) {
+		*pixel = colour;
 	}
-	memcpy(video_mem, double_buffer, video_mem_size);
 	return EXIT_SUCCESS;
 }
 
-void putPixel(int x, int y, unsigned long color) {
+void putPixel(int x, int y, unsigned long colour) {
 	//Color pixel of double buffer
-	//User is responsible for copying double_buffer into video_mem after drawing
-	*(double_buffer + ((h_res * y) + x) * bits_per_pixel / 8) = color;
+	*(doubleBuffer + ((hRes * y) + x) * bitsPerPixel / 8) = colour;
 }
 
-int drawSquare(int xi, int yi, int size, unsigned long color) {
+int drawRectangle(int xi, int yi, int xf, int yf, unsigned long colour) {
 	//Check if coordinates are valid
-	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+	if ((xi >= hRes || xi < 0) || (xf >= hRes || xf < 0)
+			|| (yi >= vRes || yi < 0) || (yf >= vRes || yf < 0)) {
+		return EXIT_FAILURE;
+	}
+
+	//Adjust coordinates
+	if (yi > yf)
+		swap(&yi, &yf);
+	if (xi > xf)
+		swap(&xi, &xf);
+
+	//Draw a rectangle the specified position
+	int line, column;
+	for (line = 0; line < (yf - yi); line++) {
+		for (column = 0; column < (xf - xi); column++) {
+			if ((xi + column < hRes) && (yi + line < vRes)) {
+				putPixel((xi + column), (yi + line), colour);
+			}
+		}
+	}
+
+	return EXIT_SUCCESS;
+}
+
+int drawSquare(int xi, int yi, int size, unsigned long colour) {
+	//Check if coordinates are valid
+	if ((xi >= hRes || xi < 0) || (yi >= vRes || yi < 0)) {
 		return EXIT_FAILURE;
 	}
 
@@ -120,20 +148,19 @@ int drawSquare(int xi, int yi, int size, unsigned long color) {
 	int line, column;
 	for (line = 0; line < size; line++) {
 		for (column = 0; column < size; column++) {
-			if ((xi + column < h_res) && (yi + line < v_res)) {
-				putPixel((xi + column), (yi + line), color);
+			if ((xi + column < hRes) && (yi + line < vRes)) {
+				putPixel((xi + column), (yi + line), colour);
 			}
 		}
 	}
-	memcpy(video_mem, double_buffer, video_mem_size);
 
 	return EXIT_SUCCESS;
 }
 
-int drawLine(int xi, int yi, int xf, int yf, unsigned long color) {
+int drawLine(int xi, int yi, int xf, int yf, unsigned long colour) {
 	//Check if coordinates are valid
-	if ((xf >= h_res || xf < 0 || xi >= h_res || xi < 0)
-			|| (yf >= v_res || yf < 0 || yi >= v_res || yi < 0)) {
+	if ((xf >= hRes || xf < 0 || xi >= hRes || xi < 0)
+			|| (yf >= vRes || yf < 0 || yi >= vRes || yi < 0)) {
 		return EXIT_FAILURE;
 	}
 
@@ -161,7 +188,7 @@ int drawLine(int xi, int yi, int xf, int yf, unsigned long color) {
 		}
 		double y = yi;
 		for (xi; xi <= xf; xi++, y += stepY * m) {
-			putPixel(xi, (int) round(y), color);
+			putPixel(xi, (int) y, colour);
 		}
 	} else {
 		if (yi > yf) {
@@ -171,17 +198,32 @@ int drawLine(int xi, int yi, int xf, int yf, unsigned long color) {
 		}
 		double x = xi;
 		for (yi; yi <= yf; yi++, x += stepX / m) {
-			putPixel((int) round(x), yi, color);
+			putPixel((int) x, yi, colour);
 		}
 	}
-	memcpy(video_mem, double_buffer, video_mem_size);
 
 	return EXIT_SUCCESS;
 }
 
+int drawCircle(int xc, int yc, int radius, unsigned long colour) {
+
+	int r2 = radius * radius;
+	int area = r2 << 2;
+	int rr = radius << 1;
+	int i;
+	for (i = 0; i < area; i++) {
+		int tx = (i % rr) - radius;
+		int ty = (i / rr) - radius;
+
+		if (tx * tx + ty * ty <= r2)
+			putPixel(xc + tx, yc + ty, colour);
+	}
+	return 0;
+}
+
 int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
 	//Check if coordinates are valid
-	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+	if ((xi >= hRes || xi < 0) || (yi >= vRes || yi < 0)) {
 		return EXIT_FAILURE;
 	}
 
@@ -189,20 +231,19 @@ int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
 	int line, column;
 	for (line = 0; line < height; line++) {
 		for (column = 0; column < width; column++) {
-			if ((xi + column < h_res) && (yi + line < v_res)) {
+			if ((xi + column < hRes) && (yi + line < vRes)) {
 				putPixel((xi + column), (yi + line),
 						pixmap[column + (line * width)]);
 			}
 		}
 	}
-	memcpy(video_mem, double_buffer, video_mem_size);
 
 	return EXIT_SUCCESS;
 }
 
 int clearPixmap(int xi, int yi, int width, int height) {
 	//Check if coordinates are valid
-	if ((xi >= h_res || xi < 0) || (yi >= v_res || yi < 0)) {
+	if ((xi >= hRes || xi < 0) || (yi >= vRes || yi < 0)) {
 		return EXIT_FAILURE;
 	}
 
@@ -210,12 +251,11 @@ int clearPixmap(int xi, int yi, int width, int height) {
 	int line, column;
 	for (line = 0; line < height; line++) {
 		for (column = 0; column < width; column++) {
-			if ((xi + column < h_res) && (yi + line < v_res)) {
+			if ((xi + column < hRes) && (yi + line < vRes)) {
 				putPixel((xi + column), (yi + line), COLOUR_BLACK);
 			}
 		}
 	}
-	memcpy(video_mem, double_buffer, video_mem_size);
 
 	return EXIT_SUCCESS;
 }

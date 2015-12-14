@@ -38,33 +38,45 @@ unsigned getHRes();
  * @return Vertical resolution
  */
 unsigned getVRes();
+/**
+ * @brief Copies the double buffer into the mouse buffer.
+ */
+void copyDoubleBuffer();
+/**
+ * @brief Copies the mouse buffer into the video mem.
+ */
+void copyMouseBuffer();
 
 /**
- * Colors the screen with the specified color
+ * @brief Colors the screen with the specified color
  */
-int fillDisplay(unsigned long color);
+int fillDisplay(unsigned long colour);
 /**
- * Colors a pixel in the double buffer
+ * @brief Colors a pixel in the double buffer
  */
-void putPixel(int x, int y, unsigned long color);
+void putPixel(int x, int y, unsigned long colour);
 /**
- * Draws square with a given color at the specified position
+ * @brief Draws square with a given color at the specified position
  */
-int drawSquare(int xi, int yi, int size, unsigned long color);
+int drawSquare(int xi, int yi, int size, unsigned long colour);
 /**
- * Draws line with a given color in the specified coordinates
+ * @brief Draws a rectangle with a given color at the specified coordinates.
  */
-int drawLine(int xi, int yi, int xf, int yf, unsigned long color);
+int drawRectangle(int xi, int yi, int xf, int yf, unsigned long colour);
 /**
- * Draws a pixmap in the specified position.
+ * @brief Draws line with a given color in the specified coordinates
+ */
+int drawLine(int xi, int yi, int xf, int yf, unsigned long colour);
+/**
+ * @brief Draws a pixmap in the specified position.
  */
 int drawPixmap(int xi, int yi, char* pixmap, int width, int height);
 /**
- * Clears the pixmap position.
+ * @brief Clears the pixmap position.
  */
 int clearPixmap(int xi, int yi, int width, int height);
 
-/** @} end of video_gr */
+/** @} end of graphics */
 
 
 #endif /* __GRAPHICS_H */

@@ -10,7 +10,7 @@ typedef struct {
 	int IRQ_SET_KBD;
 	int IRQ_SET_MOUSE;
 
-	int menu, done, draw;
+	int menu, exit, draw;
 	unsigned long scancode;
 	Timer* timer;
 } WallyNIX;

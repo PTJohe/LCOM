@@ -1,21 +1,6 @@
 #ifndef __CONSTANTS_H
 #define __CONSTANTS_H
 
-#include <stdio.h>
-
-//==========================================================================================
-
-// log data
-
-extern FILE* logfd;
-#define LOG_PATH "home/lcom/proj/log.txt"
-#define LOG(tag, msg) fprintf(logfd, "%s: %s\n", tag, msg)
-#define LOG_VAR(tag, var) fprintf(logfd, "%s: %d\n", tag, var)
-
-
-
-//==========================================================================================
-
 #define BIT(n) (0x01 << n)
 
 //==========================================================================================
@@ -68,6 +53,7 @@ extern FILE* logfd;
 #define KBC_IRQ 1 /**< @brief Keyboard IRQ line */
 #define KBC_OUT_BUF 0x60
 #define KBC_IN_BUF 0x60
+#define KBC_DATA_REG 0x60
 #define KBC_STAT_REG 0x64
 #define KBC_CMD_REG 0x64
 #define KBC_HOOK_BIT 1
@@ -84,7 +70,12 @@ extern FILE* logfd;
 #define ACK 0xFA
 #define RESEND 0xFE
 #define ERROR 0xFC
+//==========================================================================================
+/*
+ * MOUSE MACROS
+ */
 
+#define MOUSE_IRQ 2
 //==========================================================================================
 /*
  * VBE MACROS
