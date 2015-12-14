@@ -1,0 +1,3 @@
+Wally Coordinates (x,y):
+01 - 555, 620
+02 - 361, 293

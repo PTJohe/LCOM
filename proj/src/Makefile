@@ -6,7 +6,7 @@ CC=gcc
 
 PROG=	proj
 SRCS=	Main.c
-SRCS+=	Assembly.S Graphics.c Keyboard.c Mouse.c Timer.c Utilities.c VBE.c
+SRCS+=	Assembly.S Bitmap.c Graphics.c Keyboard.c Mouse.c Timer.c Utilities.c VBE.c
 SRCS+=  WallyNIX.c
 
 CCFLAGS= -Wall

@@ -2,10 +2,11 @@
 #include "WallyNIX.h"
 
 #include "Utilities.h"
+#include "Bitmap.h"
 #include "Graphics.h"
-#include "Timer.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Timer.h"
 
 const int FPS = 30;
 const int mouseFPS = 75;
@@ -23,6 +24,7 @@ WallyNIX* startWallyNIX() {
 	wally->IRQ_SET_TIMER = subscribeTimer();
 	wally->IRQ_SET_KBD = subscribeKeyboard();
 
+	wally->level1 = loadBitmap("/home/lcom1516-t2g15/proj/res/images/01.bmp");
 	initGraphics(wally->mode);
 
 	return wally;
@@ -75,10 +77,7 @@ void updateWallyNIX(WallyNIX* wally) {
 
 void drawWallyNIX(WallyNIX* wally) {
 	fillDisplay(COLOUR_WHITE);
-	drawRectangle(300, 200, 450, 500, COLOUR_GREEN);
-	drawRectangle(450, 200, 700, 500, COLOUR_RED);
-	drawCircle(450, 350, 75, COLOUR_YELLOW);
-	drawLine(425, 350, 475, 350, COLOUR_BLUE);
+	drawBitmap(wally->level1, 0, 0, ALIGN_LEFT);
 }
 
 void stopWallyNIX(WallyNIX* wally) {
