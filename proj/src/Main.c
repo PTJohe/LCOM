@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 	//LOG("main", "Starting Where's Wally? ...");
 	/* Initialize service (synchronize with the RS) */
 	sef_startup();
-	printf("jsadn");
+	printf("Starting WallyNIX.");
 
 
 	WallyNIX* wally = (WallyNIX*) startWallyNIX();

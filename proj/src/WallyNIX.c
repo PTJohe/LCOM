@@ -17,7 +17,7 @@ WallyNIX* startWallyNIX() {
 	wally->mode = MODE_1280_1024;
 	wally->menu = 0;
 	wally->option = 0;
-	wally->timeLimit = 9;
+	wally->timeLimit = 10*60;
 	wally->exit = 0, wally->draw = 1;
 	wally->scancode = 0;
 
@@ -97,7 +97,7 @@ void updateWallyNIX(WallyNIX* wally) {
 			if (wally->menu == 0) {
 				if (wally->option == 0) {
 					wally->menu = 1;
-					wally->timeLimit = 9;
+					wally->timeLimit = 10*60;
 				} else
 					wally->exit = 1;
 			}
@@ -118,7 +118,8 @@ void drawWallyNIX(WallyNIX* wally) {
 	} else if (wally->menu == 1) {
 		drawStage(wally->level1);
 
-		switch (wally->timeLimit) {
+		int number = wally->timeLimit / 60;
+		switch (number) {
 		case 0:
 			drawTimer(wally->char0);
 			break;

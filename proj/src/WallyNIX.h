@@ -11,7 +11,7 @@ typedef struct {
 	int IRQ_SET_KBD;
 	int IRQ_SET_MOUSE;
 
-	int menu, option, exit, draw;
+	int menu, option, timeLimit, exit, draw;
 	unsigned long scancode;
 	Timer* timer;
 
