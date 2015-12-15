@@ -1,7 +1,19 @@
 #ifndef __CONSTANTS_H
 #define __CONSTANTS_H
 
+#include <stdio.h>
+
 #define BIT(n) (0x01 << n)
+
+//==========================================================================================
+ /*
+ * LOGGER MACROS
+ */
+
+extern FILE* logfd;
+#define LOG_PATH "home/lcom/proj/log.txt"
+#define LOG(tag, msg) fprintf(logfd, "%s: %s\n", tag, msg)
+#define LOG_VAR(tag, var) fprintf(logfd, "%s: %d\n", tag, var)
 
 //==========================================================================================
 /*
@@ -76,6 +88,32 @@
  */
 
 #define MOUSE_IRQ 2
+
+#define MOUSE_STREAM_MODE 0xEA
+#define MOUSE_DISABLE_STREAM_MODE 0xF5
+#define WRITE_BYTE_TO_MOUSE 0xD4
+#define MOUSE_SEND_PACKETS 0xF4
+#define MOUSE_STATUS_REQUEST 0xE9
+#define ENABLE_MOUSE 0xA8
+
+/* MOUSE PACKETS */
+
+#define LEFT_BUTTON BIT(0)
+#define RIGHT_BUTTON BIT(1)
+#define MIDDLE_BUTTON BIT(2)
+#define X_SIGN BIT(4)
+#define Y_SIGN BIT(5)
+#define X_OVERFLOW BIT(6)
+#define Y_OVERFLOW BIT(7)
+
+/* MOUSE STATUS */
+
+#define RIGHT_STATUS_BUTTON BIT(0)
+#define MIDDLE_STATUS_BUTTON BIT(1)
+#define LEFT_STATUS_BUTTON BIT(2)
+#define SCALLING BIT(4)
+#define SEND_PACKETS_ENABLED BIT(5)
+#define REMOTE BIT(6)
 //==========================================================================================
 /*
  * VBE MACROS

@@ -8,9 +8,19 @@
 #include "Timer.h"
 #include "Mouse.h"
 
+FILE* logfd = NULL;
+void initLog() {
+	logfd = fopen(LOG_PATH, "w");
+	LOG("initLog", "logging successfully initialized");
+}
+
 int main(int argc, char *argv[]) {
+	//initLog();
+	//LOG("main", "Starting Where's Wally? ...");
 	/* Initialize service (synchronize with the RS) */
 	sef_startup();
+	printf("jsadn");
+
 
 	WallyNIX* wally = (WallyNIX*) startWallyNIX();
 	while (!wally->exit) {
@@ -21,6 +31,7 @@ int main(int argc, char *argv[]) {
 				drawWallyNIX(wally);
 			}
 			if(getMouse()->draw){
+				updateMouse();
 				drawMouse();
 			}
 			copyMouseBuffer();
