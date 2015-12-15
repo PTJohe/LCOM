@@ -31,6 +31,11 @@ int exitGraphics(void);
  */
 char* getVideoMem();
 /**
+ * @return Pointer to double_buffer.
+ */
+char* getDoubleBuffer();
+
+/**
  * @return Horizontal resolution
  */
 unsigned getHRes();

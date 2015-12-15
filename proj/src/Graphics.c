@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include "math.h"
 
+#include "Bitmap.h"
 #include "Graphics.h"
 #include "Utilities.h"
 #include "VBE.h"
@@ -40,7 +41,8 @@ void *initGraphics(unsigned short mode) {
 			hRes = vbeModeInfo.XResolution;
 			vRes = vbeModeInfo.YResolution;
 			bitsPerPixel = vbeModeInfo.BitsPerPixel;
-			videoMemSize = hRes * vRes * bitsPerPixel / 8;
+			bytesPerPixel = bitsPerPixel / 8;
+			videoMemSize = hRes * vRes * bytesPerPixel;
 
 			//Allow memory mapping
 			struct mem_range mr;
@@ -83,6 +85,10 @@ char* getVideoMem() {
 	return videoMem;
 }
 
+char* getDoubleBuffer() {
+	return doubleBuffer;
+}
+
 unsigned getHRes() {
 	return hRes;
 }
@@ -109,7 +115,13 @@ int fillDisplay(unsigned long colour) {
 
 void putPixel(int x, int y, unsigned long colour) {
 	//Color pixel of double buffer
-	*(doubleBuffer + ((hRes * y) + x) * bitsPerPixel / 8) = colour;
+	*(doubleBuffer + ((hRes * y) + x) * bytesPerPixel) = colour & 0xFF;
+	*(doubleBuffer + (((hRes * y) + x) * bytesPerPixel) + 1) = (colour >> 8)
+			& 0xFF;
+
+	/*int id = (x + y * hRes) * bytesPerPixel;
+	 doubleBuffer[id] = colour & 0xFF;
+	 doubleBuffer[id + 1] = (colour >> 8) & 0xFF;*/
 }
 
 int drawRectangle(int xi, int yi, int xf, int yf, unsigned long colour) {
@@ -256,6 +268,29 @@ int clearPixmap(int xi, int yi, int width, int height) {
 			}
 		}
 	}
+
+	return EXIT_SUCCESS;
+}
+
+int drawCrosshair(int xi, int yi, int cursor) {
+
+}
+
+int drawStage(Bitmap* stage) {
+	if (stage == NULL)
+		return EXIT_FAILURE;
+
+	fillDisplay(COLOUR_WHITE);
+	drawBitmap(stage, 0, 213, ALIGN_LEFT);
+
+	return EXIT_SUCCESS;
+}
+
+int drawTimer(Bitmap* number) {
+	if (number == NULL)
+		return EXIT_FAILURE;
+
+	drawBitmap(number, 640, 50, ALIGN_CENTER);
 
 	return EXIT_SUCCESS;
 }

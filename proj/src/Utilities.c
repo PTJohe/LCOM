@@ -2,7 +2,7 @@
 
 // Converts RGB to Hex value.
 int RGB(unsigned char r, unsigned char g, unsigned char b) {
-	if (r < 0 || 255 < r || g < 0 || 255 < g || b < 0 || b > 255)
+	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
 		return -1;
 
 	int red, green, blue;

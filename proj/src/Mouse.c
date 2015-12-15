@@ -178,8 +178,28 @@ void updateMouse() {
 		return;
 	if (mouse_int_handler() == EXIT_FAILURE)
 		return;
-	mouse->x = mouse->packet[1];
-	mouse->y = mouse->packet[2];
+
+	int xSign = mouse->packet[0] & BIT(4);
+	int ySign = mouse->packet[0] & BIT(5);
+	int deltaX = mouse->packet[1];
+	int deltaY = mouse->packet[2];
+	if (xSign)
+		deltaX |= (-1 << 8);
+	if (ySign)
+		deltaY |= (-1 << 8);
+
+	mouse->x += mouse->sensitivity * deltaX;
+	if (mouse->x < 0)
+		mouse->x = 0;
+	else if (mouse->x >= getHRes())
+		mouse->x = getHRes() - 1;
+
+	mouse->y += mouse->sensitivity * deltaY;
+	if (mouse->y < 0)
+		mouse->y = 0;
+	else if (mouse->y >= getVRes())
+		mouse->y = getVRes() - 1;
+
 	mouse->hasBeenUpdated = 1;
 	int disable_stream_mode = mouse_disable_stream_mode();
 	if (disable_stream_mode == EXIT_FAILURE)
@@ -189,7 +209,6 @@ void updateMouse() {
 		return;
 	}
 }
-
 
 void deleteMouse() {
 	free(getMouse());

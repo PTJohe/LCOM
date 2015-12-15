@@ -1,19 +1,7 @@
 #ifndef __CONSTANTS_H
 #define __CONSTANTS_H
 
-#include <stdio.h>
-
 #define BIT(n) (0x01 << n)
-
-//==========================================================================================
- /*
- * LOGGER MACROS
- */
-
-extern FILE* logfd;
-#define LOG_PATH "home/lcom/proj/log.txt"
-#define LOG(tag, msg) fprintf(logfd, "%s: %s\n", tag, msg)
-#define LOG_VAR(tag, var) fprintf(logfd, "%s: %d\n", tag, var)
 
 //==========================================================================================
 /*
@@ -88,41 +76,15 @@ extern FILE* logfd;
  */
 
 #define MOUSE_IRQ 2
-
-#define MOUSE_STREAM_MODE 0xEA
-#define MOUSE_DISABLE_STREAM_MODE 0xF5
-#define WRITE_BYTE_TO_MOUSE 0xD4
-#define MOUSE_SEND_PACKETS 0xF4
-#define MOUSE_STATUS_REQUEST 0xE9
-#define ENABLE_MOUSE 0xA8
-
-/* MOUSE PACKETS */
-
-#define LEFT_BUTTON BIT(0)
-#define RIGHT_BUTTON BIT(1)
-#define MIDDLE_BUTTON BIT(2)
-#define X_SIGN BIT(4)
-#define Y_SIGN BIT(5)
-#define X_OVERFLOW BIT(6)
-#define Y_OVERFLOW BIT(7)
-
-/* MOUSE STATUS */
-
-#define RIGHT_STATUS_BUTTON BIT(0)
-#define MIDDLE_STATUS_BUTTON BIT(1)
-#define LEFT_STATUS_BUTTON BIT(2)
-#define SCALLING BIT(4)
-#define SEND_PACKETS_ENABLED BIT(5)
-#define REMOTE BIT(6)
 //==========================================================================================
 /*
  * VBE MACROS
  */
 
-#define MODE_640_480 		0x101
-#define MODE_800_600 		0x103
-#define MODE_1024_768 		0x105
-#define MODE_1280_1024 		0x107
+#define MODE_640_480 		0x111
+#define MODE_800_600 		0x114
+#define MODE_1024_768 		0x117
+#define MODE_1280_1024 		0x11A
 #define VBE_CONTROLLER_INFO 	0x00
 #define VBE_MODE_INFO 			0x01
 #define SET_VBE_MODE 			0x02
@@ -155,13 +117,13 @@ extern FILE* logfd;
  * COLOURS
  */
 
-#define COLOUR_BLACK		0x00
-#define COLOUR_WHITE 		0x3F
+#define COLOUR_BLACK		RGB(0,0,0)
+#define COLOUR_WHITE 		RGB(255,255,255)
 #define COLOUR_GREY			0x07
 
 #define COLOUR_RED			0x24
 #define COLOUR_GREEN		0x12
-#define COLOUR_BLUE 		0x09
+#define COLOUR_BLUE 		RGB(0,0,255)
 
 #define COLOUR_YELLOW 		0x36
 #define COLOUR_MAGENTA		0x25
