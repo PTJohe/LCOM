@@ -32,6 +32,42 @@ int subscribeKeyboard();
 int unsubscribeKeyboard();
 
 /**
+ *
+ * @brief Read KBC responses from Output Buffer
+ *
+ * @param data Stores KBC Response (ACK, RESEND, ERROR)
+ *
+ * @return Return 0 upon success and non-zero otherwise
+ *
+ */
+
+unsigned short read_data_OUTBUF_from_KBC(unsigned long* data);
+
+/**
+ *
+ * @brief Issues mouse command to KBC
+ *
+ * @param command Stores mouse command
+ *
+ * @return Return 0 upon success and non-zero otherwise
+ *
+ */
+
+unsigned short KBC_issue_command_mouse(unsigned char command);
+
+/**
+ *
+ * @brief Issues argument of any command to KBC
+ *
+ * @param argument Stores KBC argument from any command
+ *
+ * @return Return 0 upon success and non-zero otherwise
+ *
+ */
+
+unsigned short issue_argument_KBC(unsigned char argument);
+
+/**
  * @brief Handle keyboard interrupts
  *
  * Reads the scancode from the OUT_BUF

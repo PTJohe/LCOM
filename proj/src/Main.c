@@ -15,8 +15,9 @@ void initLog() {
 }
 
 int main(int argc, char *argv[]) {
-	//initLog();
-	//LOG("main", "Starting Where's Wally? ...");
+	initLog();
+	LOG("main", "Starting Where's Wally? ...");
+
 	/* Initialize service (synchronize with the RS) */
 	sef_startup();
 	printf("Starting WallyNIX.");

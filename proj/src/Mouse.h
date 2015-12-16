@@ -15,9 +15,13 @@ typedef struct {
 	int byteBeingRead;
 	unsigned long packet[3];
 
-	int leftButton;
-	int middleButton;
-	int rightButton;
+	int leftButtonPressed;
+	int middleButtonPressed;
+	int rightButtonPressed;
+
+	int leftButtonReleased;
+	int middleButtonReleased;
+	int rightButtonReleased;
 
 	int cursor;
 
@@ -27,17 +31,18 @@ typedef struct {
 
 int subscribeMouse();
 int unsubscribeMouse();
-unsigned short read_data_OUTBUF_from_KBC(unsigned long* data);
 unsigned long mouse_int_handler();
-unsigned short KBC_issue_command_mouse(unsigned char command);
 int mouse_enable_stream_mode();
 int mouse_disable_stream_mode();
 unsigned short send_argument_mouse(unsigned char argument);
-unsigned short issue_argument_KBC(unsigned char argument);
 int mouse_enable_sending_packets();
-Mouse* newMouse();
+unsigned long enableMouse();
 Mouse* getMouse();
+Mouse* newMouse();
+void incrementPacketBytes();
+void resetCounterPacketBytes();
 void updateMouse();
+void deleteMouse();
 void drawMouse();
 
 #endif

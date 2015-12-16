@@ -26,6 +26,7 @@ WallyNIX* startWallyNIX() {
 	// Subscribe devices
 	wally->IRQ_SET_TIMER = subscribeTimer();
 	wally->IRQ_SET_KBD = subscribeKeyboard();
+	wally->IRQ_SET_MOUSE = subscribeMouse();
 
 	wally->level1 = loadBitmap(
 			"/home/lcom/lcom1516-t2g15/proj/res/images/01.bmp");
@@ -70,12 +71,18 @@ void updateWallyNIX(WallyNIX* wally) {
 					}
 				}
 			}
+			// Mouse interruption
+			if (msg.NOTIFY_ARG & wally->IRQ_SET_MOUSE){
+				updateMouse();
+			}
 			break;
 		default:
 			break;
 		}
 	}
 
+	/*if (wally->timer->enabled)
+		getMouse()->draw = 1;*/
 	if (wally->scancode != 0) {
 		if (wally->scancode == KEY_ESC) {
 			if (wally->menu == 1) {
@@ -157,9 +164,10 @@ void drawWallyNIX(WallyNIX* wally) {
 }
 
 void stopWallyNIX(WallyNIX* wally) {
-	//Unsubscrive devices
+	//Unsubscribe devices
 	unsubscribeTimer();
 	unsubscribeKeyboard();
+	unsubscribeMouse();
 
 	deleteTimer(wally->timer);
 	free(wally);
