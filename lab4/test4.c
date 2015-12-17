@@ -29,17 +29,17 @@ unsigned long packet_int_handler() {
 		x_overflow = 1;
 	else
 		x_overflow = 0;
-	if (x_overflow) {
+	//if (x_overflow) {
 		if (x_sign)
-			packet[1] = (1 << 8) - 1;
-		else
-			packet[1] = (-1 << 8) + 1;
-	} else {
+			packet[1] |= (-1 << 8);
+		/*else
+			packet[1] = (-1 << 8) + 1;*/
+	/*} else {
 		if ((packet[0] & X_SIGN) == 1)
 			packet[1] = (-1 << 8) | packet[1];
 		else if ((packet[0] & X_SIGN) == 0)
 			packet[1] = packet[1];
-	}
+	}*/
 	if (packet[0] & Y_SIGN)
 			y_sign = 1;
 		else
@@ -48,17 +48,17 @@ unsigned long packet_int_handler() {
 			y_overflow = 1;
 		else
 			y_overflow = 0;
-	if (y_overflow) {
+	//if (y_overflow) {
 		if (y_sign)
-			packet[2] = (1 << 8) - 1;
-		else
-			packet[2] = (-1 << 8) + 1;
-	} else {
+			packet[2] |= (-1 << 8);
+		/*else
+			packet[2] = (-1 << 8) + 1;*/
+	/*} else {
 		if ((packet[0] & Y_SIGN) == 1)
 			packet[2] = (-1 << 8) | packet[2];
 		else if ((packet[0] & Y_SIGN) == 0)
 			packet[2] = packet[2];
-	}
+	}*/
 	printf("B1 = 0x%02X", packet[0]);
 	printf(" B2 = 0x%02X", packet[1]);
 	printf(" B3 = 0x%02X", packet[2]);
@@ -79,9 +79,9 @@ int test_packet(unsigned short cnt) {
 			return EXIT_FAILURE;
 		if (KBC_issue_command_mouse(ENABLE_MOUSE) == EXIT_FAILURE)
 			return EXIT_FAILURE;
-		int stream_mode = mouse_enable_stream_mode();
+		/*int stream_mode = mouse_enable_stream_mode();
 		if (stream_mode == EXIT_FAILURE)
-			return EXIT_FAILURE;
+			return EXIT_FAILURE;*/
 		int send_packets = mouse_enable_sending_packets();
 		if (send_packets == EXIT_FAILURE)
 			return EXIT_FAILURE;
