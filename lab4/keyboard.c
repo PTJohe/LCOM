@@ -53,7 +53,6 @@ unsigned short read_data_OUTBUF_from_KBC(unsigned long* data){
 			}
 			tickdelay(micros_to_ticks(DELAY_US));
 		}
-
 }
 
 unsigned short KBC_issue_command_mouse(unsigned char command) {

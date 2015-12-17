@@ -72,7 +72,7 @@ static int proc_args(int argc, char *argv[]) {
 		printf("test:: config()\n");
 		test_config();
 		return EXIT_SUCCESS;
-	} else if (strncmp(argv[1], "gesture", strlen("gesture")) == 0) {
+	} /*else if (strncmp(argv[1], "gesture", strlen("gesture")) == 0) {
 		if (argc != 4) {
 			printf(
 					"test_gesture: wrong no of arguments for test of test_gesture() \n");
@@ -88,7 +88,7 @@ static int proc_args(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		test_gesture(length, tolerance);
 		return EXIT_SUCCESS;
-	}
+	}*/
 }
 
 static unsigned long parse_ulong(char *str, int base) {

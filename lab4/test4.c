@@ -86,9 +86,10 @@ int test_packet(unsigned short cnt) {
 		if (send_packets == EXIT_FAILURE)
 			return EXIT_FAILURE;
 		int r;
+		int aux = 0;
 		int ipc_status;
 		message msg;
-		while (cnt > 0) { /* You may want to use a different condition */
+		while ((cnt * 3) > aux) { /* You may want to use a different condition */
 			/* Get a request message. */
 			if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
 				printf("driver_receive failed with: %d", r);
@@ -98,9 +99,11 @@ int test_packet(unsigned short cnt) {
 				switch (_ENDPOINT_P(msg.m_source)) {
 				case HARDWARE: /* hardware interrupt notification */
 					if (msg.NOTIFY_ARG & irq_set) {
-						cnt--;
+						aux++;
 						if (packet_int_handler() == EXIT_FAILURE)
 							return EXIT_FAILURE;
+
+
 					}
 					break;
 				default:
@@ -244,7 +247,7 @@ int test_config(void) {
 	return EXIT_SUCCESS;
 }
 
-unsigned long check_hor_line(ev_type_t event, short length, short tolerance, int deltaX, int deltaY) {
+/*unsigned long check_hor_line(ev_type_t event, short length, short tolerance, int deltaX, int deltaY) {
 	static state_t st = INIT; // initial state; keep state
 	short hor_stat, vert_stat;
 		switch (st) {
@@ -279,9 +282,9 @@ unsigned long check_hor_line(ev_type_t event, short length, short tolerance, int
 			break;
 		}
 		return EXIT_FAILURE;
-}
+}*/
 
-unsigned long gesture_int_handler(short length, unsigned short tolerance){
+/*unsigned long gesture_int_handler(short length, unsigned short tolerance){
 	unsigned short leftmousebutton, rightmousebutton, middlemousebutton, x_sign, y_sign, x_overflow, y_overflow;
 		if (mouse_int_handler() == EXIT_FAILURE)
 			return EXIT_FAILURE;
@@ -330,9 +333,9 @@ unsigned long gesture_int_handler(short length, unsigned short tolerance){
 				return EXIT_SUCCESS;
 		}
 		return EXIT_FAILURE;
-}
+}*/
 
-int test_gesture(short length, unsigned short tolerance) {
+/*int test_gesture(short length, unsigned short tolerance) {
 	int irq_set = mouse_subscribe_int();
 		if (irq_set == EXIT_FAILURE)
 			return EXIT_FAILURE;
@@ -348,15 +351,15 @@ int test_gesture(short length, unsigned short tolerance) {
 		int n = 0;
 		int ipc_status;
 		message msg;
-		while (1) { /* You may want to use a different condition */
-			/* Get a request message. */
+		while (1) { // You may want to use a different condition
+			// Get a request message.
 			if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
 				printf("driver_receive failed with: %d", r);
 				continue;
 			}
-			if (is_ipc_notify(ipc_status)) { /* received notification */
+			if (is_ipc_notify(ipc_status)) { // received notification
 				switch (_ENDPOINT_P(msg.m_source)) {
-				case HARDWARE: /* hardware interrupt notification */
+				case HARDWARE: // hardware interrupt notification
 					if (msg.NOTIFY_ARG & irq_set) {
 						if (gesture_int_handler(length, tolerance) == EXIT_FAILURE)
 							return EXIT_FAILURE;
@@ -365,10 +368,10 @@ int test_gesture(short length, unsigned short tolerance) {
 					}
 					break;
 				default:
-					break; /* no other notifications expected: do nothing */
+					break; // no other notifications expected: do nothing
 				}
-			} else { /* received a standard message, not a notification */
-				/* no standard messages expected: do nothing */
+			} else { // received a standard message, not a notification
+				// no standard messages expected: do nothing
 			}
 		}
 
@@ -381,4 +384,4 @@ int test_gesture(short length, unsigned short tolerance) {
 		}
 		printf("Test_gesture concluido.\n");
 		return EXIT_SUCCESS;
-}
+}*/
