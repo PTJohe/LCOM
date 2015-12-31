@@ -55,6 +55,7 @@ Bitmap* loadBitmap(const char* filename);
  */
 void drawBitmap(Bitmap* bitmap, int x, int y, Alignment alignment);
 
+void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour);
 /**
  * @brief Destroys the given bitmap, freeing all resources used by it.
  *

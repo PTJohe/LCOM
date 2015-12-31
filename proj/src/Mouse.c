@@ -65,8 +65,7 @@ Mouse* createMouse() {
 	mouse->middleButtonPressed = 0;
 	mouse->middleButtonReleased = 0;
 
-	mouse->cursor = loadBitmap(
-			"/home/lcom/lcom1516-t2g15/proj/res/cursor/mouse3.bmp");
+	mouse->cursor = loadBitmap(getMousePath(3));
 	mouse->sensitivity = 1.0;
 
 	mouse->byteNumber = 0;
@@ -82,7 +81,8 @@ void deleteMouse() {
 }
 
 void drawMouse() {
-	drawCursor(mouse->cursor, mouse->x, mouse->y);
+	//drawCursor(mouse->cursor, mouse->x, mouse->y);
+	drawBitmapAlpha(mouse->cursor, mouse->x, mouse->y, COLOUR_WHITE);
 	getMouse()->draw = 0;
 }
 

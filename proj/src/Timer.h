@@ -4,10 +4,15 @@
 static int timer_counter;
 static int hook_id_timer;
 
+#include "Bitmap.h"
+
+
 // Represents a Timer
 typedef struct {
 	int counter; ///< timer counter
 	int enabled; ///< bool indicating if timer is counting
+
+	Bitmap* numbers[10];
 } Timer;
 
 /**
@@ -28,7 +33,7 @@ int unsubscribeTimer();
  * @brief Creates a timer
  * @return Non NULL pointer to Timer_t
  */
-Timer* newTimer();
+Timer* createTimer();
 
 /**
  * @brief Returns current count
@@ -55,10 +60,8 @@ void startTimer (Timer* timer);
 void stopTimer(Timer* timer);
 /**
  * @brief Deletes a timer
- *
- * @return Integer indicating success or failure
  */
-int deleteTimer(Timer* timer);
+void deleteTimer(Timer* timer);
 
 
 #endif

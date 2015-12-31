@@ -6,7 +6,7 @@
 #define BIT(n) (0x01 << n)
 
 //==========================================================================================
- /*
+/*
  * LOGGER MACROS
  */
 
@@ -192,6 +192,10 @@ void swap(int* xi, int* xf);
  * Round function, introduced in Minix 3.3.0
  */
 double round(double x);
+double ceil(double num);
 
-
+const char* getMousePath(int cursor);
+const char* getFontPath(char* character);
+const char* getImagePath(char* image);
+const char* getStagePath(int number);
 #endif

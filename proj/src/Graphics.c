@@ -89,6 +89,10 @@ char* getDoubleBuffer() {
 	return doubleBuffer;
 }
 
+char* getMouseBuffer() {
+	return mouseBuffer;
+}
+
 unsigned getHRes() {
 	return hRes;
 }
@@ -326,15 +330,6 @@ int drawStage(Bitmap* stage) {
 
 	fillDisplay(COLOUR_WHITE);
 	drawBitmap(stage, 0, 213, ALIGN_LEFT);
-
-	return EXIT_SUCCESS;
-}
-
-int drawTimer(Bitmap* number) {
-	if (number == NULL)
-		return EXIT_FAILURE;
-
-	drawBitmap(number, 640, 50, ALIGN_CENTER);
 
 	return EXIT_SUCCESS;
 }

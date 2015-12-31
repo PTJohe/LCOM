@@ -35,3 +35,52 @@ double round(double x) {
 		return (-t);
 	}
 }
+
+double ceil(double num) {
+	int inum = (int) num;
+	if (num == (float) inum) {
+		return inum;
+	}
+	return inum + 1;
+}
+
+const char* getMousePath(int cursor) {
+	char num[256];
+	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/res/cursor/mouse%d.bmp",
+			cursor);
+
+	char* path = (char*) malloc(256);
+	strcpy(path, num);
+	LOG("Mouse Path", path);
+	return path;
+}
+const char* getFontPath(char* character) {
+	char num[256];
+	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/res/font/%s.bmp", character);
+
+	char* path = (char*) malloc(256);
+	strcpy(path, num);
+	LOG("Font Path", path);
+	return path;
+}
+
+const char* getImagePath(char* image) {
+	char num[256];
+	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/res/images/%s.bmp", image);
+
+	char* path = (char*) malloc(256);
+	strcpy(path, num);
+	LOG("Image Path", path);
+	return path;
+}
+
+const char* getStagePath(int number) {
+	char num[256];
+	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/res/stages/stage%d.bmp",
+			number);
+
+	char* path = (char*) malloc(256);
+	strcpy(path, num);
+	LOG("Stage Path", path);
+	return path;
+}

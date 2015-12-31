@@ -66,7 +66,8 @@ Bitmap* loadBitmap(const char* filename) {
 		uint16_t discard;
 		for (i = 0; i < bitmapInfoHeader.height; ++i) {
 			fread((uint16_t *) bitmapImage + i * bitmapInfoHeader.width,
-					bitmapInfoHeader.width * bitmapInfoHeader.bits / 8, 1, filePtr);
+					bitmapInfoHeader.width * bitmapInfoHeader.bits / 8, 1,
+					filePtr);
 			fread(&discard, 2, 1, filePtr);
 		}
 	}
@@ -130,6 +131,53 @@ void drawBitmap(Bitmap* bmp, int x, int y, Alignment alignment) {
 		imgStartPos = bmp->bitmapData + xCorrection * 2 + i * width * 2;
 
 		memcpy(bufferStartPos, imgStartPos, drawWidth * 2);
+	}
+}
+
+void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour) {
+	int width = bmp->bitmapInfoHeader.width;
+	int height = bmp->bitmapInfoHeader.height;
+
+	if (x < 0 || x > getHRes() || y < 0 || y > getVRes())
+		return;
+
+	char* bufferStartPos;
+	char* imgStartPos;
+
+	unsigned long colour;
+
+	int line, column;
+	for (line = 0; line < height; line++) {
+		int pos = y + height - 1 - line;
+
+		if (pos < 0 || pos >= getVRes())
+			continue;
+
+		bufferStartPos = (char*) (getMouseBuffer() + x * 2
+				+ (y + height - line) * getHRes() * 2);
+
+		for (column = 0; column < width * 2; column++, bufferStartPos++) {
+			if (x + column < 0 || x * 2 + column >= getHRes() * 2)
+				continue;
+
+			int pos = column + line * width * 2;
+
+			unsigned short tmp1 = bmp->bitmapData[pos];
+			unsigned short tmp2 = bmp->bitmapData[pos + 1];
+			unsigned long colour = (tmp1 | (tmp2 << 8));
+
+			if (colour != alphaColour)
+				if (x + column < getHRes() && y + line < getVRes()) {
+					*bufferStartPos = bmp->bitmapData[column + line * width * 2];
+					column++;
+					bufferStartPos++;
+					*bufferStartPos = bmp->bitmapData[column + line * width * 2];
+				} else {
+					column++;
+					bufferStartPos++;
+				}
+		}
+		//putPixelMouseBuffer(x + column, y + line, colour);
 	}
 }
 
