@@ -5,8 +5,6 @@
 #include "Timer.h"
 
 typedef struct {
-	unsigned short mode;
-
 	int IRQ_SET_TIMER;
 	int IRQ_SET_KBD;
 	int IRQ_SET_MOUSE;

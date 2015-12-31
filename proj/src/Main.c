@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
 	sef_startup();
 	printf("Starting WallyNIX.");
 
+	initGraphics(MODE_1280_1024);
 
 	WallyNIX* wally = (WallyNIX*) startWallyNIX();
 	while (!wally->exit) {
@@ -32,14 +33,15 @@ int main(int argc, char *argv[]) {
 				drawWallyNIX(wally);
 			}
 			if(getMouse()->draw){
-				updateMouse();
+				copyToMouseBuffer();
 				drawMouse();
 			}
-			copyMouseBuffer();
-			copyDoubleBuffer();
+			copyToVideoMem();
 		}
 	}
 	stopWallyNIX(wally);
+
+	exitGraphics();
 
 	printf("WallyNIX exited successfully\n");
 	return EXIT_SUCCESS;

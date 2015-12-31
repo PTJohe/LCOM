@@ -14,15 +14,10 @@
 Mouse* mouse = NULL;
 Mouse mousePreviousFlags;
 
-//Mouse* newMouse();
-
 int subscribeMouse() {
-	int byte_number = mouse->byteBeingRead;
 	int bitmask = BIT(hook_id_mouse);
 	if (sys_irqsetpolicy(MOUSE_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE,
 			&hook_id_mouse) == OK && sys_irqenable(&hook_id_mouse) == OK) {
-		memset(mouse->packet, 0, sizeof(mouse->packet));
-		byte_number = 0; // set all bytes bit 3 to 0 and byte_number (index of byte in packet of 3 bytes) to 0
 		return bitmask;
 	} else
 		return EXIT_FAILURE;
@@ -36,165 +31,118 @@ int unsubscribeMouse() {
 		return EXIT_FAILURE;
 }
 
-/*unsigned long mouse_int_handler() {
-	unsigned long stat;
-	int byte_number = mouse->byteBeingRead;
-	byte_number = 0;
-	if (read_data_OUTBUF_from_KBC(&stat) != EXIT_FAILURE) {
-		mouse->packet[byte_number] = stat;
+int enableMouse() {
+	unsigned long result;
 
-		if (byte_number == 0 && (mouse->packet[0] & BIT(3) == 0))
-			return EXIT_FAILURE;
-		byte_number = (byte_number + 1) % 3;
-	}
-	return EXIT_SUCCESS;
-}*/
+	do {
+		writeToMouse(0xF4);
+		readMouse(&result);
+	} while (result != ACK);
 
-int mouse_enable_stream_mode() {
-	if (send_argument_mouse(MOUSE_STREAM_MODE) == EXIT_SUCCESS) {
-		return EXIT_SUCCESS;
-	} else
-		return EXIT_FAILURE;
-}
-
-int mouse_disable_stream_mode() {
-	int byte_number = mouse->byteBeingRead;
-	if (send_argument_mouse(MOUSE_DISABLE_STREAM_MODE) == EXIT_SUCCESS) {
-		memset(mouse->packet, 0, sizeof(mouse->packet));
-		byte_number = 0; // set all bytes bit 3 to 0 and byte_number (index of byte in packet of 3 bytes) to 0
-		return EXIT_SUCCESS;
-	} else
-		return EXIT_FAILURE;
-}
-
-unsigned short send_argument_mouse(unsigned char argument) {
-	unsigned long KBC_value;
-	if (KBC_issue_command_mouse(WRITE_BYTE_TO_MOUSE) == EXIT_FAILURE)
-		return EXIT_FAILURE;
-	if (issue_argument_KBC(argument) == EXIT_FAILURE)
-		return EXIT_FAILURE;
-	if (read_data_OUTBUF_from_KBC(&KBC_value) == EXIT_FAILURE)
-		return EXIT_FAILURE;
-	if (KBC_value == ACK)
-		return EXIT_SUCCESS;
-	else
-		return EXIT_FAILURE;
-}
-
-int mouse_enable_sending_packets() {
-	int byte_number = mouse->byteBeingRead;
-	unsigned short verify;
-	verify = send_argument_mouse(MOUSE_STREAM_MODE);
-	if (verify == EXIT_SUCCESS) {
-		if (send_argument_mouse(MOUSE_SEND_PACKETS) == EXIT_SUCCESS) {
-			memset(mouse->packet, 0, sizeof(mouse->packet));
-			byte_number = 0; // set all bytes bit 3 to 0 and byte_number (index of byte in packet of 3 bytes) to 0
-			return EXIT_SUCCESS;
-		}
-	} else
-		return EXIT_FAILURE;
-}
-
-unsigned long enableMouse(){
-	if (mouse_enable_sending_packets() == EXIT_FAILURE)
-		return EXIT_FAILURE;
-	else
-		return EXIT_SUCCESS;
+	return 0;
 }
 
 Mouse* getMouse() {
 	if (!mouse) {
 		enableMouse();
-		mouse = newMouse();
+		mouse = createMouse();
 	}
 	return mouse;
 }
 
-Mouse* newMouse() {
+Mouse* createMouse() {
 	Mouse* mouse = (Mouse*) malloc(sizeof(Mouse));
 
-	mouse->x = 50;
-	mouse->y = 50;
-	mouse->sensitivity = 1.0;
-
-	mouse->byteBeingRead = 0;
+	mouse->x = 0;
+	mouse->y = 0;
 
 	mouse->leftButtonPressed = 0;
-	mouse->rightButtonPressed = 0;
-	mouse->middleButtonPressed = 0;
-
 	mouse->leftButtonReleased = 0;
+
+	mouse->rightButtonPressed = 0;
 	mouse->rightButtonReleased = 0;
+
+	mouse->middleButtonPressed = 0;
 	mouse->middleButtonReleased = 0;
 
-	mouse->cursor = 0;
+	mouse->cursor = loadBitmap(
+			"/home/lcom/lcom1516-t2g15/proj/res/cursor/mouse3.bmp");
+	mouse->sensitivity = 1.0;
 
-	mouse->hasBeenUpdated = 0;
+	mouse->byteNumber = 0;
 	mouse->draw = 1;
-
+	mouse->hasBeenUpdated = 0;
 	mousePreviousFlags = *mouse;
 
 	return mouse;
 }
 
-void incrementPacketBytes(){
-	mouse->byteBeingRead++;
+void deleteMouse() {
+	free(getMouse());
 }
 
-void resetCounterPacketBytes(){
-	mouse->byteBeingRead = 0;
+void drawMouse() {
+	drawCursor(mouse->cursor, mouse->x, mouse->y);
+	getMouse()->draw = 0;
 }
 
 void updateMouse() {
 	Mouse* mouse = getMouse();
-	read_data_OUTBUF_from_KBC(&mouse->packet[mouse->byteBeingRead]);
-	if (!(mouse->packet[mouse->byteBeingRead] & BIT(3)) && mouse->byteBeingRead) // synchronize packet bytes
+
+	readMouse(&mouse->packet[mouse->byteNumber]);
+
+	if (mouse->byteNumber == 0 && !(mouse->packet[mouse->byteNumber] & BIT(3)))
 		return;
+	mouse->byteNumber++;
 
-	incrementPacketBytes();
+	if (mouse->byteNumber > 2) {
+		mouse->byteNumber = 0;
 
-	if (mouse->byteBeingRead > 2){
-		resetCounterPacketBytes();
 		mouse->xSign = mouse->packet[0] & X_SIGN;
 		mouse->ySign = mouse->packet[0] & Y_SIGN;
 		mouse->deltaX = mouse->packet[1];
 		mouse->deltaY = mouse->packet[2];
 
-		if (mouse->xSign == 1){
+		if (mouse->xSign) {
 			mouse->deltaX = mouse->deltaX | (-1 << 8);
 		}
-		if (mouse->ySign == 1){
+		if (mouse->ySign) {
 			mouse->deltaY = mouse->deltaY | (-1 << 8);
 		}
 
 		mouse->leftButtonPressed = mouse->packet[0] & LEFT_BUTTON;
-		mouse->rightButtonPressed = mouse->packet[0] & RIGHT_BUTTON;
-		mouse->middleButtonPressed = mouse->packet[0] & MIDDLE_BUTTON;
-
-		if (mouse->leftButtonPressed == 0 && mousePreviousFlags.leftButtonPressed != 0){
+		if (mouse->leftButtonPressed == 0
+				&& mousePreviousFlags.leftButtonPressed != 0) {
 			mouse->leftButtonReleased = 1;
 		}
-		if (mouse->rightButtonPressed != 0 && mousePreviousFlags.rightButtonPressed == 0){
+
+		mouse->rightButtonPressed = mouse->packet[0] & RIGHT_BUTTON;
+		if (mouse->rightButtonPressed != 0
+				&& mousePreviousFlags.rightButtonPressed == 0) {
 			mouse->rightButtonReleased = 1;
 		}
-		if (mouse->middleButtonPressed != 0 && mousePreviousFlags.middleButtonPressed == 0){
+
+		mouse->middleButtonPressed = mouse->packet[0] & MIDDLE_BUTTON;
+		if (mouse->middleButtonPressed != 0
+				&& mousePreviousFlags.middleButtonPressed == 0) {
 			mouse->middleButtonReleased = 1;
 		}
 
-		if (mouse->deltaX != 0){
-			mouse->x = mouse->x + (mouse->deltaX * mouse->sensitivity);
-			if (mouse->x >= getHRes())
-				mouse->x = getHRes() - 1;
-			else if (mouse->x < 0)
+		if (mouse->deltaX != 0) {
+			if (mouse->x + mouse->deltaX * mouse->sensitivity < 0)
 				mouse->x = 0;
+			else if (mouse->x + mouse->deltaX * mouse->sensitivity >= getHRes())
+				mouse->x = getHRes() - 1;
+			else
+				mouse->x += mouse->deltaX * mouse->sensitivity;
 		}
-
-		if (mouse->deltaY != 0){
-			mouse->y = mouse->y + (mouse->deltaY * mouse->sensitivity);
-			if (mouse->y >= getVRes())
-				mouse->y = getVRes() - 1;
-			else if (mouse->y < 0)
+		if (mouse->deltaY != 0) {
+			if (mouse->y - mouse->deltaY * mouse->sensitivity < 0)
 				mouse->y = 0;
+			else if (mouse->y - mouse->deltaY * mouse->sensitivity >= getVRes())
+				mouse->y = getVRes() - 1;
+			else
+				mouse->y -= mouse->deltaY * mouse->sensitivity;
 		}
 
 		mouse->deltaX = mouse->x - mousePreviousFlags.x;
@@ -202,40 +150,34 @@ void updateMouse() {
 
 		mousePreviousFlags = *mouse;
 		mouse->hasBeenUpdated = 1;
-
 	}
-	/*int irq_set = subscribeMouse();
-	if (irq_set == EXIT_FAILURE)
-		return;*/
-	/*if (KBC_issue_command_mouse(ENABLE_MOUSE) == EXIT_FAILURE)
-		return;
-	int stream_mode = mouse_enable_stream_mode();
-	if (stream_mode == EXIT_FAILURE)
-		return;
-	int send_packets = mouse_enable_sending_packets();
-	if (send_packets == EXIT_FAILURE)
-		return;*/
-	/*if (mouse_int_handler() == EXIT_FAILURE)
-		return;*/
-
-	/*int disable_stream_mode = mouse_disable_stream_mode();
-	if (disable_stream_mode == EXIT_FAILURE)
-		return;*/
-	/*if (unsubscribeMouse() == EXIT_FAILURE) {
-		//printf("ERROR: mouse_unsubscribe_int failed!");
-		return;
-	}*/
-	LOG_VAR("mouse x:", mouse->x);
-	LOG_VAR("mouse y:", mouse->y);
 }
 
-void deleteMouse() {
-	//mouse_disable_stream_mode();
-	free(getMouse());
+int readMouse(unsigned long* reg) {
+	return (sys_inb(KBC_DATA_REG, reg) != OK);
 }
 
-void drawMouse() {
-	//updateMouse();
-	drawSquare(mouse->x, mouse->y, 10, COLOUR_BLUE);
-	getMouse()->draw = 0;
+int writeToKBC(unsigned long port, unsigned char byte) {
+	unsigned long stat;
+
+	while (1) {
+		if (sys_inb(KBC_STAT_REG, &stat) != OK)
+			return -1;
+		if ((stat & KBC_IBF) == 0) {
+			if (sys_outb(port, byte) != OK)
+				return -1;
+			break;
+		}
+		tickdelay(micros_to_ticks(DELAY_US));
+	}
+	return 0;
 }
+
+int writeToMouse(unsigned char byte) {
+	if (writeToKBC(KBC_STAT_REG, 0xD4) != OK)
+		return 1;
+	if (writeToKBC(KBC_DATA_REG, byte) != OK)
+		return 1;
+	return 0;
+}
+

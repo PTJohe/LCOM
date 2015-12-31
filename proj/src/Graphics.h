@@ -46,11 +46,11 @@ unsigned getVRes();
 /**
  * @brief Copies the double buffer into the mouse buffer.
  */
-void copyDoubleBuffer();
+void copyToMouseBuffer();
 /**
  * @brief Copies the mouse buffer into the video mem.
  */
-void copyMouseBuffer();
+void copyToVideoMem();
 
 /**
  * @brief Colors the screen with the specified color
@@ -80,6 +80,15 @@ int drawPixmap(int xi, int yi, char* pixmap, int width, int height);
  * @brief Clears the pixmap position.
  */
 int clearPixmap(int xi, int yi, int width, int height);
+
+/**
+ * @brief Colors a pixel in the mouse buffer
+ */
+void putPixelMouseBuffer(int x, int y, unsigned long colour);
+/**
+ * @brief Draws the mouse cursor.
+ */
+int drawCursor(Bitmap* bmp, int x, int y);
 
 /** @} end of graphics */
 

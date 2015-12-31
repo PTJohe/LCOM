@@ -14,18 +14,15 @@ const int mouseFPS = 75;
 WallyNIX* startWallyNIX() {
 	WallyNIX* wally = (WallyNIX*) malloc(sizeof(WallyNIX));
 
-	wally->mode = MODE_1280_1024;
 	wally->menu = 0;
 	wally->option = 0;
 	wally->timeLimit = 10*60;
 	wally->exit = 0, wally->draw = 1;
 	wally->scancode = 0;
 
-	wally->timer = newTimer();
-
 	// Subscribe devices
-	wally->IRQ_SET_TIMER = subscribeTimer();
 	wally->IRQ_SET_KBD = subscribeKeyboard();
+	wally->IRQ_SET_TIMER = subscribeTimer();
 	wally->IRQ_SET_MOUSE = subscribeMouse();
 
 	wally->level1 = loadBitmap(
@@ -42,7 +39,8 @@ WallyNIX* startWallyNIX() {
 	wally->char8 = loadBitmap("/home/lcom/lcom1516-t2g15/proj/res/font/8.bmp");
 	wally->char9 = loadBitmap("/home/lcom/lcom1516-t2g15/proj/res/font/9.bmp");
 
-	initGraphics(wally->mode);
+
+	wally->timer = newTimer();
 
 	return wally;
 }
@@ -81,8 +79,8 @@ void updateWallyNIX(WallyNIX* wally) {
 		}
 	}
 
-	/*if (wally->timer->enabled)
-		getMouse()->draw = 1;*/
+	if (wally->timer->enabled)
+		getMouse()->draw = 1;
 	if (wally->scancode != 0) {
 		if (wally->scancode == KEY_ESC) {
 			if (wally->menu == 1) {
@@ -97,7 +95,7 @@ void updateWallyNIX(WallyNIX* wally) {
 				wally->option -= 1;
 		} else if (wally->scancode == KEY_S) {
 			wally->scancode = 0;
-			if (wally->option + 1 >= 1)
+			if (wally->option + 1 <= 1)
 				wally->option += 1;
 		} else if (wally->scancode == KEY_ENTER) {
 			wally->scancode = 0;
@@ -164,14 +162,14 @@ void drawWallyNIX(WallyNIX* wally) {
 }
 
 void stopWallyNIX(WallyNIX* wally) {
+	deleteTimer(wally->timer);
+	deleteMouse();
+
 	//Unsubscribe devices
-	unsubscribeTimer();
 	unsubscribeKeyboard();
+	unsubscribeTimer();
 	unsubscribeMouse();
 
-	deleteTimer(wally->timer);
 	free(wally);
-
-	exitGraphics();
 }
 

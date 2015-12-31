@@ -1,9 +1,10 @@
 #ifndef __MOUSE_H
 #define __MOUSE_H
 
+#include "Bitmap.h"
 #include <minix/sysutil.h>
 
-static int hook_id_mouse;
+static int hook_id_mouse = 12;
 
 // Represents a mouse
 typedef struct {
@@ -12,7 +13,7 @@ typedef struct {
 	int deltaX, deltaY;
 	double sensitivity;
 
-	int byteBeingRead;
+	int byteNumber;
 	unsigned long packet[3];
 
 	int leftButtonPressed;
@@ -23,7 +24,7 @@ typedef struct {
 	int middleButtonReleased;
 	int rightButtonReleased;
 
-	int cursor;
+	Bitmap* cursor;
 
 	int hasBeenUpdated;
 	int draw;
@@ -31,18 +32,14 @@ typedef struct {
 
 int subscribeMouse();
 int unsubscribeMouse();
-unsigned long mouse_int_handler();
-int mouse_enable_stream_mode();
-int mouse_disable_stream_mode();
-unsigned short send_argument_mouse(unsigned char argument);
-int mouse_enable_sending_packets();
-unsigned long enableMouse();
+int enableMouse();
 Mouse* getMouse();
-Mouse* newMouse();
-void incrementPacketBytes();
-void resetCounterPacketBytes();
-void updateMouse();
+Mouse* createMouse();
 void deleteMouse();
 void drawMouse();
+void updateMouse();
+int readMouse(unsigned long* reg);
+int writeToKBC(unsigned long port, unsigned char byte);
+int writeToMouse(unsigned char byte);
 
 #endif

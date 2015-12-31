@@ -77,6 +77,7 @@ extern FILE* logfd;
 #define KBC_IBF BIT(1)
 #define PAR_ERR BIT(7)
 #define TO_ERR BIT(6)
+#define AUX BIT(5)
 
 //C@KBD values
 #define ACK 0xFA
@@ -87,7 +88,7 @@ extern FILE* logfd;
  * MOUSE MACROS
  */
 
-#define MOUSE_IRQ 2
+#define MOUSE_IRQ 12
 
 #define MOUSE_STREAM_MODE 0xEA
 #define MOUSE_DISABLE_STREAM_MODE 0xF5
@@ -158,24 +159,24 @@ extern FILE* logfd;
 
 #define COLOUR_BLACK		RGB(0,0,0)
 #define COLOUR_WHITE 		RGB(255,255,255)
-#define COLOUR_GREY			0x07
+#define COLOUR_GREY			RGB(128,128,128)
 
-#define COLOUR_RED			0x24
-#define COLOUR_GREEN		0x12
+#define COLOUR_RED			RGB(255,0,0)
+#define COLOUR_GREEN		RGB(0,255,0)
 #define COLOUR_BLUE 		RGB(0,0,255)
 
-#define COLOUR_YELLOW 		0x36
-#define COLOUR_MAGENTA		0x25
-#define COLOUR_CYAN			0x1B
+#define COLOUR_YELLOW 		RGB(255,255,0)
+#define COLOUR_MAGENTA		RGB(255,0,255)
+#define COLOUR_CYAN			RGB(0,255,255)
 
-#define COLOUR_DARK_RED 	0x04
-#define COLOUR_DARK_GREEN	0x10
-#define COLOUR_DARK_BLUE	0x01
+#define COLOUR_DARK_RED 	RGB(128,0,0)
+#define COLOUR_DARK_GREEN	RGB(0,128,0)
+#define COLOUR_DARK_BLUE	RGB(0,0,128)
 
-#define COLOUR_ORANGE		0x26
-#define COLOUR_BROWN		0x14
-#define COLOUR_PINK			0x2F
-#define COLOUR_PURPLE		0x05
+#define COLOUR_ORANGE		RGB(255,168,0)
+#define COLOUR_BROWN		RGB(139,69,19)
+#define COLOUR_PINK			RGB(255,192,203)
+#define COLOUR_PURPLE		RGB(128,0,128)
 
 //==========================================================================================
 
