@@ -46,41 +46,35 @@ double ceil(double num) {
 
 const char* getMousePath(int cursor) {
 	char num[256];
-	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/code/resources/cursor/mouse%d.bmp", cursor);
-	//sprintf(num, "resources/cursor/mouse%d.bmp", cursor);
+	sprintf(num, PATH_MOUSE "mouse%d.bmp", cursor);
 
 	char* path = (char*) malloc(256);
 	strcpy(path, num);
-	LOG("Mouse Path", path);
 	return path;
 }
 const char* getFontPath(char* character) {
 	char num[256];
-	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/code/resources/font/%s.bmp", character);
+	sprintf(num, PATH_FONT "%s.bmp", character);
 
 	char* path = (char*) malloc(256);
 	strcpy(path, num);
-	LOG("Font Path", path);
 	return path;
 }
 
 const char* getImagePath(char* image) {
 	char num[256];
-	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/code/resources/images/%s.bmp", image);
+	sprintf(num, PATH_IMAGE "%s.bmp", image);
 
 	char* path = (char*) malloc(256);
 	strcpy(path, num);
-	LOG("Image Path", path);
 	return path;
 }
 
 const char* getStagePath(int number) {
 	char num[256];
-	sprintf(num, "/home/lcom/lcom1516-t2g15/proj/code/resources/stages/stage%02d.bmp",
-			number);
+	sprintf(num, PATH_STAGE "stage%02d.bmp", number);
 
 	char* path = (char*) malloc(256);
 	strcpy(path, num);
-	LOG("Stage Path", path);
 	return path;
 }

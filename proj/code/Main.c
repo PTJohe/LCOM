@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
 	/* Initialize service (synchronize with the RS) */
 	sef_startup();
-	printf("Starting WallyNIX.");
+	printf("Starting WallyNIX.\n");
 
 	initGraphics(MODE_1280_1024);
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 			if (wally->draw) {
 				drawWallyNIX(wally);
 			}
-			if(getMouse()->draw){
+			if (getMouse()->draw) {
 				copyToMouseBuffer();
 				drawMouse();
 			}
@@ -42,7 +42,6 @@ int main(int argc, char *argv[]) {
 	stopWallyNIX(wally);
 
 	exitGraphics();
-
 	printf("WallyNIX exited successfully\n");
 	return EXIT_SUCCESS;
 }

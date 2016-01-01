@@ -323,13 +323,3 @@ int drawCursor(Bitmap* bmp, int x, int y) {
 		memcpy(bufferStartPos, imgStartPos, drawWidth * 2);
 	}
 }
-
-int drawStage(Bitmap* stage) {
-	if (stage == NULL)
-		return EXIT_FAILURE;
-
-	fillDisplay(COLOUR_WHITE);
-	drawBitmap(stage, 0, 213, ALIGN_LEFT);
-
-	return EXIT_SUCCESS;
-}

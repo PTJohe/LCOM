@@ -3,6 +3,15 @@
 
 #include "Bitmap.h"
 #include "Position.h"
+#include "Timer.h"
+enum {
+	MAIN_MENU,
+	ARCADE_MODE,
+	STAGE_SELECT,
+	HIGH_SCORES,
+	OPTIONS,
+	EXIT_GAME
+};
 
 typedef struct {
 	Position* topLeft;
@@ -18,10 +27,10 @@ typedef struct {
 
 	Button* buttons[5];
 	/*Button* arcadeMode;
-	Button* stageSelect;
-	Button* options;
-	Button* highScores;
-	Button* exit;*/
+	 Button* stageSelect;
+	 Button* options;
+	 Button* highScores;
+	 Button* exit;*/
 
 	int mouseSelection;
 	int done;
@@ -29,6 +38,7 @@ typedef struct {
 
 typedef struct {
 	int timeLeft;
+	int found;
 
 	Button* pause;
 	Bitmap* image;
@@ -41,6 +51,8 @@ typedef struct {
 	int timeLeft;
 	int score;
 
+	Timer* timer;
+
 	int currentStage;
 	Stage* stages[11];
 
@@ -48,7 +60,6 @@ typedef struct {
 	int gameOver;
 	int done;
 } ArcadeMode;
-
 
 Button* createButton(int xi, int yi, int xf, int yf, char* text);
 void updateButton(Button* button);
@@ -64,8 +75,8 @@ ArcadeMode* createArcadeMode();
 void deleteArcadeMode(ArcadeMode* arcadeMode);
 
 Stage* createStage(int stageNumber, Position* wally);
+void updateStage(Stage* stage);
+void drawStage(Stage* stage);
 void deleteStage(Stage* stage);
-
-
 
 #endif

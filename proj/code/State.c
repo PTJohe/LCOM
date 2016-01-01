@@ -61,8 +61,6 @@ void updateButton(Button* button) {
 		button->onHover = 0;
 		button->onClick = 0;
 	}
-
-	LOG_VAR("OnClick", button->onClick);
 }
 
 void deleteButton(Button* button) {
@@ -130,52 +128,107 @@ void deleteMainMenu(MainMenu* mainMenu) {
 
 ArcadeMode* createArcadeMode() {
 	ArcadeMode* arcadeMode = (ArcadeMode*) malloc(sizeof(ArcadeMode));
-	int timeLeft = 60;
-	int score = 0;
 
-	int currentStage = 1;
+	arcadeMode->timeLeft = 60;
+	arcadeMode->score = 0;
 
-	/*FILE *file;
-	char line[10];
-	size_t len = 0;
+	arcadeMode->timer = createTimer();
+
+	arcadeMode->currentStage = 1;
+
+	FILE *file = fopen(PATH_STAGE "Coordinates.txt", "r");
+	if (file == NULL)
+		LOG("ERROR", "Couldn't open coordinates file.");
+
 	int i = 0;
+	char string[100];
+	while (fgets(string, 100, file)) {
+		int stageNumber = atoi(string);
 
-	file = fopen("/home/lcom/lcom1516-t2g15/proj/res/stages/coordinates.txt",
-			"r");
-	while (getline(&line, &len, file) != -1) {
-		int stageNumber = atoi(line);
-		getline(&line, &len, file);
+		fgets(string, 100, file);
+		int x = atoi(string);
 
-		int x = atoi(line);
-		getline(&line, &len, file);
-		int y = atoi(line);
-		Position* position = createPosition(x, y);
+		fgets(string, 100, file);
+		int y = atoi(string);
+
+		Position* position = createPosition(x, y + 213);
 
 		arcadeMode->stages[i] = createStage(stageNumber, position);
 		i++;
 	}
-	fclose(file);*/
 
-	int pause = 0;
-	int gameOver = 0;
-	int done = 0;
+	fclose(file);
+
+	arcadeMode->pause = 0;
+	arcadeMode->gameOver = 0;
+	arcadeMode->done = 0;
 
 	return arcadeMode;
 }
-void deleteArcadeMode(ArcadeMode* arcadeMode) {
 
+void updateArcadeMode(ArcadeMode* arcadeMode) {
+	Stage* stage = arcadeMode->stages[arcadeMode->currentStage - 1];
+	updateStage(stage);
+
+	if (stage->found) {
+		arcadeMode->done = 1;
+		stopTimer(arcadeMode->timer);
+		return;
+	}
+
+	if (arcadeMode->timer->counter == 60 * TIMER_DEFAULT_FREQ) {
+		arcadeMode->done = 1;
+		stopTimer(arcadeMode->timer);
+	}
+}
+
+void drawArcadeMode(ArcadeMode* arcadeMode) {
+	fillDisplay(COLOUR_WHITE);
+	drawTimeLeft(arcadeMode->timer);
+
+	drawStage(arcadeMode->stages[arcadeMode->currentStage - 1]);
+}
+
+void deleteArcadeMode(ArcadeMode* arcadeMode) {
+	int i;
+	for (i = 0; i < 1 /*11*/; i++) {
+		deleteStage(arcadeMode->stages[i]);
+	}
+
+	deleteTimer(arcadeMode->timer);
+	free(arcadeMode);
 }
 
 Stage* createStage(int stageNumber, Position* wally) {
 	Stage* stage = (Stage*) malloc(sizeof(Stage));
 
 	stage->timeLeft = 60;
+	stage->found = 0;
 
 	stage->image = loadBitmap(getStagePath(stageNumber));
 	stage->wally = wally;
 
 	return stage;
 }
-void deleteStage(Stage* stage) {
 
+void updateStage(Stage* stage) {
+	Mouse* mouse = getMouse();
+
+	if (mouse->leftButtonReleased == 1) {
+		if (calcDistance(mouse->position, stage->wally) < 25) {
+			stage->found = 1;
+		}
+	}
+}
+
+void drawStage(Stage* stage) {
+	drawBitmap(stage->image, 0, 213, ALIGN_LEFT);
+	drawCircle(stage->wally->x, stage->wally->y, 25, COLOUR_ORANGE);
+}
+
+void deleteStage(Stage* stage) {
+//deleteButton(stage->pause);
+	deleteBitmap(stage->image);
+	deletePosition(stage->wally);
+	free(stage);
 }

@@ -332,6 +332,7 @@ State.o:	Mouse.h
 State.o:	Position.h
 State.o:	State.c
 State.o:	State.h
+State.o:	Timer.h
 State.o:	Utilities.h
 
 Timer.o:	/usr/include/errno.h

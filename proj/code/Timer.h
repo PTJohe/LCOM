@@ -6,7 +6,6 @@ static int hook_id_timer;
 
 #include "Bitmap.h"
 
-
 // Represents a Timer
 typedef struct {
 	int counter; ///< timer counter
@@ -53,15 +52,17 @@ void resetTimer(Timer* timer);
 /**
  * @brief Enables timer
  */
-void startTimer (Timer* timer);
+void startTimer(Timer* timer);
 /**
  * @brief Disables timer
  */
 void stopTimer(Timer* timer);
+
+void resumeTimer(Timer* timer);
+
 /**
  * @brief Deletes a timer
  */
 void deleteTimer(Timer* timer);
-
 
 #endif
