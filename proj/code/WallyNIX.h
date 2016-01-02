@@ -17,6 +17,8 @@ typedef struct WallyNIX {
 
 	MainMenu* mainMenu;
 	ArcadeMode* arcadeMode;
+	StageSelect* stageSelect;
+
 } WallyNIX;
 
 WallyNIX* initWallyNIX();

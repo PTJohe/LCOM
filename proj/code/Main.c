@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
 	/* Initialize service (synchronize with the RS) */
 	sef_startup();
-	printf("Starting WallyNIX.\n");
+	printf("Starting \"Where's Wally?\" ....\n");
 
 	initGraphics(MODE_1280_1024);
 
@@ -46,8 +46,7 @@ int main(int argc, char *argv[]) {
 	stopWallyNIX(wally);
 
 	exitGraphics();
-	exitLog();
-
+	LOG("main", "Terminated Where's Wally? ...");
 	printf("\"Where's Wally?\" exited successfully.\n");
 	return EXIT_SUCCESS;
 }

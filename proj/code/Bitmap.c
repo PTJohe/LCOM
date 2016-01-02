@@ -134,47 +134,14 @@ void drawBitmap(Bitmap* bmp, int x, int y, Alignment alignment) {
 	}
 }
 
-void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour) {
-	/*int width = bmp->bitmapInfoHeader.width;
-	 int height = bmp->bitmapInfoHeader.height;
-
-	 if (x < 0 || x >= getHRes() || y < 0 || y >= getVRes())
-	 return;
-
-	 unsigned long colour;
-
-	 int line, column;
-	 for (line = 0; line < height; line++) {
-	 for (column = 0; column < width; column++) {
-	 int pos = (column * 2) + (line * width * 2);
-
-	 unsigned short tmp1 = bmp->bitmapData[pos];
-	 unsigned short tmp2 = bmp->bitmapData[pos + 1];
-	 unsigned long colour = (tmp1 | (tmp2 << 8));
-
-	 if (colour != alphaColour)
-	 if (x + column < getHRes() && y + line < getVRes()) {
-	 *getMouseBuffer() = bmp->bitmapData[column + line * width * 2];
-	 *(mouseBuffer + 1) = bmp->bitmapData[(column + 1)
-	 + line * width * 2];
-
-	 *(getMouseBuffer() + ((hRes * y + line) + x) * bytesPerPixel) = colour
-	 & 0xFF;
-	 *(getMouseBuffer() + (((hRes * y) + x) * bytesPerPixel) + 1) =
-	 (colour >> 8) & 0xFF;
-	 }
-	 }
-	 //putPixelMouseBuffer(x + column, y + line, colour);
-	 }*/
-
-	int colorToFilter = (int) alphaColour;
-
+void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour,
+		int mouseBuffer) {
 	if (bmp == NULL)
 		return;
 
-	char* bufferStartPos;
 	unsigned int width = bmp->bitmapInfoHeader.width;
 	unsigned int height = bmp->bitmapInfoHeader.height;
+	char* bufferStartPos;
 
 	int i, j;
 	for (i = 0; i < height; i++) {
@@ -183,8 +150,12 @@ void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour) {
 		if (pos < 0 || pos >= getVRes())
 			continue;
 
-		bufferStartPos = (char*) getMouseBuffer() + x * 2
-				+ (y + height - i) * getHRes() * 2;
+		if (mouseBuffer)
+			bufferStartPos = (char*) getMouseBuffer() + x * 2
+					+ (y + height - i) * getHRes() * 2;
+		else
+			bufferStartPos = (char*) getDoubleBuffer() + x * 2
+					+ (y + height - i) * getHRes() * 2;
 
 		for (j = 0; j < width * 2; j++, bufferStartPos++) {
 			if (x + j < 0 || x * 2 + j >= getHRes() * 2)
@@ -195,8 +166,7 @@ void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour) {
 			unsigned short tmp2 = bmp->bitmapData[pos + 1];
 			unsigned short temp = (tmp1 | (tmp2 << 8));
 
-			//LOG_VAR("pixel color", temp);
-			if (temp != colorToFilter) {
+			if (temp != alphaColour) {
 				*bufferStartPos = bmp->bitmapData[j + i * width * 2];
 				j++;
 				bufferStartPos++;

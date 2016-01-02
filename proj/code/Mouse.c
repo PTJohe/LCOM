@@ -162,7 +162,7 @@ void resetMouseButton() {
 
 void drawMouse() {
 	drawBitmapAlpha(mouse->cursor, mouse->position->x, mouse->position->y,
-	COLOUR_WHITE);
+	COLOUR_WHITE, 1);
 }
 
 void deleteMouse() {

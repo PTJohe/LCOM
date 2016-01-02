@@ -36,6 +36,7 @@ void updateWallyNIX(WallyNIX* wally) {
 	int ipc_status, r = 0;
 	message msg;
 
+	//INTERRUPTIONS HANDLERS
 	if (driver_receive(ANY, &msg, &ipc_status) != 0)
 		return;
 
@@ -50,13 +51,11 @@ void updateWallyNIX(WallyNIX* wally) {
 			// Timer interruption
 			if (msg.NOTIFY_ARG & wally->IRQ_SET_TIMER) {
 				if (wally->menu == ARCADE_MODE) {
-					ArcadeMode* arcadeMode = wally->arcadeMode;
-					if (arcadeMode->timer->enabled == 1)
-						timerCount(arcadeMode->timer);
-					if (arcadeMode->timer->counter >= 60 * TIMER_DEFAULT_FREQ) {
-						arcadeMode->gameOver = 1;
-						stopTimer(arcadeMode->timer);
-					}
+					if (wally->arcadeMode->timer->enabled == 1)
+						timerCount(wally->arcadeMode->timer);
+				} else if (wally->menu == STAGE_SELECT) {
+					if (wally->stageSelect->timer->enabled == 1)
+						timerCount(wally->stageSelect->timer);
 				}
 			}
 			// Mouse interruption
@@ -70,6 +69,7 @@ void updateWallyNIX(WallyNIX* wally) {
 		}
 	}
 
+	//UPDATE STATES
 	switch (wally->menu) {
 	case MAIN_MENU:
 		updateMainMenu(wally->mainMenu);
@@ -80,6 +80,11 @@ void updateWallyNIX(WallyNIX* wally) {
 			wally->menu = ARCADE_MODE;
 			wally->arcadeMode = createArcadeMode();
 			startTimer(wally->arcadeMode->timer);
+			break;
+		case 2:
+			deleteMainMenu(wally->mainMenu);
+			wally->menu = STAGE_SELECT;
+			wally->stageSelect = createStageSelect();
 			break;
 		case 5:
 			wally->exit = 1;
@@ -95,51 +100,149 @@ void updateWallyNIX(WallyNIX* wally) {
 			deleteArcadeMode(wally->arcadeMode);
 			wally->menu = MAIN_MENU;
 			wally->mainMenu = createMainMenu();
+			wally->option = 0;
+			return;
+		}
+		break;
+	case STAGE_SELECT:
+		updateStageSelect(wally->stageSelect);
+
+		if (wally->stageSelect->currentStage == 0) {
+			if (wally->stageSelect->done
+					|| wally->stageSelect->mouseSelection == 5) {
+				deleteStageSelect(wally->stageSelect);
+				wally->menu = MAIN_MENU;
+				wally->mainMenu = createMainMenu();
+				wally->option = 0;
+				return;
+			} else if (wally->stageSelect->mouseSelection) {
+				wally->stageSelect->currentStage =
+						wally->stageSelect->mouseSelection;
+				wally->stageSelect->mouseSelection = 0;
+				resetTimer(wally->stageSelect->timer);
+				startTimer(wally->stageSelect->timer);
+			}
 		}
 		break;
 	default:
 		break;
 	}
 
+	//READ KEYBOARD
 	switch (wally->scancode) {
 	case KEY_ESC:
 		wally->scancode = 0;
-		if (wally->menu == ARCADE_MODE) {
-			deleteArcadeMode(wally->arcadeMode);
-			wally->menu = MAIN_MENU;
-			wally->mainMenu = createMainMenu();
-			wally->option = 0;
-		} else
+		if (wally->menu == MAIN_MENU) {
 			wally->exit = 1;
+		} else if (wally->menu == ARCADE_MODE) {
+			if (wally->arcadeMode->pause) {
+				wally->arcadeMode->pause = 0;
+				resumeTimer(wally->arcadeMode->timer);
+			} else {
+				stopTimer(wally->arcadeMode->timer);
+				wally->arcadeMode->pause = 1;
+				wally->arcadeMode->option = -1;
+			}
+		} else if (wally->menu == STAGE_SELECT) {
+			if (wally->stageSelect->currentStage) {
+				if (wally->stageSelect->pause) {
+					wally->stageSelect->pause = 0;
+					resumeTimer(wally->stageSelect->timer);
+				} else {
+					stopTimer(wally->stageSelect->timer);
+					wally->stageSelect->pause = 1;
+					wally->stageSelect->option = -1;
+				}
+			} else
+				wally->stageSelect->done;
+		}
 		break;
 	case KEY_W:
 		wally->scancode = 0;
+		getMouse()->draw = 0;
 
 		if (wally->menu == MAIN_MENU) {
-			getMouse()->draw = 0;
 			if (wally->mainMenu->option - 1 >= 0)
 				wally->mainMenu->option -= 1;
+		} else if (wally->menu == ARCADE_MODE) {
+			if (wally->arcadeMode->option - 1 >= 0)
+				wally->arcadeMode->option -= 1;
+		} else if (wally->menu == STAGE_SELECT) {
+			if (wally->stageSelect->option - 1 >= 0)
+				wally->stageSelect->option -= 1;
 		}
 		break;
 	case KEY_S:
 		wally->scancode = 0;
+		getMouse()->draw = 0;
 
 		if (wally->menu == MAIN_MENU) {
-			getMouse()->draw = 0;
 			if (wally->mainMenu->option + 1 <= 4)
 				wally->mainMenu->option += 1;
+		} else if (wally->menu == ARCADE_MODE) {
+			if (wally->arcadeMode->option + 1 <= 1)
+				wally->arcadeMode->option += 1;
+		} else if (wally->menu == STAGE_SELECT) {
+			if (wally->stageSelect->currentStage) {
+				if (wally->stageSelect->pause) {
+					if (wally->stageSelect->option + 1 <= 1)
+						wally->stageSelect->option += 1;
+				}
+			} else if (wally->stageSelect->option + 1 <= 4)
+				wally->stageSelect->option += 1;
 		}
 		break;
 	case KEY_ENTER:
 		wally->scancode = 0;
 		if (wally->menu == MAIN_MENU) {
-			if (wally->mainMenu->option == 0) {
+			switch (wally->mainMenu->option) {
+			case 0:
 				deleteMainMenu(wally->mainMenu);
 				wally->menu = ARCADE_MODE;
 				wally->arcadeMode = createArcadeMode();
 				startTimer(wally->arcadeMode->timer);
-			} else if (wally->mainMenu->option == 4)
+				break;
+			case 1:
+				deleteMainMenu(wally->mainMenu);
+				wally->menu = STAGE_SELECT;
+				wally->stageSelect = createStageSelect();
+				break;
+			case 4:
 				wally->exit = 1;
+				break;
+			default:
+				break;
+			}
+		} else if (wally->menu == ARCADE_MODE) {
+			if (wally->arcadeMode->pause) {
+				if (wally->arcadeMode->option == 0) {
+					wally->arcadeMode->pause = 0;
+					resumeTimer(wally->arcadeMode->timer);
+				} else if (wally->arcadeMode->option == 1) {
+					wally->arcadeMode->done = 1;
+				}
+			}
+		} else if (wally->menu == STAGE_SELECT) {
+			if (wally->stageSelect->currentStage) {
+				if (wally->stageSelect->pause) {
+					if (wally->stageSelect->option == 0) {
+						wally->stageSelect->pause = 0;
+						resumeTimer(wally->stageSelect->timer);
+					} else if (wally->stageSelect->option == 1) {
+						resetStage(
+								wally->stageSelect->stages[wally->stageSelect->currentStage
+										- 1]);
+						stopTimer(wally->stageSelect->timer);
+						wally->stageSelect->currentStage = 0;
+					}
+				}
+			} else if (wally->stageSelect->option == 4) {
+				wally->stageSelect->done = 1;
+			} else if (wally->stageSelect->option >= 0) {
+				wally->stageSelect->currentStage = wally->stageSelect->option
+						+ 1;
+				startTimer(wally->stageSelect->timer);
+			}
 		}
 		break;
 	default:
@@ -155,6 +258,8 @@ void drawWallyNIX(WallyNIX* wally) {
 	case ARCADE_MODE:
 		drawArcadeMode(wally->arcadeMode);
 		break;
+	case STAGE_SELECT:
+		drawStageSelect(wally->stageSelect);
 	default:
 		break;
 	}
@@ -166,7 +271,7 @@ void stopWallyNIX(WallyNIX* wally) {
 
 	deleteMainMenu(wally->mainMenu);
 
-	//Unsubscribe devices
+//Unsubscribe devices
 	unsubscribeKeyboard();
 	unsubscribeTimer();
 	unsubscribeMouse();
