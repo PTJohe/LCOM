@@ -89,7 +89,7 @@ Mouse* createMouse() {
 	mouse->sensitivity = 1.0;
 
 	mouse->byteNumber = 0;
-	mouse->draw = 1;
+	mouse->draw = 0;
 	mouse->hasBeenUpdated = 0;
 
 	return mouse;
@@ -142,8 +142,8 @@ void updateMouse() {
 			if (mouse->position->y - mouse->deltaY * mouse->sensitivity < 0)
 				mouse->position->y = 0;
 			else if (mouse->position->y - mouse->deltaY * mouse->sensitivity
-					>= getVRes())
-				mouse->position->y = getVRes() - 1;
+					>= getVRes() - 25)
+				mouse->position->y = getVRes() - 25;
 			else
 				mouse->position->y -= mouse->deltaY * mouse->sensitivity;
 		}
@@ -166,5 +166,6 @@ void drawMouse() {
 }
 
 void deleteMouse() {
+	deleteBitmap(getMouse()->cursor);
 	free(getMouse());
 }

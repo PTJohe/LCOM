@@ -3,11 +3,11 @@
 
 #include "Utilities.h"
 #include "Bitmap.h"
+#include "Game.h"
 #include "Graphics.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Timer.h"
-#include "State.h"
 
 const int FPS = 60;
 const int mouseFPS = 75;
@@ -43,16 +43,17 @@ void updateWallyNIX(WallyNIX* wally) {
 		switch (_ENDPOINT_P(msg.m_source)) {
 		case HARDWARE:
 			// Keyboard interruption
-			if (msg.NOTIFY_ARG & wally->IRQ_SET_KBD)
+			if (msg.NOTIFY_ARG & wally->IRQ_SET_KBD) {
 				wally->scancode = readScancode();
+				break;
+			}
 			// Timer interruption
 			if (msg.NOTIFY_ARG & wally->IRQ_SET_TIMER) {
 				if (wally->menu == ARCADE_MODE) {
 					ArcadeMode* arcadeMode = wally->arcadeMode;
-
 					if (arcadeMode->timer->enabled == 1)
 						timerCount(arcadeMode->timer);
-					if (arcadeMode->timer->counter == 60 * TIMER_DEFAULT_FREQ) {
+					if (arcadeMode->timer->counter >= 60 * TIMER_DEFAULT_FREQ) {
 						arcadeMode->gameOver = 1;
 						stopTimer(arcadeMode->timer);
 					}
@@ -60,6 +61,7 @@ void updateWallyNIX(WallyNIX* wally) {
 			}
 			// Mouse interruption
 			if (msg.NOTIFY_ARG & wally->IRQ_SET_MOUSE) {
+				getMouse()->draw = 1;
 				updateMouse();
 			}
 			break;
@@ -79,7 +81,7 @@ void updateWallyNIX(WallyNIX* wally) {
 			wally->arcadeMode = createArcadeMode();
 			startTimer(wally->arcadeMode->timer);
 			break;
-		case 2:
+		case 5:
 			wally->exit = 1;
 			break;
 		default:
@@ -101,32 +103,42 @@ void updateWallyNIX(WallyNIX* wally) {
 
 	switch (wally->scancode) {
 	case KEY_ESC:
+		wally->scancode = 0;
 		if (wally->menu == ARCADE_MODE) {
+			deleteArcadeMode(wally->arcadeMode);
 			wally->menu = MAIN_MENU;
 			wally->mainMenu = createMainMenu();
 			wally->option = 0;
-			wally->scancode = 0;
 		} else
 			wally->exit = 1;
 		break;
 	case KEY_W:
 		wally->scancode = 0;
-		if (wally->option - 1 >= 0)
-			wally->option -= 1;
+
+		if (wally->menu == MAIN_MENU) {
+			getMouse()->draw = 0;
+			if (wally->mainMenu->option - 1 >= 0)
+				wally->mainMenu->option -= 1;
+		}
 		break;
 	case KEY_S:
 		wally->scancode = 0;
-		if (wally->option + 1 <= 1)
-			wally->option += 1;
+
+		if (wally->menu == MAIN_MENU) {
+			getMouse()->draw = 0;
+			if (wally->mainMenu->option + 1 <= 4)
+				wally->mainMenu->option += 1;
+		}
 		break;
 	case KEY_ENTER:
 		wally->scancode = 0;
 		if (wally->menu == MAIN_MENU) {
-			if (wally->option == 0) {
+			if (wally->mainMenu->option == 0) {
+				deleteMainMenu(wally->mainMenu);
 				wally->menu = ARCADE_MODE;
-				resetTimer(wally->timer);
-				startTimer(wally->timer);
-			} else
+				wally->arcadeMode = createArcadeMode();
+				startTimer(wally->arcadeMode->timer);
+			} else if (wally->mainMenu->option == 4)
 				wally->exit = 1;
 		}
 		break;

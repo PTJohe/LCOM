@@ -13,6 +13,9 @@ void initLog() {
 	logfd = fopen(LOG_PATH, "w");
 	LOG("initLog", "logging successfully initialized");
 }
+void exitLog(){
+	fclose(logfd);
+}
 
 int main(int argc, char *argv[]) {
 	initLog();
@@ -32,16 +35,19 @@ int main(int argc, char *argv[]) {
 			if (wally->draw) {
 				drawWallyNIX(wally);
 			}
+			copyToMouseBuffer();
 			if (getMouse()->draw) {
-				copyToMouseBuffer();
 				drawMouse();
 			}
+
 			copyToVideoMem();
 		}
 	}
 	stopWallyNIX(wally);
 
 	exitGraphics();
-	printf("WallyNIX exited successfully\n");
+	exitLog();
+
+	printf("\"Where's Wally?\" exited successfully.\n");
 	return EXIT_SUCCESS;
 }

@@ -1,5 +1,5 @@
-#ifndef __STATE_H
-#define __STATE_H
+#ifndef __GAME_H
+#define __GAME_H
 
 #include "Bitmap.h"
 #include "Position.h"
@@ -33,6 +33,8 @@ typedef struct {
 	 Button* exit;*/
 
 	int mouseSelection;
+	int option;
+
 	int done;
 } MainMenu;
 
@@ -41,32 +43,38 @@ typedef struct {
 	int found;
 
 	Button* pause;
-	Bitmap* image;
 
-	//Wally coordinates
+	Bitmap* image;
 	Position* wally;
 } Stage;
 
 typedef struct {
-	int timeLeft;
 	int score;
-
 	Timer* timer;
+	int found;
 
 	int currentStage;
-	Stage* stages[11];
+	Stage* stages[10];
+
+	Bitmap* findWally;
+	Bitmap* wally;
 
 	int pause;
+	Button* pauseContinue;
+	Button* pauseQuit;
+
 	int gameOver;
 	int done;
 } ArcadeMode;
 
 Button* createButton(int xi, int yi, int xf, int yf, char* text);
 void updateButton(Button* button);
-void drawButton(Button* button);
+void drawButton(Button* button, int menuOption);
 void deleteButton(Button* button);
 
 MainMenu* createMainMenu();
+int getMainMenuOption(MainMenu* mainMenu);
+void updateMainMenu(MainMenu* mainMenu);
 void drawMainMenu(MainMenu* mainMenu);
 void resetMainMenu(MainMenu* mainMenu);
 void deleteMainMenu(MainMenu* mainMenu);

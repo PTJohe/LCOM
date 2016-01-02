@@ -117,6 +117,11 @@ int fillDisplay(unsigned long colour) {
 	return EXIT_SUCCESS;
 }
 
+void directPixel(int x, int y, unsigned long colour) {
+	*(videoMem + ((hRes * y) + x) * bytesPerPixel) = colour & 0xFF;
+	*(videoMem + (((hRes * y) + x) * bytesPerPixel) + 1) = (colour >> 8) & 0xFF;
+}
+
 void putPixel(int x, int y, unsigned long colour) {
 	//Color pixel of double buffer
 	*(doubleBuffer + ((hRes * y) + x) * bytesPerPixel) = colour & 0xFF;
@@ -240,6 +245,42 @@ int drawCircle(int xc, int yc, int radius, unsigned long colour) {
 					&& (yc + ty < vRes || yc + ty >= 0))
 				putPixel(xc + tx, yc + ty, colour);
 	}
+	return 0;
+}
+
+int drawCircleBorder(long xc, long yc, int radius, unsigned long color) {
+	int x = 0;
+	int y = radius;
+	int p = 1 - radius;
+	int incE = 3, incSE = 5 - 2 * radius;
+
+	putPixel(xc - radius, yc, color);
+	putPixel(xc + radius, yc, color);
+	putPixel(xc, yc - radius, color);
+	putPixel(xc, yc + radius, color);
+
+	while (y > x) {
+		if (p < 0) {
+			p = p + incE;
+			incE = incE + 2;
+			incSE = incSE + 2;
+			x++;
+		} else {
+			p = p + incSE;
+			incE = incE + 2;
+			incSE = incSE + 4;
+			x++, y--;
+		}
+
+		int i, j;
+		for (i = 1; i >= -1; i -= 2) {
+			for (j = 1; j >= -1; j -= 2) {
+				putPixel(xc + i * x, yc + j * y, color);
+				putPixel(xc + i * y, yc + j * x, color);
+			}
+		}
+	}
+
 	return 0;
 }
 

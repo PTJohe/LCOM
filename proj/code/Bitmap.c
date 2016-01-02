@@ -135,49 +135,77 @@ void drawBitmap(Bitmap* bmp, int x, int y, Alignment alignment) {
 }
 
 void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour) {
-	int width = bmp->bitmapInfoHeader.width;
-	int height = bmp->bitmapInfoHeader.height;
+	/*int width = bmp->bitmapInfoHeader.width;
+	 int height = bmp->bitmapInfoHeader.height;
 
-	if (x < 0 || x > getHRes() || y < 0 || y > getVRes())
+	 if (x < 0 || x >= getHRes() || y < 0 || y >= getVRes())
+	 return;
+
+	 unsigned long colour;
+
+	 int line, column;
+	 for (line = 0; line < height; line++) {
+	 for (column = 0; column < width; column++) {
+	 int pos = (column * 2) + (line * width * 2);
+
+	 unsigned short tmp1 = bmp->bitmapData[pos];
+	 unsigned short tmp2 = bmp->bitmapData[pos + 1];
+	 unsigned long colour = (tmp1 | (tmp2 << 8));
+
+	 if (colour != alphaColour)
+	 if (x + column < getHRes() && y + line < getVRes()) {
+	 *getMouseBuffer() = bmp->bitmapData[column + line * width * 2];
+	 *(mouseBuffer + 1) = bmp->bitmapData[(column + 1)
+	 + line * width * 2];
+
+	 *(getMouseBuffer() + ((hRes * y + line) + x) * bytesPerPixel) = colour
+	 & 0xFF;
+	 *(getMouseBuffer() + (((hRes * y) + x) * bytesPerPixel) + 1) =
+	 (colour >> 8) & 0xFF;
+	 }
+	 }
+	 //putPixelMouseBuffer(x + column, y + line, colour);
+	 }*/
+
+	int colorToFilter = (int) alphaColour;
+
+	if (bmp == NULL)
 		return;
 
 	char* bufferStartPos;
-	char* imgStartPos;
+	unsigned int width = bmp->bitmapInfoHeader.width;
+	unsigned int height = bmp->bitmapInfoHeader.height;
 
-	unsigned long colour;
-
-	int line, column;
-	for (line = 0; line < height; line++) {
-		int pos = y + height - 1 - line;
+	int i, j;
+	for (i = 0; i < height; i++) {
+		int pos = y + height - 1 - i;
 
 		if (pos < 0 || pos >= getVRes())
 			continue;
 
-		bufferStartPos = (char*) (getMouseBuffer() + x * 2
-				+ (y + height - line) * getHRes() * 2);
+		bufferStartPos = (char*) getMouseBuffer() + x * 2
+				+ (y + height - i) * getHRes() * 2;
 
-		for (column = 0; column < width * 2; column++, bufferStartPos++) {
-			if (x + column < 0 || x * 2 + column >= getHRes() * 2)
+		for (j = 0; j < width * 2; j++, bufferStartPos++) {
+			if (x + j < 0 || x * 2 + j >= getHRes() * 2)
 				continue;
 
-			int pos = column + line * width * 2;
-
+			int pos = j + i * width * 2;
 			unsigned short tmp1 = bmp->bitmapData[pos];
 			unsigned short tmp2 = bmp->bitmapData[pos + 1];
-			unsigned long colour = (tmp1 | (tmp2 << 8));
+			unsigned short temp = (tmp1 | (tmp2 << 8));
 
-			if (colour != alphaColour)
-				if (x + column < getHRes() && y + line < getVRes()) {
-					*bufferStartPos = bmp->bitmapData[column + line * width * 2];
-					column++;
-					bufferStartPos++;
-					*bufferStartPos = bmp->bitmapData[column + line * width * 2];
-				} else {
-					column++;
-					bufferStartPos++;
-				}
+			//LOG_VAR("pixel color", temp);
+			if (temp != colorToFilter) {
+				*bufferStartPos = bmp->bitmapData[j + i * width * 2];
+				j++;
+				bufferStartPos++;
+				*bufferStartPos = bmp->bitmapData[j + i * width * 2];
+			} else {
+				j++;
+				bufferStartPos++;
+			}
 		}
-		//putPixelMouseBuffer(x + column, y + line, colour);
 	}
 }
 

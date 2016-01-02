@@ -173,7 +173,7 @@ extern FILE* logfd;
 #define COLOUR_DARK_GREEN	RGB(0,128,0)
 #define COLOUR_DARK_BLUE	RGB(0,0,128)
 
-#define COLOUR_ORANGE		RGB(255,168,0)
+#define COLOUR_ORANGE		RGB(240,148,0)
 #define COLOUR_BROWN		RGB(139,69,19)
 #define COLOUR_PINK			RGB(255,192,203)
 #define COLOUR_PURPLE		RGB(128,0,128)
@@ -190,6 +190,7 @@ extern FILE* logfd;
 #define PATH_IMAGE			PATH_RESOURCES	"images/"
 #define PATH_STAGE			PATH_RESOURCES	"stages/"
 
+//==========================================================================================
 
 /**
  *  Converts RGB to Hex value.

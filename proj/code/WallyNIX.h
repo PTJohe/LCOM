@@ -2,10 +2,10 @@
 #define __WALLYNIX_H
 
 #include "Bitmap.h"
+#include "Game.h"
 #include "Timer.h"
-#include "State.h"
 
-typedef struct {
+typedef struct WallyNIX {
 	int IRQ_SET_TIMER;
 	int IRQ_SET_KBD;
 	int IRQ_SET_MOUSE;
