@@ -100,7 +100,27 @@ typedef struct {
 
 } StageSelect;
 
-typedef struct{
+typedef struct {
+	int score;
+	char* name;
+	char* date;
+} Score;
+
+typedef struct {
+	int drawFirstTime;
+	int mouseSelection;
+	int option;
+	int done;
+	int newScore;
+
+	Score* scores[10];
+
+	Bitmap* background;
+	Button* button;
+} HighScores;
+
+
+typedef struct {
 	int mouseSelection;
 	int option;
 	int done;
@@ -143,6 +163,18 @@ void updateStage(Stage* stage);
 void drawStage(Stage* stage);
 void resetStage(Stage* stage);
 void deleteStage(Stage* stage);
+
+HighScores* createHighScores(int score);
+void insertHighScore(HighScores* highScores, Score* score);
+void sortHighScores(HighScores* highScores);
+void drawName(char* name, int rank);
+void drawScore(int score, int rank);
+void drawDate(char* date, int rank);
+void drawHighScores(HighScores* highScores);
+void deleteHighScores(HighScores* highScores);
+
+Score* createScore(char* name, int points, char* date);
+void deleteScore(Score* score);
 
 Options* createOptions();
 void updateOptions(Options* options);

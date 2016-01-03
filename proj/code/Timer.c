@@ -37,7 +37,7 @@ Timer* createTimer() {
 		char str[256];
 		sprintf(str, "%dbig", i);
 
-		timer->numbers[i] = loadBitmap(getFontPath(str));
+		timer->numbers[i] = loadBitmap(getNumbersPath(str));
 	}
 	return timer;
 }

@@ -52,9 +52,18 @@ const char* getMousePath(int cursor) {
 	strcpy(path, num);
 	return path;
 }
-const char* getFontPath(char* character) {
+const char* getNumbersPath(char* str) {
 	char num[256];
-	sprintf(num, PATH_FONT "%s.bmp", character);
+	sprintf(num, PATH_FONT "%s.bmp", str);
+
+	char* path = (char*) malloc(256);
+	strcpy(path, num);
+	return path;
+}
+
+const char* getFontPath(char character) {
+	char num[256];
+	sprintf(num, PATH_FONT "%c.bmp", character);
 
 	char* path = (char*) malloc(256);
 	strcpy(path, num);

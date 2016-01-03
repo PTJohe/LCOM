@@ -1,6 +1,8 @@
 #include "Game.h"
+
 #include "Utilities.h"
 #include "Mouse.h"
+#include "RTC.h"
 
 #include <minix/syslib.h>
 #include <minix/drivers.h>
@@ -685,6 +687,174 @@ void deleteStage(Stage* stage) {
 	}
 
 	free(stage);
+}
+
+HighScores* createHighScores(int score) {
+	HighScores* highScores = (HighScores*) malloc(sizeof(HighScores));
+
+	highScores->drawFirstTime = 1;
+	highScores->mouseSelection = -1;
+	highScores->option = -1;
+	highScores->done = 0;
+
+	if (score)
+		highScores->newScore = 1;
+	else
+		highScores->newScore = 0;
+
+	highScores->background = loadBitmap(getImagePath("highscoresMenu"));
+	highScores->button = createButton(535, 850, 745, 910, "mainMenuButton");
+
+	FILE *file = fopen(PATH_STAGE "highScores.txt", "r");
+	if (file == NULL) {
+		LOG("ERROR", "Couldn't open highScores file.");
+		return highScores;
+	}
+	int i = 0;
+	char str[100];
+	while (fgets(str, 100, file)) {
+		fgets(str, 100, file);
+		char* name = (char*) malloc(100);
+		strcpy(name, str);
+		strtok(name, "\n");
+
+		fgets(str, 100, file);
+		int score = atoi(str);
+
+		fgets(str, 100, file);
+		char* date = (char*) malloc(100);
+		strcpy(date, str);
+		strtok(date, "\n");
+
+		highScores->scores[i] = createScore(name, score, date);
+		LOG("Name", name);
+		LOG_VAR("Score", score);
+		LOG("Date", date);
+		i++;
+	}
+	fclose(file);
+
+	LOG("HighScores", "Created HighScores");
+	return highScores;
+}
+void sortHighScores(HighScores* highScores) {
+}
+void updateHighScores(HighScores* highScores) {
+	if (getMouse()->draw)
+		highScores->option = -1;
+
+	updateButton(highScores->button);
+	if (highScores->button->onClick) {
+		highScores->mouseSelection = 0;
+		resetMouseButton();
+	}
+}
+void drawName(char* name, int rank) {
+	int numChars = strlen(name); //max = 10
+	int xMin = 200, xMax = 470;
+	int xInc = 25;
+	int x = 335 - ((numChars / 2) * 25);
+	int y = 310 + ((rank - 1) * 50);
+
+	char str[10];
+	sprintf(str, "%s", name);
+
+	int i;
+	for (i = 0; i < strlen(str); i++) {
+		Bitmap * bmp = loadBitmap(getFontPath(str[i]));
+		drawBitmapAlpha(bmp, x, y, COLOUR_WHITE, 0);
+		deleteBitmap(bmp);
+		x += xInc;
+	}
+}
+void drawScore(int points, int rank) {
+	char score[15];
+	sprintf(score, "%d", points);
+
+	int numChars = strlen(score); //max = 8
+	int xMin = 520, xMax = 700;
+	int xInc = 25;
+	int x = 610 - ((numChars / 2) * 20);
+	int y = 310 + ((rank - 1) * 50);
+
+	int i;
+	for (i = 0; i < strlen(score); i++) {
+		Bitmap * bmp = loadBitmap(getFontPath(score[i]));
+		drawBitmapAlpha(bmp, x, y, COLOUR_WHITE, 0);
+		deleteBitmap(bmp);
+		x += xInc;
+	}
+}
+void drawDate(char* date, int rank) {
+	int numChars = strlen(date);
+	int xMin = 800, xMax = 1200;
+	int xInc = 22;
+	int x = 800;
+	int y = 310 + ((rank - 1) * 50);
+
+	char str[20];
+	sprintf(str, "%s", date);
+
+	int i;
+	for (i = 0; i < strlen(str); i++) {
+		Bitmap* bmp = NULL;
+		if (str[i] == ' ') {
+			x += xInc;
+			continue;
+		} else if (str[i] == '/') {
+			bmp = loadBitmap(getFontPath('-'));
+			x -= 2;
+		} else if (str[i] == ':') {
+			bmp = loadBitmap(getFontPath('_'));
+			x += 10;
+			y += 5;
+		} else
+			bmp = loadBitmap(getFontPath(str[i]));
+		drawBitmapAlpha(bmp, x, y, COLOUR_WHITE, 0);
+		deleteBitmap(bmp);
+		x += xInc;
+		y = 310 + ((rank - 1) * 50);
+	}
+}
+void drawHighScores(HighScores* highScores) {
+	if (highScores->drawFirstTime) {
+		highScores->drawFirstTime = 0;
+		drawBitmap(highScores->background, 0, 0, ALIGN_LEFT);
+
+		int i;
+		for (i = 0; i < 10; i++) {
+			drawName(highScores->scores[i]->name, i);
+			drawScore(highScores->scores[i]->score, i);
+			drawDate(highScores->scores[i]->date, i);
+		}
+	}
+
+	if (getMouse()->draw) {
+		drawButton(highScores->button, 0);
+	} else {
+		if (highScores->option == 0)
+			drawButton(highScores->button, 1);
+		else
+			drawButton(highScores->button, 0);
+	}
+}
+
+void deleteHighScores(HighScores* highScores) {
+
+}
+
+Score* createScore(char* name, int points, char* date) {
+	Score* score = (Score*) malloc(sizeof(Score));
+
+	score->name = name;
+	score->score = points;
+	score->date = date;
+
+	return score;
+}
+void deleteScore(Score* score) {
+	free(score->date);
+	free(score);
 }
 
 Options* createOptions() {

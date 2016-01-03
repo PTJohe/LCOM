@@ -179,7 +179,43 @@ extern FILE* logfd;
 #define COLOUR_PURPLE		RGB(128,0,128)
 
 //==========================================================================================
+/*
+ * RTC MACROS
+ */
 
+#define RTC_IRQ 	8
+
+#define RTC_CTRL_REG_A 			10
+#define RTC_CTRL_REG_B  		11
+#define RTC_CTRL_REG_C  		12
+#define RTC_CTRL_REG_D  		13
+
+#define RTC_ADDR_REG 			0x70
+#define RTC_DATA_REG 			0x71
+
+#define RTC_REGB_SET_BIT			7
+#define RTC_REGB_PIE_BIT			6
+#define RTC_REGB_AIE_BIT			5
+#define RTC_REGB_UIE_BIT			4
+#define RTC_REGB_SQWE_BIT			3
+#define RTC_REGB_DM_BIT				2
+#define RTC_REGB_24_12_BIT			1
+#define RTC_REGB_DSE_BIT			0
+
+#define RTC_HOOK_BIT				14
+
+#define RTC_ADDRESS_SECONDS 		0
+#define RTC_ADDRESS_SECONDS_ALARM 	1
+#define RTC_ADDRESS_MINUTES			2
+#define RTC_ADDRESS_MINUTES_ALARM	3
+#define RTC_ADDRESS_HOURS 			4
+#define RTC_ADDRESS_HOURS_ALARM 	5
+#define RTC_ADDRESS_DAY_WEEK 		6
+#define RTC_ADDRESS_DAY_MONTH		7
+#define RTC_ADDRESS_MONTH			8
+#define RTC_ADDRESS_YEAR			9
+
+//==========================================================================================
 /*
  * PATHS
  */
@@ -209,7 +245,9 @@ double round(double x);
 double ceil(double num);
 
 const char* getMousePath(int cursor);
-const char* getFontPath(char* character);
+const char* getNumbersPath(char* str);
+const char* getFontPath(char character);
 const char* getImagePath(char* image);
 const char* getStagePath(int number);
+
 #endif

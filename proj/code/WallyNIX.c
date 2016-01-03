@@ -38,7 +38,7 @@ void updateInterruptions(WallyNIX* wally) {
 	int ipc_status, r = 0;
 	message msg;
 
-	//INTERRUPTIONS HANDLERS
+	//INTERRUPTIONS HANDLER
 	if (driver_receive(ANY, &msg, &ipc_status) != 0)
 		return;
 
@@ -237,6 +237,10 @@ void updateKeyboard(WallyNIX* wally) {
 				wally->menu = STAGE_SELECT;
 				wally->stageSelect = createStageSelect();
 				break;
+			case 2:
+				wally->menu = HIGH_SCORES;
+				wally->highScores = createHighScores(0);
+				break;
 			case 3:
 				deleteMainMenu(wally->mainMenu);
 				wally->menu = OPTIONS;
@@ -315,6 +319,11 @@ void updateStates(WallyNIX* wally) {
 			wally->menu = STAGE_SELECT;
 			wally->stageSelect = createStageSelect();
 			break;
+		case 2:
+			//deleteMainMenu(wally->mainMenu);
+			wally->menu = HIGH_SCORES;
+			wally->highScores = createHighScores(0);
+			break;
 		case 3:
 			deleteMainMenu(wally->mainMenu);
 			wally->menu = OPTIONS;
@@ -353,6 +362,15 @@ void updateStates(WallyNIX* wally) {
 			}
 		}
 		break;
+	case HIGH_SCORES:
+		updateHighScores(wally->highScores);
+
+		if (wally->highScores->done || wally->highScores->mouseSelection == 0) {
+			wally->menu = MAIN_MENU;
+			wally->mainMenu = createMainMenu();
+			return;
+		}
+		break;
 	case OPTIONS:
 		updateOptions(wally->options);
 
@@ -366,13 +384,13 @@ void updateStates(WallyNIX* wally) {
 		} else if (wally->options->mouseSelection < 4)
 			wally->options->selectedCursor = wally->options->mouseSelection + 1;
 		else if (wally->options->mouseSelection == 4) {
-			if (wally->options->selectedSensitivity > 0){
+			if (wally->options->selectedSensitivity > 0) {
 				wally->options->selectedSensitivity--;
 				resetMouseButton();
 				wally->options->mouseSelection = -1;
 			}
 		} else if (wally->options->mouseSelection == 5) {
-			if (wally->options->selectedSensitivity < 5){
+			if (wally->options->selectedSensitivity < 5) {
 				wally->options->selectedSensitivity++;
 				resetMouseButton();
 				wally->options->mouseSelection = -1;
@@ -400,6 +418,9 @@ void drawWallyNIX(WallyNIX* wally) {
 		break;
 	case STAGE_SELECT:
 		drawStageSelect(wally->stageSelect);
+		break;
+	case HIGH_SCORES:
+		drawHighScores(wally->highScores);
 		break;
 	case OPTIONS:
 		drawOptions(wally->options);

@@ -7,6 +7,7 @@
 #include "Graphics.h"
 #include "Timer.h"
 #include "Mouse.h"
+#include "RTC.h"
 
 FILE* logfd = NULL;
 void initLog() {
@@ -21,8 +22,12 @@ int main(int argc, char *argv[]) {
 	initLog();
 	LOG("main", "Starting Where's Wally? ...");
 
-	/* Initialize service (synchronize with the RS) */
+	/* Initialize service */
 	sef_startup();
+
+	/* Enable IO-sensitive operations for ourselves */
+	sys_enable_iop(SELF);
+
 	printf("Starting \"Where's Wally?\" ....\n");
 
 	initGraphics(MODE_1280_1024);
@@ -48,7 +53,9 @@ int main(int argc, char *argv[]) {
 	stopWallyNIX(wally);
 
 	exitGraphics();
+
 	LOG("main", "Terminated Where's Wally? ...");
 	printf("\"Where's Wally?\" exited successfully.\n");
+
 	return EXIT_SUCCESS;
 }
