@@ -23,6 +23,9 @@ typedef struct WallyNIX {
 
 WallyNIX* initWallyNIX();
 void updateWallyNIX(WallyNIX* wally);
+void updateInterruptions(WallyNIX* wally);
+void updateKeyboard(WallyNIX* wally);
+void updateStates(WallyNIX* wally);
 void drawWallyNIX(WallyNIX* wally);
 void stopWallyNIX(WallyNIX* wally);
 

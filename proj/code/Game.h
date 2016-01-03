@@ -100,6 +100,18 @@ typedef struct {
 
 } StageSelect;
 
+typedef struct{
+	int mouseSelection;
+	int option;
+	int done;
+
+	int selectedCursor;
+	int selectedSensitivity;
+
+	Bitmap* background;
+	Button* buttons[8];
+} Options;
+
 Button* createButton(int xi, int yi, int xf, int yf, char* text);
 void updateButton(Button* button);
 void drawButton(Button* button, int menuOption);
@@ -131,5 +143,10 @@ void updateStage(Stage* stage);
 void drawStage(Stage* stage);
 void resetStage(Stage* stage);
 void deleteStage(Stage* stage);
+
+Options* createOptions();
+void updateOptions(Options* options);
+void drawOptions(Options* options);
+void deleteOptions(Options* options);
 
 #endif

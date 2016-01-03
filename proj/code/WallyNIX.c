@@ -33,6 +33,12 @@ WallyNIX* startWallyNIX() {
 }
 
 void updateWallyNIX(WallyNIX* wally) {
+	updateInterruptions(wally);
+	updateKeyboard(wally);
+	updateStates(wally);
+}
+
+void updateInterruptions(WallyNIX* wally) {
 	int ipc_status, r = 0;
 	message msg;
 
@@ -68,62 +74,8 @@ void updateWallyNIX(WallyNIX* wally) {
 			break;
 		}
 	}
-
-	//UPDATE STATES
-	switch (wally->menu) {
-	case MAIN_MENU:
-		updateMainMenu(wally->mainMenu);
-
-		switch (wally->mainMenu->mouseSelection) {
-		case 1:
-			deleteMainMenu(wally->mainMenu);
-			wally->menu = ARCADE_MODE;
-			wally->arcadeMode = createArcadeMode();
-			startTimer(wally->arcadeMode->timer);
-			break;
-		case 2:
-			deleteMainMenu(wally->mainMenu);
-			wally->menu = STAGE_SELECT;
-			wally->stageSelect = createStageSelect();
-			break;
-		case 5:
-			wally->exit = 1;
-			break;
-		default:
-			break;
-		}
-		break;
-	case ARCADE_MODE:
-		updateArcadeMode(wally->arcadeMode);
-
-		if (wally->arcadeMode->done) {
-			deleteArcadeMode(wally->arcadeMode);
-			wally->menu = MAIN_MENU;
-			wally->mainMenu = createMainMenu();
-			wally->option = 0;
-			return;
-		}
-		break;
-	case STAGE_SELECT:
-		updateStageSelect(wally->stageSelect);
-
-		if (wally->stageSelect->currentStage == 0) {
-			if (wally->stageSelect->done
-					|| wally->stageSelect->mouseSelection == 10) {
-				deleteStageSelect(wally->stageSelect);
-				wally->menu = MAIN_MENU;
-				wally->mainMenu = createMainMenu();
-				wally->option = 0;
-				return;
-			} else if (wally->stageSelect->mouseSelection) {
-				pickStageSelect(wally->stageSelect,
-						wally->stageSelect->mouseSelection);
-			}
-		}
-		break;
-	default:
-		break;
-	}
+}
+void updateKeyboard(WallyNIX* wally) {
 
 	//READ KEYBOARD
 	switch (wally->scancode) {
@@ -165,7 +117,17 @@ void updateWallyNIX(WallyNIX* wally) {
 			if (wally->arcadeMode->option - 1 >= 0)
 				wally->arcadeMode->option -= 1;
 		} else if (wally->menu == STAGE_SELECT) {
-			if (wally->stageSelect->option - 1 >= 0)
+			if (wally->stageSelect->currentStage == 0) {
+				if (wally->stageSelect->option < 0)
+					wally->stageSelect->option = 0;
+				else if (wally->stageSelect->option == 0
+						|| wally->stageSelect->option == 2)
+					break;
+				else if (wally->stageSelect->option == 9)
+					wally->stageSelect->option = 7;
+				else
+					wally->stageSelect->option -= 3;
+			} else if (wally->stageSelect->option - 1 >= 0)
 				wally->stageSelect->option -= 1;
 		}
 		break;
@@ -180,15 +142,49 @@ void updateWallyNIX(WallyNIX* wally) {
 			if (wally->arcadeMode->option + 1 <= 1)
 				wally->arcadeMode->option += 1;
 		} else if (wally->menu == STAGE_SELECT) {
-			if (wally->stageSelect->currentStage) {
-				if (wally->stageSelect->pause) {
-					if (wally->stageSelect->option + 1 <= 1)
-						wally->stageSelect->option += 1;
-				}
-			} else if (wally->stageSelect->option + 1 <= NUM_STAGES)
-				wally->stageSelect->option += 1;
+			if (wally->stageSelect->currentStage == 0) {
+				if (wally->stageSelect->option < 0)
+					wally->stageSelect->option = 0;
+				else if (wally->stageSelect->option > 6)
+					wally->stageSelect->option = 9;
+				else
+					wally->stageSelect->option += 3;
+			} else if (wally->stageSelect->pause) {
+				if (wally->stageSelect->option + 1 <= 1)
+					wally->stageSelect->option += 1;
+			}
 		}
 		break;
+	case KEY_A:
+		wally->scancode = 0;
+		if (wally->menu == STAGE_SELECT) {
+			if (wally->stageSelect->currentStage == 0) {
+				if (wally->stageSelect->option < 0)
+					wally->stageSelect->option = 0;
+				else if (wally->stageSelect->option == 9)
+					wally->stageSelect->option = 6;
+				else if (wally->stageSelect->option % 3 == 0)
+					break;
+				else
+					wally->stageSelect->option--;
+			}
+			break;
+		}
+	case KEY_D:
+		wally->scancode = 0;
+		if (wally->menu == STAGE_SELECT) {
+			if (wally->stageSelect->currentStage == 0) {
+				if (wally->stageSelect->option < 0)
+					wally->stageSelect->option = 0;
+				else if (wally->stageSelect->option == 9)
+					wally->stageSelect->option = 8;
+				else if ((wally->stageSelect->option - 2) % 3 == 0)
+					break;
+				else
+					wally->stageSelect->option++;
+			}
+			break;
+		}
 	case KEY_ENTER:
 		wally->scancode = 0;
 		if (wally->menu == MAIN_MENU) {
@@ -233,6 +229,64 @@ void updateWallyNIX(WallyNIX* wally) {
 				wally->stageSelect->done = 1;
 			} else if (wally->stageSelect->option >= 0) {
 				pickStageSelect(wally->stageSelect, wally->stageSelect->option);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+}
+void updateStates(WallyNIX* wally) {
+
+	//UPDATE STATES
+	switch (wally->menu) {
+	case MAIN_MENU:
+		updateMainMenu(wally->mainMenu);
+
+		switch (wally->mainMenu->mouseSelection != -1) {
+		case 1:
+			deleteMainMenu(wally->mainMenu);
+			wally->menu = ARCADE_MODE;
+			wally->arcadeMode = createArcadeMode();
+			startTimer(wally->arcadeMode->timer);
+			break;
+		case 2:
+			deleteMainMenu(wally->mainMenu);
+			wally->menu = STAGE_SELECT;
+			wally->stageSelect = createStageSelect();
+			break;
+		case 5:
+			wally->exit = 1;
+			break;
+		default:
+			break;
+		}
+		break;
+	case ARCADE_MODE:
+		updateArcadeMode(wally->arcadeMode);
+
+		if (wally->arcadeMode->done) {
+			deleteArcadeMode(wally->arcadeMode);
+			wally->menu = MAIN_MENU;
+			wally->mainMenu = createMainMenu();
+			wally->option = 0;
+			return;
+		}
+		break;
+	case STAGE_SELECT:
+		updateStageSelect(wally->stageSelect);
+
+		if (wally->stageSelect->currentStage == 0) {
+			if (wally->stageSelect->done
+					|| wally->stageSelect->mouseSelection == 9) {
+				deleteStageSelect(wally->stageSelect);
+				wally->menu = MAIN_MENU;
+				wally->mainMenu = createMainMenu();
+				wally->option = 0;
+				return;
+			} else if (wally->stageSelect->mouseSelection != -1) {
+				pickStageSelect(wally->stageSelect,
+						wally->stageSelect->mouseSelection - 1);
 			}
 		}
 		break;

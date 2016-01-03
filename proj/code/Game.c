@@ -84,7 +84,7 @@ MainMenu* createMainMenu() {
 	MainMenu* mainMenu = (MainMenu*) malloc(sizeof(MainMenu));
 
 	mainMenu->background = loadBitmap((char*) getImagePath("mainMenu"));
-	mainMenu->mouseSelection = 0;
+	mainMenu->mouseSelection = -1;
 	mainMenu->option = -1;
 	mainMenu->done = 0;
 
@@ -111,7 +111,7 @@ void updateMainMenu(MainMenu* mainMenu) {
 	for (i = 0; i < 5; i++) {
 		updateButton(mainMenu->buttons[i]);
 		if (mainMenu->buttons[i]->onClick) {
-			mainMenu->mouseSelection = i + 1;
+			mainMenu->mouseSelection = i;
 			resetMouseButton();
 		}
 	}
@@ -316,7 +316,6 @@ StageSelect* createStageSelect() {
 	for (i = 1; i < (NUM_STAGES + 1); i++) {
 		char str[128];
 		sprintf(str, "stage0%d", i);
-		LOG_VAR("String", str);
 		stageSelect->buttons[i - 1] = createButton(posX, posY, posX + 260,
 				posY + 160, str);
 		posX += 280;
@@ -334,7 +333,7 @@ StageSelect* createStageSelect() {
 			"pauseContinue");
 	stageSelect->pauseQuit = createButton(515, 580, 805, 650, "pauseQuit");
 
-	stageSelect->mouseSelection = 0;
+	stageSelect->mouseSelection = -1;
 	stageSelect->option = -1;
 	stageSelect->done = 0;
 
@@ -446,7 +445,7 @@ void updateStageSelect(StageSelect* stageSelect) {
 		for (i = 0; i < (NUM_STAGES + 1); i++) {
 			updateButton(stageSelect->buttons[i]);
 			if (stageSelect->buttons[i]->onClick) {
-				stageSelect->mouseSelection = i + 1;
+				stageSelect->mouseSelection = i;
 				resetMouseButton();
 			}
 		}
@@ -455,7 +454,7 @@ void updateStageSelect(StageSelect* stageSelect) {
 void pickStageSelect(StageSelect* stageSelect, int option) {
 	stageSelect->foundAll = 0;
 	stageSelect->pause = 0;
-	stageSelect->mouseSelection = 0;
+	stageSelect->mouseSelection = -1;
 	stageSelect->option = -1;
 	stageSelect->currentStage = option;
 	resetStage(stageSelect->stages[stageSelect->currentStage - 1]);
@@ -466,7 +465,7 @@ void pickStageSelect(StageSelect* stageSelect, int option) {
 void returnToStageSelect(StageSelect* stageSelect) {
 	stageSelect->foundAll = 0;
 	stageSelect->pause = 0;
-	stageSelect->mouseSelection = 0;
+	stageSelect->mouseSelection = -1;
 	stageSelect->option = -1;
 	resetStage(stageSelect->stages[stageSelect->currentStage - 1]);
 	stageSelect->currentStage = 0;
@@ -682,4 +681,61 @@ void deleteStage(Stage* stage) {
 	}
 
 	free(stage);
+}
+
+Options* createOptions() {
+	Options* options = (Options*) malloc(sizeof(Options));
+
+	options->mouseSelection = -1;
+	options->option = -1;
+	options->done = 0;
+
+	options->selectedCursor = 0;
+
+	double sensitivity = getMouse()->sensitivity;
+	options->selectedSensitivity = 0;
+	if (sensitivity == 1.0)
+		options->selectedSensitivity = 0;
+	else if (sensitivity == 1.2)
+		options->selectedSensitivity = 1;
+	else if (sensitivity == 1.4)
+		options->selectedSensitivity = 2;
+	else if (sensitivity == 1.6)
+		options->selectedSensitivity = 3;
+	else if (sensitivity == 1.8)
+		options->selectedSensitivity = 4;
+	else if (sensitivity == 2.0)
+		options->selectedSensitivity = 5;
+
+	options->background = loadBitmap(getImagePath("optionsMenu"));
+
+	int i;
+	int posX = 650, posY = 350;
+	for (i = 1; i < (NUM_CURSORS + 1); i++) {
+		char str[128];
+		sprintf(str, "mouse%d", i);
+		options->buttons[i - 1] = createButton(posX, posY, posX + 34, posY + 26,
+				str);
+		posX += 50;
+	}
+
+	options->buttons[4] = createButton(650, 545, 710, 605, "buttonMore");
+	options->buttons[5] = createButton(1060, 545, 1120, 605, "buttonLess");
+	options->buttons[6] = createButton(440, 850, 630, 910, "apply");
+	options->buttons[7] = createButton(650, 850, 840, 910, "cancel");
+}
+void updateOptions(Options* options) {
+
+}
+void drawOptions(Options* options) {
+
+}
+void deleteOptions(Options* options) {
+	deleteBitmap(options->background);
+	int i;
+	for (i = 0; i < 8; i++) {
+		deleteButton(options->buttons[i]);
+	}
+
+	free(options);
 }

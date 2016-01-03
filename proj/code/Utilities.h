@@ -185,7 +185,6 @@ extern FILE* logfd;
  */
 
 #define PATH_RESOURCES 		"/home/lcom/lcom1516-t2g15/proj/code/resources/"
-#define PATH_MOUSE 			PATH_RESOURCES	"cursor/"
 #define PATH_FONT			PATH_RESOURCES	"font/"
 #define PATH_IMAGE			PATH_RESOURCES	"images/"
 #define PATH_STAGE			PATH_RESOURCES	"stages/"
@@ -193,6 +192,7 @@ extern FILE* logfd;
 //==========================================================================================
 
 #define NUM_STAGES	9
+#define NUM_CURSORS	4
 
 /**
  *  Converts RGB to Hex value.

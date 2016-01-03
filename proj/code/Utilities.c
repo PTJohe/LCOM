@@ -46,7 +46,7 @@ double ceil(double num) {
 
 const char* getMousePath(int cursor) {
 	char num[256];
-	sprintf(num, PATH_MOUSE "mouse%d.bmp", cursor);
+	sprintf(num, PATH_IMAGE "mouse%d.bmp", cursor);
 
 	char* path = (char*) malloc(256);
 	strcpy(path, num);

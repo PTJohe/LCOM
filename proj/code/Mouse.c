@@ -85,8 +85,8 @@ Mouse* createMouse() {
 	mouse->leftButtonPressed = 0;
 	mouse->leftButtonReleased = 0;
 
-	mouse->cursor = loadBitmap(getMousePath(2));
-	mouse->sensitivity = 1.5;
+	mouse->cursor = loadBitmap(getMousePath(4));
+	mouse->sensitivity = 1.6;
 
 	mouse->byteNumber = 0;
 	mouse->draw = 0;
