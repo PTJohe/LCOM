@@ -13,7 +13,7 @@ void initLog() {
 	logfd = fopen(LOG_PATH, "w");
 	LOG("initLog", "logging successfully initialized");
 }
-void exitLog(){
+void exitLog() {
 	fclose(logfd);
 }
 
@@ -32,15 +32,17 @@ int main(int argc, char *argv[]) {
 		updateWallyNIX(wally);
 
 		if (!wally->exit) {
-			if (wally->draw) {
+			if (wally->timerFPS->ticked) {
+				wally->timerFPS->ticked = 0;
 				drawWallyNIX(wally);
-			}
-			copyToMouseBuffer();
-			if (getMouse()->draw) {
-				drawMouse();
-			}
 
-			copyToVideoMem();
+				copyToMouseBuffer();
+				if (getMouse()->draw) {
+					drawMouse();
+				}
+
+				copyToVideoMem();
+			}
 		}
 	}
 	stopWallyNIX(wally);

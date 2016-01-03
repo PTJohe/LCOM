@@ -10,14 +10,16 @@ typedef struct WallyNIX {
 	int IRQ_SET_KBD;
 	int IRQ_SET_MOUSE;
 
-	int menu, option, exit, draw;
+	int menu;
+	int exit;
 
 	unsigned long scancode;
-	Timer* timer;
+	Timer* timerFPS;
 
 	MainMenu* mainMenu;
 	ArcadeMode* arcadeMode;
 	StageSelect* stageSelect;
+	Options* options;
 
 } WallyNIX;
 

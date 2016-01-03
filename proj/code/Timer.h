@@ -10,6 +10,7 @@ static int hook_id_timer;
 typedef struct {
 	int counter; ///< timer counter
 	int enabled; ///< bool indicating if timer is counting
+	int ticked;
 
 	Bitmap* numbers[10];
 } Timer;

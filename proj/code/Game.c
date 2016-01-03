@@ -28,11 +28,15 @@ Button* createButton(int xi, int yi, int xf, int yf, char* text) {
 void drawButton(Button* button, int highlight) {
 	unsigned long colour = COLOUR_BLACK;
 
-	if (getMouse()->draw == 1) {
+	if (getMouse()->draw) {
+		if (highlight == 2)
+			colour = COLOUR_WHITE;
 		if (button->onHover == 1)
 			colour = COLOUR_ORANGE;
 	} else if (highlight == 1)
 		colour = COLOUR_ORANGE;
+	else if (highlight == 2)
+		colour = COLOUR_WHITE;
 
 	drawRectangle(button->topLeft->x, button->topLeft->y,
 			button->bottomRight->x, button->bottomRight->y, colour);
@@ -217,6 +221,7 @@ void updateArcadeMode(ArcadeMode* arcadeMode) {
 			resumeTimer(arcadeMode->timer);
 		} else if (arcadeMode->pauseQuit->onClick) {
 			arcadeMode->done = 1;
+			resetMouseButton();
 			return;
 		}
 		return;
@@ -402,7 +407,6 @@ void updateStageSelect(StageSelect* stageSelect) {
 	if (stageSelect->currentStage) {
 		if (stageSelect->foundAll) {
 			int waiting = stageSelect->timer->counter - stageSelect->foundAll;
-			LOG_VAR("Waiting", waiting);
 			if (waiting >= 1 * TIMER_DEFAULT_FREQ) {
 				returnToStageSelect(stageSelect);
 				return;
@@ -475,7 +479,7 @@ void returnToStageSelect(StageSelect* stageSelect) {
 
 void drawStageSelect(StageSelect* stageSelect) {
 	if (stageSelect->currentStage) {
-		if (stageSelect->timer->counter == 0 && !stageSelect->foundAll)
+		if (stageSelect->timer->counter < 5 && !stageSelect->foundAll)
 			fillDisplay(COLOUR_WHITE);
 		if (stageSelect->stages[stageSelect->currentStage - 1]->foundWally)
 			drawBitmap(stageSelect->checkmark, 400, 25, ALIGN_LEFT);
@@ -690,10 +694,9 @@ Options* createOptions() {
 	options->option = -1;
 	options->done = 0;
 
-	options->selectedCursor = 0;
+	options->selectedCursor = getMouse()->cursor;
 
 	double sensitivity = getMouse()->sensitivity;
-	options->selectedSensitivity = 0;
 	if (sensitivity == 1.0)
 		options->selectedSensitivity = 0;
 	else if (sensitivity == 1.2)
@@ -710,24 +713,70 @@ Options* createOptions() {
 	options->background = loadBitmap(getImagePath("optionsMenu"));
 
 	int i;
-	int posX = 650, posY = 350;
-	for (i = 1; i < (NUM_CURSORS + 1); i++) {
+	int posX = 775, posY = 375;
+	for (i = 0; i < 4; i++) {
 		char str[128];
-		sprintf(str, "mouse%d", i);
-		options->buttons[i - 1] = createButton(posX, posY, posX + 34, posY + 26,
+		sprintf(str, "mouse%d", (i + 1));
+		options->buttons[i] = createButton(posX, posY, posX + 24, posY + 36,
 				str);
 		posX += 50;
 	}
 
-	options->buttons[4] = createButton(650, 545, 710, 605, "buttonMore");
-	options->buttons[5] = createButton(1060, 545, 1120, 605, "buttonLess");
-	options->buttons[6] = createButton(440, 850, 630, 910, "apply");
-	options->buttons[7] = createButton(650, 850, 840, 910, "cancel");
+	options->buttons[4] = createButton(650, 545, 710, 605, "buttonLess");
+	options->buttons[5] = createButton(1060, 545, 1120, 605, "buttonMore");
+	options->buttons[6] = createButton(440, 850, 630, 920, "apply");
+	options->buttons[7] = createButton(650, 850, 840, 920, "cancel");
+
+	return options;
 }
 void updateOptions(Options* options) {
+	if (getMouse()->draw)
+		options->option = -1;
 
+	int i;
+	for (i = 0; i < 8; i++) {
+		updateButton(options->buttons[i]);
+		if (options->buttons[i]->onClick) {
+			options->mouseSelection = i;
+			resetMouseButton();
+		}
+	}
 }
 void drawOptions(Options* options) {
+	drawBitmap(options->background, 0, 0, ALIGN_LEFT);
+	int i;
+	if (getMouse()->draw) {
+		for (i = 0; i < 4; i++) {
+			if (options->selectedCursor == i + 1) {
+				drawButton(options->buttons[i], 2);
+			} else
+				drawButton(options->buttons[i], 0);
+		}
+		for (i = 4; i < 8; i++) {
+			drawButton(options->buttons[i], 0);
+		}
+	} else {
+		for (i = 0; i < 4; i++) {
+			if (options->option == i)
+				drawButton(options->buttons[i], 1);
+			else if (options->selectedCursor == i + 1)
+				drawButton(options->buttons[i], 2);
+			else
+				drawButton(options->buttons[i], 0);
+		}
+		for (i = 4; i < 8; i++) {
+			if (options->option == i)
+				drawButton(options->buttons[i], 1);
+			else
+				drawButton(options->buttons[i], 0);
+		}
+	}
+	int posX = 734, posY = 553;
+	for (i = 0; i < 6; i++) {
+		if (options->selectedSensitivity == i)
+			drawRectangle(posX, posY, posX + 20, posY + 40, COLOUR_WHITE);
+		posX += 55;
+	}
 
 }
 void deleteOptions(Options* options) {

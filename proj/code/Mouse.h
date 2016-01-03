@@ -21,7 +21,8 @@ typedef struct {
 	int leftButtonPressed;
 	int leftButtonReleased;
 
-	Bitmap* cursor;
+	int cursor;
+	Bitmap* cursorImage;
 
 	int hasBeenUpdated;
 	int draw;
@@ -36,6 +37,7 @@ int writeToMouse(unsigned char byte);
 Mouse* getMouse();
 Mouse* createMouse();
 void updateMouse();
+void setMouseOptions(int cursor, int sensitivity);
 void resetMouseButton();
 void drawMouse();
 void deleteMouse();

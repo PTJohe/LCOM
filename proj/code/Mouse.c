@@ -85,7 +85,8 @@ Mouse* createMouse() {
 	mouse->leftButtonPressed = 0;
 	mouse->leftButtonReleased = 0;
 
-	mouse->cursor = loadBitmap(getMousePath(4));
+	mouse->cursor = 4;
+	mouse->cursorImage = loadBitmap(getMousePath(mouse->cursor));
 	mouse->sensitivity = 1.6;
 
 	mouse->byteNumber = 0;
@@ -155,17 +156,46 @@ void updateMouse() {
 	}
 }
 
+void setMouseOptions(int cursor, int sensitivity) {
+	getMouse()->cursor = cursor;
+	deleteBitmap(getMouse()->cursorImage);
+	getMouse()->cursorImage = loadBitmap(getMousePath(cursor));
+
+	switch (sensitivity) {
+	case 0:
+		getMouse()->sensitivity = 1.0;
+		break;
+	case 1:
+		getMouse()->sensitivity = 1.2;
+		break;
+	case 2:
+		getMouse()->sensitivity = 1.4;
+		break;
+	case 3:
+		getMouse()->sensitivity = 1.6;
+		break;
+	case 4:
+		getMouse()->sensitivity = 1.8;
+		break;
+	case 5:
+		getMouse()->sensitivity = 2.0;
+		break;
+	default:
+		break;
+	}
+}
+
 void resetMouseButton() {
 	getMouse()->leftButtonPressed = 0;
 	getMouse()->leftButtonReleased = 0;
 }
 
 void drawMouse() {
-	drawBitmapAlpha(mouse->cursor, mouse->position->x, mouse->position->y,
+	drawBitmapAlpha(mouse->cursorImage, mouse->position->x, mouse->position->y,
 	COLOUR_WHITE, 1);
 }
 
 void deleteMouse() {
-	deleteBitmap(getMouse()->cursor);
+	deleteBitmap(getMouse()->cursorImage);
 	free(getMouse());
 }

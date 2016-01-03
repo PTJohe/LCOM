@@ -30,6 +30,7 @@ Timer* createTimer() {
 
 	timer->counter = 0;
 	timer->enabled = 0;
+	timer->ticked = 0;
 
 	int i;
 	for (i = 0; i < 10; i++) {
@@ -47,7 +48,7 @@ int getCount(Timer* timer) {
 
 void timerCount(Timer* timer) {
 	timer->counter++;
-	timer->enabled = 1;
+	timer->ticked = 1;
 }
 
 void resetTimer(Timer* timer) {

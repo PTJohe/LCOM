@@ -9,16 +9,12 @@
 #include "Mouse.h"
 #include "Timer.h"
 
-const int FPS = 60;
-const int mouseFPS = 75;
-
 WallyNIX* startWallyNIX() {
 	WallyNIX* wally = (WallyNIX*) malloc(sizeof(WallyNIX));
 
 	wally->menu = MAIN_MENU;
 
-	wally->option = 0;
-	wally->exit = 0, wally->draw = 1;
+	wally->exit = 0;
 	wally->scancode = 0;
 
 	// Subscribe devices
@@ -27,7 +23,7 @@ WallyNIX* startWallyNIX() {
 	wally->IRQ_SET_MOUSE = subscribeMouse();
 
 	wally->mainMenu = createMainMenu();
-	wally->timer = createTimer();
+	wally->timerFPS = createTimer();
 
 	return wally;
 }
@@ -56,6 +52,7 @@ void updateInterruptions(WallyNIX* wally) {
 			}
 			// Timer interruption
 			if (msg.NOTIFY_ARG & wally->IRQ_SET_TIMER) {
+				timerCount(wally->timerFPS);
 				if (wally->menu == ARCADE_MODE) {
 					if (wally->arcadeMode->timer->enabled == 1)
 						timerCount(wally->arcadeMode->timer);
@@ -82,7 +79,8 @@ void updateKeyboard(WallyNIX* wally) {
 	case KEY_ESC:
 		wally->scancode = 0;
 		if (wally->menu == MAIN_MENU) {
-			wally->exit = 1;
+			getMouse()->draw = 0;
+			wally->mainMenu->option = 4;
 		} else if (wally->menu == ARCADE_MODE) {
 			if (wally->arcadeMode->pause) {
 				wally->arcadeMode->pause = 0;
@@ -103,7 +101,9 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option = -1;
 				}
 			} else
-				wally->stageSelect->done;
+				wally->stageSelect->option = 9;
+		} else if (wally->menu == OPTIONS) {
+			wally->options->option = 7;
 		}
 		break;
 	case KEY_W:
@@ -129,6 +129,15 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option -= 3;
 			} else if (wally->stageSelect->option - 1 >= 0)
 				wally->stageSelect->option -= 1;
+		} else if (wally->menu == OPTIONS) {
+			if (wally->options->option < 0)
+				wally->options->option = 0;
+			else if (wally->options->option < 4)
+				break;
+			else if (wally->options->option < 6)
+				wally->options->option = 0;
+			else
+				wally->options->option = 4;
 		}
 		break;
 	case KEY_S:
@@ -153,6 +162,13 @@ void updateKeyboard(WallyNIX* wally) {
 				if (wally->stageSelect->option + 1 <= 1)
 					wally->stageSelect->option += 1;
 			}
+		} else if (wally->menu == OPTIONS) {
+			if (wally->options->option < 0)
+				wally->options->option = 0;
+			else if (wally->options->option < 4)
+				wally->options->option = 4;
+			else if (wally->options->option < 6)
+				wally->options->option = 6;
 		}
 		break;
 	case KEY_A:
@@ -168,8 +184,17 @@ void updateKeyboard(WallyNIX* wally) {
 				else
 					wally->stageSelect->option--;
 			}
-			break;
+		} else if (wally->menu == OPTIONS) {
+			if (wally->options->option <= 0)
+				wally->options->option = 0;
+			else if (wally->options->option < 4)
+				wally->options->option--;
+			else if (wally->options->option < 6)
+				wally->options->option = 4;
+			else
+				wally->options->option = 6;
 		}
+		break;
 	case KEY_D:
 		wally->scancode = 0;
 		if (wally->menu == STAGE_SELECT) {
@@ -184,7 +209,19 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option++;
 			}
 			break;
+		} else if (wally->menu == OPTIONS) {
+			if (wally->options->option < 0)
+				wally->options->option = 0;
+			else if (wally->options->option < 3)
+				wally->options->option++;
+			else if (wally->options->option == 3)
+				break;
+			else if (wally->options->option < 6)
+				wally->options->option = 5;
+			else
+				wally->options->option = 7;
 		}
+		break;
 	case KEY_ENTER:
 		wally->scancode = 0;
 		if (wally->menu == MAIN_MENU) {
@@ -199,6 +236,11 @@ void updateKeyboard(WallyNIX* wally) {
 				deleteMainMenu(wally->mainMenu);
 				wally->menu = STAGE_SELECT;
 				wally->stageSelect = createStageSelect();
+				break;
+			case 3:
+				deleteMainMenu(wally->mainMenu);
+				wally->menu = OPTIONS;
+				wally->options = createOptions();
 				break;
 			case 4:
 				wally->exit = 1;
@@ -230,6 +272,24 @@ void updateKeyboard(WallyNIX* wally) {
 			} else if (wally->stageSelect->option >= 0) {
 				pickStageSelect(wally->stageSelect, wally->stageSelect->option);
 			}
+		} else if (wally->menu == OPTIONS) {
+			if (wally->options->option < 0)
+				break;
+			else if (wally->options->option < 4)
+				wally->options->selectedCursor = wally->options->option + 1;
+			else if (wally->options->option == 4) {
+				if (wally->options->selectedSensitivity > 0)
+					wally->options->selectedSensitivity--;
+			} else if (wally->options->option == 5) {
+				if (wally->options->selectedSensitivity < 5)
+					wally->options->selectedSensitivity++;
+			} else if (wally->options->option == 6) {
+				setMouseOptions(wally->options->selectedCursor,
+						wally->options->selectedSensitivity);
+				wally->options->done = 1;
+			} else if (wally->options->option == 7) {
+				wally->options->done = 1;
+			}
 		}
 		break;
 	default:
@@ -243,19 +303,24 @@ void updateStates(WallyNIX* wally) {
 	case MAIN_MENU:
 		updateMainMenu(wally->mainMenu);
 
-		switch (wally->mainMenu->mouseSelection != -1) {
-		case 1:
+		switch (wally->mainMenu->mouseSelection) {
+		case 0:
 			deleteMainMenu(wally->mainMenu);
 			wally->menu = ARCADE_MODE;
 			wally->arcadeMode = createArcadeMode();
 			startTimer(wally->arcadeMode->timer);
 			break;
-		case 2:
+		case 1:
 			deleteMainMenu(wally->mainMenu);
 			wally->menu = STAGE_SELECT;
 			wally->stageSelect = createStageSelect();
 			break;
-		case 5:
+		case 3:
+			deleteMainMenu(wally->mainMenu);
+			wally->menu = OPTIONS;
+			wally->options = createOptions();
+			break;
+		case 4:
 			wally->exit = 1;
 			break;
 		default:
@@ -269,7 +334,6 @@ void updateStates(WallyNIX* wally) {
 			deleteArcadeMode(wally->arcadeMode);
 			wally->menu = MAIN_MENU;
 			wally->mainMenu = createMainMenu();
-			wally->option = 0;
 			return;
 		}
 		break;
@@ -282,12 +346,43 @@ void updateStates(WallyNIX* wally) {
 				deleteStageSelect(wally->stageSelect);
 				wally->menu = MAIN_MENU;
 				wally->mainMenu = createMainMenu();
-				wally->option = 0;
 				return;
 			} else if (wally->stageSelect->mouseSelection != -1) {
 				pickStageSelect(wally->stageSelect,
-						wally->stageSelect->mouseSelection - 1);
+						wally->stageSelect->mouseSelection + 1);
 			}
+		}
+		break;
+	case OPTIONS:
+		updateOptions(wally->options);
+
+		if (wally->options->done) {
+			deleteOptions(wally->options);
+			wally->menu = MAIN_MENU;
+			wally->mainMenu = createMainMenu();
+			return;
+		} else if (wally->options->mouseSelection < 0) {
+			break;
+		} else if (wally->options->mouseSelection < 4)
+			wally->options->selectedCursor = wally->options->mouseSelection + 1;
+		else if (wally->options->mouseSelection == 4) {
+			if (wally->options->selectedSensitivity > 0){
+				wally->options->selectedSensitivity--;
+				resetMouseButton();
+				wally->options->mouseSelection = -1;
+			}
+		} else if (wally->options->mouseSelection == 5) {
+			if (wally->options->selectedSensitivity < 5){
+				wally->options->selectedSensitivity++;
+				resetMouseButton();
+				wally->options->mouseSelection = -1;
+			}
+		} else if (wally->options->mouseSelection == 6) {
+			setMouseOptions(wally->options->selectedCursor,
+					wally->options->selectedSensitivity);
+			wally->options->done = 1;
+		} else if (wally->options->mouseSelection == 7) {
+			wally->options->done = 1;
 		}
 		break;
 	default:
@@ -305,13 +400,17 @@ void drawWallyNIX(WallyNIX* wally) {
 		break;
 	case STAGE_SELECT:
 		drawStageSelect(wally->stageSelect);
+		break;
+	case OPTIONS:
+		drawOptions(wally->options);
+		break;
 	default:
 		break;
 	}
 }
 
 void stopWallyNIX(WallyNIX* wally) {
-	deleteTimer(wally->timer);
+	deleteTimer(wally->timerFPS);
 	deleteMouse();
 
 	deleteMainMenu(wally->mainMenu);
