@@ -109,18 +109,15 @@ void updateWallyNIX(WallyNIX* wally) {
 
 		if (wally->stageSelect->currentStage == 0) {
 			if (wally->stageSelect->done
-					|| wally->stageSelect->mouseSelection == 5) {
+					|| wally->stageSelect->mouseSelection == 10) {
 				deleteStageSelect(wally->stageSelect);
 				wally->menu = MAIN_MENU;
 				wally->mainMenu = createMainMenu();
 				wally->option = 0;
 				return;
 			} else if (wally->stageSelect->mouseSelection) {
-				wally->stageSelect->currentStage =
-						wally->stageSelect->mouseSelection;
-				wally->stageSelect->mouseSelection = 0;
-				resetTimer(wally->stageSelect->timer);
-				startTimer(wally->stageSelect->timer);
+				pickStageSelect(wally->stageSelect,
+						wally->stageSelect->mouseSelection);
 			}
 		}
 		break;
@@ -188,7 +185,7 @@ void updateWallyNIX(WallyNIX* wally) {
 					if (wally->stageSelect->option + 1 <= 1)
 						wally->stageSelect->option += 1;
 				}
-			} else if (wally->stageSelect->option + 1 <= 4)
+			} else if (wally->stageSelect->option + 1 <= NUM_STAGES)
 				wally->stageSelect->option += 1;
 		}
 		break;
@@ -229,19 +226,13 @@ void updateWallyNIX(WallyNIX* wally) {
 						wally->stageSelect->pause = 0;
 						resumeTimer(wally->stageSelect->timer);
 					} else if (wally->stageSelect->option == 1) {
-						resetStage(
-								wally->stageSelect->stages[wally->stageSelect->currentStage
-										- 1]);
-						stopTimer(wally->stageSelect->timer);
-						wally->stageSelect->currentStage = 0;
+						returnToStageSelect(wally->stageSelect);
 					}
 				}
-			} else if (wally->stageSelect->option == 4) {
+			} else if (wally->stageSelect->option == 9) {
 				wally->stageSelect->done = 1;
 			} else if (wally->stageSelect->option >= 0) {
-				wally->stageSelect->currentStage = wally->stageSelect->option
-						+ 1;
-				startTimer(wally->stageSelect->timer);
+				pickStageSelect(wally->stageSelect, wally->stageSelect->option);
 			}
 		}
 		break;
@@ -271,7 +262,7 @@ void stopWallyNIX(WallyNIX* wally) {
 
 	deleteMainMenu(wally->mainMenu);
 
-//Unsubscribe devices
+	//Unsubscribe devices
 	unsubscribeKeyboard();
 	unsubscribeTimer();
 	unsubscribeMouse();

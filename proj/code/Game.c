@@ -196,7 +196,7 @@ void updateArcadeMode(ArcadeMode* arcadeMode) {
 	if (arcadeMode->foundWally) {
 		int waiting = arcadeMode->timer->counter - arcadeMode->foundWally;
 		if (waiting >= 1 * TIMER_DEFAULT_FREQ) {
-			if (arcadeMode->currentStage == 10) {
+			if (arcadeMode->currentStage == NUM_STAGES) {
 				arcadeMode->done = 1;
 				return;
 			}
@@ -209,7 +209,6 @@ void updateArcadeMode(ArcadeMode* arcadeMode) {
 	}
 
 	if (arcadeMode->pause) {
-		drawRectangle(505, 490, 815, 660, COLOUR_GREY);
 		updateButton(arcadeMode->pauseContinue);
 		updateButton(arcadeMode->pauseQuit);
 
@@ -255,6 +254,7 @@ void drawArcadeMode(ArcadeMode* arcadeMode) {
 	}
 
 	if (arcadeMode->pause) {
+		drawRectangle(505, 490, 815, 660, COLOUR_GREY);
 		if (getMouse()->draw) {
 			drawButton(arcadeMode->pauseContinue, 0);
 			drawButton(arcadeMode->pauseQuit, 0);
@@ -289,7 +289,7 @@ void drawArcadeMode(ArcadeMode* arcadeMode) {
 
 void deleteArcadeMode(ArcadeMode* arcadeMode) {
 	int i;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < NUM_STAGES; i++) {
 		deleteStage(arcadeMode->stages[i]);
 	}
 
@@ -311,11 +311,22 @@ StageSelect* createStageSelect() {
 
 	stageSelect->background = loadBitmap(getImagePath("stageSelectMenu"));
 
-	stageSelect->buttons[0] = createButton(150, 240, 560, 500, "stage01");
-	stageSelect->buttons[1] = createButton(650, 240, 1060, 500, "stage02");
-	stageSelect->buttons[2] = createButton(150, 520, 560, 780, "stage07");
-	stageSelect->buttons[3] = createButton(650, 520, 1060, 780, "stage10");
-	stageSelect->buttons[4] = createButton(535, 850, 745, 910,
+	int i;
+	int posX = 220, posY = 240;
+	for (i = 1; i < (NUM_STAGES + 1); i++) {
+		char str[128];
+		sprintf(str, "stage0%d", i);
+		LOG_VAR("String", str);
+		stageSelect->buttons[i - 1] = createButton(posX, posY, posX + 260,
+				posY + 160, str);
+		posX += 280;
+		if (i % 3 == 0) {
+			posX = 220;
+			posY += 180;
+		}
+	}
+
+	stageSelect->buttons[9] = createButton(535, 850, 745, 910,
 			"mainMenuButton");
 
 	stageSelect->pause = 0;
@@ -345,7 +356,7 @@ StageSelect* createStageSelect() {
 		LOG("ERROR", "Couldn't open coordinates file.");
 	}
 
-	int i = 0;
+	i = 0;
 	char str[100];
 	while (fgets(str, 100, file)) {
 		int stageNumber = atoi(str);
@@ -394,17 +405,13 @@ void updateStageSelect(StageSelect* stageSelect) {
 			int waiting = stageSelect->timer->counter - stageSelect->foundAll;
 			LOG_VAR("Waiting", waiting);
 			if (waiting >= 1 * TIMER_DEFAULT_FREQ) {
-				stageSelect->foundAll = 0;
-				resetStage(stageSelect->stages[stageSelect->currentStage - 1]);
-				stageSelect->currentStage = 0;
-				stopTimer(stageSelect->timer);
+				returnToStageSelect(stageSelect);
 				return;
 			}
 			return;
 		}
 
 		if (stageSelect->pause) {
-			drawRectangle(505, 490, 815, 660, COLOUR_GREY);
 			updateButton(stageSelect->pauseContinue);
 			updateButton(stageSelect->pauseQuit);
 
@@ -412,11 +419,7 @@ void updateStageSelect(StageSelect* stageSelect) {
 				stageSelect->pause = 0;
 				resumeTimer(stageSelect->timer);
 			} else if (stageSelect->pauseQuit->onClick) {
-				stageSelect->pause = 0;
-				resetStage(stageSelect->stages[stageSelect->currentStage - 1]);
-				stageSelect->currentStage = 0;
-				stopTimer(stageSelect->timer);
-				return;
+				returnToStageSelect(stageSelect);
 			}
 			return;
 		}
@@ -433,16 +436,14 @@ void updateStageSelect(StageSelect* stageSelect) {
 			stageSelect->foundAll = stageSelect->timer->counter;
 
 		if (stageSelect->timer->counter >= 120 * TIMER_DEFAULT_FREQ) {
-			resetStage(stageSelect->stages[stageSelect->currentStage - 1]);
-			stageSelect->currentStage = 0;
-			stopTimer(stageSelect->timer);
+			returnToStageSelect(stageSelect);
 		}
 	} else {
 		if (getMouse()->draw)
 			stageSelect->option = -1;
 
 		int i;
-		for (i = 0; i < 5; i++) {
+		for (i = 0; i < (NUM_STAGES + 1); i++) {
 			updateButton(stageSelect->buttons[i]);
 			if (stageSelect->buttons[i]->onClick) {
 				stageSelect->mouseSelection = i + 1;
@@ -450,6 +451,27 @@ void updateStageSelect(StageSelect* stageSelect) {
 			}
 		}
 	}
+}
+void pickStageSelect(StageSelect* stageSelect, int option) {
+	stageSelect->foundAll = 0;
+	stageSelect->pause = 0;
+	stageSelect->mouseSelection = 0;
+	stageSelect->option = -1;
+	stageSelect->currentStage = option;
+	resetStage(stageSelect->stages[stageSelect->currentStage - 1]);
+	startTimer(stageSelect->timer);
+	resetMouseButton();
+}
+
+void returnToStageSelect(StageSelect* stageSelect) {
+	stageSelect->foundAll = 0;
+	stageSelect->pause = 0;
+	stageSelect->mouseSelection = 0;
+	stageSelect->option = -1;
+	resetStage(stageSelect->stages[stageSelect->currentStage - 1]);
+	stageSelect->currentStage = 0;
+	stopTimer(stageSelect->timer);
+	resetMouseButton();
 }
 
 void drawStageSelect(StageSelect* stageSelect) {
@@ -466,6 +488,7 @@ void drawStageSelect(StageSelect* stageSelect) {
 			drawBitmap(stageSelect->checkmark, 830, 95, ALIGN_LEFT);
 
 		if (stageSelect->pause) {
+			drawRectangle(505, 490, 815, 660, COLOUR_GREY);
 			if (getMouse()->draw) {
 				drawButton(stageSelect->pauseContinue, 0);
 				drawButton(stageSelect->pauseQuit, 0);
@@ -510,11 +533,11 @@ void drawStageSelect(StageSelect* stageSelect) {
 		drawBitmap(stageSelect->background, 0, 0, ALIGN_LEFT);
 		int i;
 		if (getMouse()->draw) {
-			for (i = 0; i < 5; i++) {
+			for (i = 0; i < (NUM_STAGES + 1); i++) {
 				drawButton(stageSelect->buttons[i], 0);
 			}
 		} else {
-			for (i = 0; i < 5; i++) {
+			for (i = 0; i < (NUM_STAGES + 1); i++) {
 				if (stageSelect->option == i)
 					drawButton(stageSelect->buttons[i], 1);
 				else
@@ -525,9 +548,11 @@ void drawStageSelect(StageSelect* stageSelect) {
 }
 void deleteStageSelect(StageSelect* stageSelect) {
 	int i;
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < NUM_STAGES; i++) {
 		deleteStage(stageSelect->stages[i]);
+		deleteButton(stageSelect->buttons[i]);
 	}
+	deleteButton(stageSelect->buttons[9]);
 
 	deleteButton(stageSelect->pauseContinue);
 	deleteButton(stageSelect->pauseQuit);

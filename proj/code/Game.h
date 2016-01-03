@@ -56,7 +56,7 @@ typedef struct {
 	int foundWally;
 
 	int currentStage;
-	Stage* stages[10];
+	Stage* stages[9];
 
 	Bitmap* checkmark;
 	Bitmap* findWally;
@@ -71,15 +71,17 @@ typedef struct {
 } ArcadeMode;
 
 typedef struct {
-	Timer* timer;
 	int foundAll;
-
 	int currentStage;
-	Stage* stages[4];
+	int pause;
+	int mouseSelection;
+	int option;
+	int done;
+
+	Timer* timer;
 
 	Bitmap* background;
-
-	Button* buttons[5];
+	Button* buttons[10];
 
 	Bitmap* checkmark;
 
@@ -92,14 +94,10 @@ typedef struct {
 	Bitmap* findOdlaw;
 	Bitmap* odlaw;
 
-	int pause;
+	Stage* stages[9];
 	Button* pauseContinue;
 	Button* pauseQuit;
 
-	int mouseSelection;
-	int option;
-
-	int done;
 } StageSelect;
 
 Button* createButton(int xi, int yi, int xf, int yf, char* text);
@@ -121,6 +119,8 @@ void deleteArcadeMode(ArcadeMode* arcadeMode);
 
 StageSelect* createStageSelect();
 void updateStageSelect(StageSelect* stageSelect);
+void pickStageSelect(StageSelect* stageSelect, int option);
+void returnToStageSelect(StageSelect* stageSelect);
 void drawStageSelect(StageSelect* stageSelect);
 void deleteStageSelect(StageSelect* stageSelect);
 
