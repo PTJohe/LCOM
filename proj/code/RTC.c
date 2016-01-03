@@ -47,22 +47,13 @@ char* getDateRTC() {
 
 	char date[256];
 
-	while (1) {
-		if ((BIT(7) & readRTC(10)) == BIT(7)) {
-
-			sprintf(date, "%02x/%02x/%x %02x:%02x:%02x\n", readRTC(7),
-					readRTC(8), readRTC(9), readRTC(4), readRTC(2), readRTC(0));
-			//printf("%s", date);
-			LOG("Date", date);
-
-			unsubscribeRTC();
-
-			char* str = (char*) malloc(256);
-			strcpy(str, date);
-			return str;
-		}
-	}
+	sprintf(date, "%02x/%02x/%x %02x:%02x:%02x", readRTC(7), readRTC(8),
+			readRTC(9), readRTC(4), readRTC(2), readRTC(0));
+	LOG("Date", date);
 
 	unsubscribeRTC();
-	return NULL;
+
+	char* str = (char*) malloc(256);
+	strcpy(str, date);
+	return str;
 }

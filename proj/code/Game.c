@@ -734,11 +734,26 @@ HighScores* createHighScores(int score) {
 	}
 	fclose(file);
 
+	sortHighScores(highScores);
 	LOG("HighScores", "Created HighScores");
 	return highScores;
 }
 void sortHighScores(HighScores* highScores) {
+	int i, j;
+
+	Score* temp = NULL;
+
+	for (i = 0; i < 10; i++) {
+		for (j = i + 1; j < 10; j++) {
+			if (highScores->scores[i]->score < highScores->scores[j]->score) {
+				temp = highScores->scores[i];
+				highScores->scores[i] = highScores->scores[j];
+				highScores->scores[j] = temp;
+			}
+		}
+	}
 }
+
 void updateHighScores(HighScores* highScores) {
 	if (getMouse()->draw)
 		highScores->option = -1;
@@ -754,7 +769,7 @@ void drawName(char* name, int rank) {
 	int xMin = 200, xMax = 470;
 	int xInc = 25;
 	int x = 335 - ((numChars / 2) * 25);
-	int y = 310 + ((rank - 1) * 50);
+	int y = 350 + ((rank - 1) * 50);
 
 	char str[10];
 	sprintf(str, "%s", name);
@@ -775,7 +790,7 @@ void drawScore(int points, int rank) {
 	int xMin = 520, xMax = 700;
 	int xInc = 25;
 	int x = 610 - ((numChars / 2) * 20);
-	int y = 310 + ((rank - 1) * 50);
+	int y = 350 + ((rank - 1) * 50);
 
 	int i;
 	for (i = 0; i < strlen(score); i++) {
@@ -790,10 +805,12 @@ void drawDate(char* date, int rank) {
 	int xMin = 800, xMax = 1200;
 	int xInc = 22;
 	int x = 800;
-	int y = 310 + ((rank - 1) * 50);
+	int y = 350 + ((rank - 1) * 50);
 
 	char str[20];
 	sprintf(str, "%s", date);
+
+	getDateRTC();
 
 	int i;
 	for (i = 0; i < strlen(str); i++) {
@@ -813,7 +830,7 @@ void drawDate(char* date, int rank) {
 		drawBitmapAlpha(bmp, x, y, COLOUR_WHITE, 0);
 		deleteBitmap(bmp);
 		x += xInc;
-		y = 310 + ((rank - 1) * 50);
+		y = 350 + ((rank - 1) * 50);
 	}
 }
 void drawHighScores(HighScores* highScores) {
@@ -840,7 +857,26 @@ void drawHighScores(HighScores* highScores) {
 }
 
 void deleteHighScores(HighScores* highScores) {
+	deleteBitmap(highScores->background);
+	deleteButton(highScores->button);
 
+	FILE *file = fopen(PATH_STAGE "highScores.txt", "w+");
+	if (file == NULL) {
+		LOG("ERROR", "Couldn't open highScores file.");
+		free(highScores);
+		return;
+	}
+	int i;
+	for (i = 0; i < 10; i++) {
+		fprintf(file, "%d\n", (i + 1));
+		fprintf(file, "%s\n", highScores->scores[i]->name);
+		fprintf(file, "%d\n", highScores->scores[i]->score);
+		fprintf(file, "%s\n", highScores->scores[i]->date);
+
+		deleteScore(highScores->scores[i]);
+	}
+	fclose(file);
+	free(highScores);
 }
 
 Score* createScore(char* name, int points, char* date) {
@@ -853,6 +889,7 @@ Score* createScore(char* name, int points, char* date) {
 	return score;
 }
 void deleteScore(Score* score) {
+	free(score->name);
 	free(score->date);
 	free(score);
 }

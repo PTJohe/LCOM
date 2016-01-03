@@ -102,6 +102,11 @@ void updateKeyboard(WallyNIX* wally) {
 				}
 			} else
 				wally->stageSelect->option = 9;
+		} else if (wally->menu == HIGH_SCORES) {
+			if (wally->highScores->newScore) {
+
+			} else
+				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			wally->options->option = 7;
 		}
@@ -129,6 +134,11 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option -= 3;
 			} else if (wally->stageSelect->option - 1 >= 0)
 				wally->stageSelect->option -= 1;
+		} else if (wally->menu == HIGH_SCORES) {
+			if (wally->highScores->newScore) {
+
+			} else
+				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
 				wally->options->option = 0;
@@ -162,6 +172,11 @@ void updateKeyboard(WallyNIX* wally) {
 				if (wally->stageSelect->option + 1 <= 1)
 					wally->stageSelect->option += 1;
 			}
+		} else if (wally->menu == HIGH_SCORES) {
+			if (wally->highScores->newScore) {
+
+			} else
+				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
 				wally->options->option = 0;
@@ -184,6 +199,11 @@ void updateKeyboard(WallyNIX* wally) {
 				else
 					wally->stageSelect->option--;
 			}
+		} else if (wally->menu == HIGH_SCORES) {
+			if (wally->highScores->newScore) {
+
+			} else
+				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option <= 0)
 				wally->options->option = 0;
@@ -209,6 +229,11 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option++;
 			}
 			break;
+		} else if (wally->menu == HIGH_SCORES) {
+			if (wally->highScores->newScore) {
+
+			} else
+				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
 				wally->options->option = 0;
@@ -276,6 +301,11 @@ void updateKeyboard(WallyNIX* wally) {
 			} else if (wally->stageSelect->option >= 0) {
 				pickStageSelect(wally->stageSelect, wally->stageSelect->option);
 			}
+		} else if (wally->menu == HIGH_SCORES) {
+			if (wally->highScores->newScore) {
+
+			} else
+				wally->highScores->done = 1;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
 				break;
@@ -320,7 +350,7 @@ void updateStates(WallyNIX* wally) {
 			wally->stageSelect = createStageSelect();
 			break;
 		case 2:
-			//deleteMainMenu(wally->mainMenu);
+			deleteMainMenu(wally->mainMenu);
 			wally->menu = HIGH_SCORES;
 			wally->highScores = createHighScores(0);
 			break;
@@ -366,6 +396,7 @@ void updateStates(WallyNIX* wally) {
 		updateHighScores(wally->highScores);
 
 		if (wally->highScores->done || wally->highScores->mouseSelection == 0) {
+			deleteHighScores(wally->highScores);
 			wally->menu = MAIN_MENU;
 			wally->mainMenu = createMainMenu();
 			return;
