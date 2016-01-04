@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include "Utilities.h"
+#include "Keyboard.h"
 #include "Mouse.h"
 #include "RTC.h"
 
@@ -163,6 +164,7 @@ ArcadeMode* createArcadeMode() {
 	arcadeMode->pauseQuit = createButton(515, 580, 805, 650, "pauseQuit");
 
 	arcadeMode->option = -1;
+	arcadeMode->gameOver = 0;
 	arcadeMode->done = 0;
 
 	arcadeMode->findWally = loadBitmap(getImagePath("findWally"));
@@ -251,6 +253,7 @@ void updateArcadeMode(ArcadeMode* arcadeMode) {
 
 	if (arcadeMode->timer->counter >= 60 * TIMER_DEFAULT_FREQ) {
 		arcadeMode->done = 1;
+		arcadeMode->gameOver = 1;
 	}
 }
 
@@ -692,18 +695,10 @@ void deleteStage(Stage* stage) {
 HighScores* createHighScores(int score) {
 	HighScores* highScores = (HighScores*) malloc(sizeof(HighScores));
 
-	highScores->drawFirstTime = 1;
+	highScores->draw = 1;
 	highScores->mouseSelection = -1;
 	highScores->option = -1;
 	highScores->done = 0;
-
-	if (score)
-		highScores->newScore = 1;
-	else
-		highScores->newScore = 0;
-
-	highScores->background = loadBitmap(getImagePath("highscoresMenu"));
-	highScores->button = createButton(535, 850, 745, 910, "mainMenuButton");
 
 	FILE *file = fopen(PATH_STAGE "highScores.txt", "r");
 	if (file == NULL) {
@@ -733,9 +728,21 @@ HighScores* createHighScores(int score) {
 		i++;
 	}
 	fclose(file);
-
 	sortHighScores(highScores);
-	LOG("HighScores", "Created HighScores");
+
+	if (score > highScores->scores[9]->score) {
+		highScores->inputName = 1;
+		highScores->points = score;
+		highScores->input[0] = '\0';
+		highScores->newScore = loadBitmap(getImagePath("writeName"));
+		highScores->ok = createButton(595, 550, 685, 630, "ok");
+	} else {
+		highScores->inputName = 0;
+		highScores->addScore = 0;
+	}
+	highScores->background = loadBitmap(getImagePath("highscoresMenu"));
+	highScores->button = createButton(535, 850, 745, 910, "mainMenuButton");
+
 	return highScores;
 }
 void sortHighScores(HighScores* highScores) {
@@ -753,8 +760,53 @@ void sortHighScores(HighScores* highScores) {
 		}
 	}
 }
+void insertHighScore(HighScores* highScores, Score* score) {
+	sortHighScores(highScores);
+	int i;
+	for (i = 9; highScores->scores[i]->score < score->score; i--) {
+		if (i == 9) {
+			highScores->scores[i] = score;
+			continue;
+		}
+		highScores->scores[i + 1] = highScores->scores[i];
+		highScores->scores[i] = score;
+
+		if (i == 0)
+			break;
+	}
+}
 
 void updateHighScores(HighScores* highScores) {
+	if (highScores->inputName) {
+		updateButton(highScores->ok);
+		if (highScores->ok->onClick) {
+			if (strlen(highScores->input) == 0) {
+				highScores->ok->onClick = 0;
+				highScores->mouseSelection = -1;
+				resetMouseButton();
+				return;
+			}
+			highScores->mouseSelection = 0;
+			resetMouseButton();
+		}
+		return;
+	} else if (highScores->addScore) {
+		char* date = getDateRTC();
+		char* name = malloc(1 + strlen(highScores->input));
+		strcpy(name, highScores->input);
+
+		Score* score = createScore(name, highScores->points, date);
+		insertHighScore(highScores, score);
+
+		highScores->draw = 1;
+		highScores->addScore = 0;
+		highScores->input[0] = '\0';
+		highScores->points = 0;
+		deleteBitmap(highScores->newScore);
+		deleteButton(highScores->ok);
+		return;
+	}
+
 	if (getMouse()->draw)
 		highScores->option = -1;
 
@@ -764,11 +816,112 @@ void updateHighScores(HighScores* highScores) {
 		resetMouseButton();
 	}
 }
+
+void inputName(HighScores* highScores, unsigned long scancode) {
+	if (scancode == KEY_ENTER) {
+		if (strlen(highScores->input) == 0)
+			return;
+		highScores->inputName = 0;
+		highScores->addScore = 1;
+		LOG("Name", highScores->input);
+	} else if (scancode == KEY_BACKSPACE) {
+		int len = strlen(highScores->input);
+		if (len > 0)
+			highScores->input[len - 1] = '\0';
+	} else if (strlen(highScores->input) < 11) {
+		switch (scancode) {
+		case KEY_SPACEBAR:
+			strcat(highScores->input, " ");
+			break;
+		case KEY_Q:
+			strcat(highScores->input, "Q");
+			break;
+		case KEY_W:
+			strcat(highScores->input, "W");
+			break;
+		case KEY_E:
+			strcat(highScores->input, "E");
+			break;
+		case KEY_R:
+			strcat(highScores->input, "R");
+			break;
+		case KEY_T:
+			strcat(highScores->input, "T");
+			break;
+		case KEY_Y:
+			strcat(highScores->input, "Y");
+			break;
+		case KEY_U:
+			strcat(highScores->input, "U");
+			break;
+		case KEY_I:
+			strcat(highScores->input, "I");
+			break;
+		case KEY_O:
+			strcat(highScores->input, "O");
+			break;
+		case KEY_P:
+			strcat(highScores->input, "P");
+			break;
+		case KEY_A:
+			strcat(highScores->input, "A");
+			break;
+		case KEY_S:
+			strcat(highScores->input, "S");
+			break;
+		case KEY_D:
+			strcat(highScores->input, "D");
+			break;
+		case KEY_F:
+			strcat(highScores->input, "F");
+			break;
+		case KEY_G:
+			strcat(highScores->input, "G");
+			break;
+		case KEY_H:
+			strcat(highScores->input, "H");
+			break;
+		case KEY_J:
+			strcat(highScores->input, "J");
+			break;
+		case KEY_K:
+			strcat(highScores->input, "K");
+			break;
+		case KEY_L:
+			strcat(highScores->input, "L");
+			break;
+		case KEY_Z:
+			strcat(highScores->input, "Z");
+			break;
+		case KEY_X:
+			strcat(highScores->input, "X");
+			break;
+		case KEY_C:
+			strcat(highScores->input, "C");
+			break;
+		case KEY_V:
+			strcat(highScores->input, "V");
+			break;
+		case KEY_B:
+			strcat(highScores->input, "B");
+			break;
+		case KEY_N:
+			strcat(highScores->input, "N");
+			break;
+		case KEY_M:
+			strcat(highScores->input, "M");
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 void drawName(char* name, int rank) {
 	int numChars = strlen(name); //max = 10
 	int xMin = 200, xMax = 470;
 	int xInc = 25;
-	int x = 335 - ((numChars / 2) * 25);
+	int x = 250;
 	int y = 350 + ((rank - 1) * 50);
 
 	char str[10];
@@ -789,7 +942,7 @@ void drawScore(int points, int rank) {
 	int numChars = strlen(score); //max = 8
 	int xMin = 520, xMax = 700;
 	int xInc = 25;
-	int x = 610 - ((numChars / 2) * 20);
+	int x = 575;
 	int y = 350 + ((rank - 1) * 50);
 
 	int i;
@@ -803,7 +956,8 @@ void drawScore(int points, int rank) {
 void drawDate(char* date, int rank) {
 	int numChars = strlen(date);
 	int xMin = 800, xMax = 1200;
-	int xInc = 22;
+	int xInc1 = 22;
+	int xInc2 = 20;
 	int x = 800;
 	int y = 350 + ((rank - 1) * 50);
 
@@ -816,26 +970,49 @@ void drawDate(char* date, int rank) {
 	for (i = 0; i < strlen(str); i++) {
 		Bitmap* bmp = NULL;
 		if (str[i] == ' ') {
-			x += xInc;
+			x += xInc1 * 2;
 			continue;
 		} else if (str[i] == '/') {
 			bmp = loadBitmap(getFontPath('-'));
 			x -= 2;
 		} else if (str[i] == ':') {
 			bmp = loadBitmap(getFontPath('_'));
-			x += 10;
+			x += 5;
 			y += 5;
+			drawBitmapAlpha(bmp, x, y, COLOUR_WHITE, 0);
+			deleteBitmap(bmp);
+
+			x += 15;
+			y = 350 + ((rank - 1) * 50);
+			continue;
 		} else
 			bmp = loadBitmap(getFontPath(str[i]));
+
+		drawBitmapAlpha(bmp, x, y, COLOUR_WHITE, 0);
+		deleteBitmap(bmp);
+		if (i < 7)
+			x += xInc1;
+		else
+			x += xInc2;
+	}
+}
+
+void drawInput(HighScores* highScores) {
+	int x = 530, y = 505;
+	int xInc = 20;
+
+	int i;
+	for (i = 0; i < strlen(highScores->input); i++) {
+		Bitmap * bmp = loadBitmap(getFontPath(highScores->input[i]));
 		drawBitmapAlpha(bmp, x, y, COLOUR_WHITE, 0);
 		deleteBitmap(bmp);
 		x += xInc;
-		y = 350 + ((rank - 1) * 50);
 	}
 }
+
 void drawHighScores(HighScores* highScores) {
-	if (highScores->drawFirstTime) {
-		highScores->drawFirstTime = 0;
+	if (highScores->draw) {
+		highScores->draw = 0;
 		drawBitmap(highScores->background, 0, 0, ALIGN_LEFT);
 
 		int i;
@@ -845,7 +1022,12 @@ void drawHighScores(HighScores* highScores) {
 			drawDate(highScores->scores[i]->date, i);
 		}
 	}
-
+	if (highScores->inputName) {
+		drawBitmap(highScores->newScore, 375, 240, ALIGN_LEFT);
+		drawInput(highScores);
+		drawButton(highScores->ok, 0);
+		return;
+	}
 	if (getMouse()->draw) {
 		drawButton(highScores->button, 0);
 	} else {

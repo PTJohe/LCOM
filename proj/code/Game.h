@@ -67,6 +67,7 @@ typedef struct {
 	Button* pauseQuit;
 
 	int option;
+	int gameOver;
 	int done;
 } ArcadeMode;
 
@@ -107,18 +108,24 @@ typedef struct {
 } Score;
 
 typedef struct {
-	int drawFirstTime;
+	int draw;
 	int mouseSelection;
 	int option;
 	int done;
-	int newScore;
 
 	Score* scores[10];
 
 	Bitmap* background;
 	Button* button;
-} HighScores;
 
+	int points;
+	int inputName;
+	int addScore;
+
+	char input[11];
+	Bitmap* newScore;
+	Button* ok;
+} HighScores;
 
 typedef struct {
 	int mouseSelection;

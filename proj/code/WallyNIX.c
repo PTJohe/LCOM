@@ -47,7 +47,7 @@ void updateInterruptions(WallyNIX* wally) {
 		case HARDWARE:
 			// Keyboard interruption
 			if (msg.NOTIFY_ARG & wally->IRQ_SET_KBD) {
-				wally->scancode = readScancode();
+				wally->scancode = keyboard_read_scancode();
 				break;
 			}
 			// Timer interruption
@@ -73,6 +73,13 @@ void updateInterruptions(WallyNIX* wally) {
 	}
 }
 void updateKeyboard(WallyNIX* wally) {
+
+	if (wally->menu == HIGH_SCORES) {
+		if (wally->highScores->inputName) {
+			inputName(wally->highScores, wally->scancode);
+			wally->scancode = 0;
+		}
+	}
 
 	//READ KEYBOARD
 	switch (wally->scancode) {
@@ -103,9 +110,7 @@ void updateKeyboard(WallyNIX* wally) {
 			} else
 				wally->stageSelect->option = 9;
 		} else if (wally->menu == HIGH_SCORES) {
-			if (wally->highScores->newScore) {
-
-			} else
+			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			wally->options->option = 7;
@@ -135,9 +140,7 @@ void updateKeyboard(WallyNIX* wally) {
 			} else if (wally->stageSelect->option - 1 >= 0)
 				wally->stageSelect->option -= 1;
 		} else if (wally->menu == HIGH_SCORES) {
-			if (wally->highScores->newScore) {
-
-			} else
+			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
@@ -173,9 +176,7 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option += 1;
 			}
 		} else if (wally->menu == HIGH_SCORES) {
-			if (wally->highScores->newScore) {
-
-			} else
+			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
@@ -200,9 +201,7 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option--;
 			}
 		} else if (wally->menu == HIGH_SCORES) {
-			if (wally->highScores->newScore) {
-
-			} else
+			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option <= 0)
@@ -230,9 +229,7 @@ void updateKeyboard(WallyNIX* wally) {
 			}
 			break;
 		} else if (wally->menu == HIGH_SCORES) {
-			if (wally->highScores->newScore) {
-
-			} else
+			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
@@ -302,9 +299,7 @@ void updateKeyboard(WallyNIX* wally) {
 				pickStageSelect(wally->stageSelect, wally->stageSelect->option);
 			}
 		} else if (wally->menu == HIGH_SCORES) {
-			if (wally->highScores->newScore) {
-
-			} else
+			if (!wally->highScores->inputName)
 				wally->highScores->done = 1;
 		} else if (wally->menu == OPTIONS) {
 			if (wally->options->option < 0)
@@ -370,9 +365,15 @@ void updateStates(WallyNIX* wally) {
 		updateArcadeMode(wally->arcadeMode);
 
 		if (wally->arcadeMode->done) {
-			deleteArcadeMode(wally->arcadeMode);
-			wally->menu = MAIN_MENU;
-			wally->mainMenu = createMainMenu();
+			if (wally->arcadeMode->gameOver) {
+				deleteArcadeMode(wally->arcadeMode);
+				wally->menu = MAIN_MENU;
+				wally->mainMenu = createMainMenu();
+			} else {
+				wally->menu = HIGH_SCORES;
+				wally->highScores = createHighScores(wally->arcadeMode->score);
+				deleteArcadeMode(wally->arcadeMode);
+			}
 			return;
 		}
 		break;
@@ -395,11 +396,17 @@ void updateStates(WallyNIX* wally) {
 	case HIGH_SCORES:
 		updateHighScores(wally->highScores);
 
-		if (wally->highScores->done || wally->highScores->mouseSelection == 0) {
+		if (wally->highScores->done
+				|| (!wally->highScores->inputName
+						&& wally->highScores->mouseSelection == 0)) {
 			deleteHighScores(wally->highScores);
 			wally->menu = MAIN_MENU;
 			wally->mainMenu = createMainMenu();
 			return;
+		} else if (wally->highScores->mouseSelection == 0) {
+			wally->highScores->inputName = 0;
+			wally->highScores->addScore = 1;
+			wally->highScores->mouseSelection = -1;
 		}
 		break;
 	case OPTIONS:
