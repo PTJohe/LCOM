@@ -10,6 +10,7 @@
  * Functions to manipulate the game state and devices
  */
 
+/// Represents the main game object
 typedef struct WallyNIX {
 	int IRQ_SET_TIMER;
 	int IRQ_SET_KBD;

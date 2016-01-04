@@ -1,0 +1,8 @@
+<map id="StageSelect" name="StageSelect">
+<area shape="rect" id="node2" href="$struct_stage.html" title="Represents a Stage. " alt="" coords="327,475,383,502"/>
+<area shape="rect" id="node3" href="$struct_position.html" title="Represents a position (x,y) " alt="" coords="373,95,442,121"/>
+<area shape="rect" id="node6" href="$struct_button.html" title="Represents a Button. " alt="" coords="195,215,255,241"/>
+<area shape="rect" id="node4" href="$struct_bitmap.html" title="Represents a Bitmap. " alt="" coords="128,95,191,121"/>
+<area shape="rect" id="node7" href="$struct_timer.html" title="Represents a Timer. " alt="" coords="5,349,60,375"/>
+<area shape="rect" id="node5" href="$struct_bitmap_info_header.html" title="BitmapInfoHeader" alt="" coords="97,5,221,32"/>
+</map>

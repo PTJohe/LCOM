@@ -1,0 +1,5 @@
+<map id="Mouse" name="Mouse">
+<area shape="rect" id="node2" href="$struct_position.html" title="Represents a position (x,y) " alt="" coords="5,95,75,121"/>
+<area shape="rect" id="node3" href="$struct_bitmap.html" title="Represents a Bitmap. " alt="" coords="99,95,162,121"/>
+<area shape="rect" id="node4" href="$struct_bitmap_info_header.html" title="BitmapInfoHeader" alt="" coords="69,5,193,32"/>
+</map>

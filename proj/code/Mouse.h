@@ -12,7 +12,7 @@ static int hook_id_mouse = 12;
  * Functions to manipulate the mouse
  */
 
-// Represents a mouse
+/// Represents a mouse
 typedef struct {
 	int x, y;
 	Position* position;

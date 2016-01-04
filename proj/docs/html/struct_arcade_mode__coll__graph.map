@@ -1,0 +1,8 @@
+<map id="ArcadeMode" name="ArcadeMode">
+<area shape="rect" id="node2" href="$struct_stage.html" title="Represents a Stage. " alt="" coords="310,351,366,377"/>
+<area shape="rect" id="node3" href="$struct_position.html" title="Represents a position (x,y) " alt="" coords="355,95,425,121"/>
+<area shape="rect" id="node6" href="$struct_button.html" title="Represents a Button. " alt="" coords="177,215,237,241"/>
+<area shape="rect" id="node4" href="$struct_bitmap.html" title="Represents a Bitmap. " alt="" coords="119,95,181,121"/>
+<area shape="rect" id="node7" href="$struct_timer.html" title="Represents a Timer. " alt="" coords="5,290,60,317"/>
+<area shape="rect" id="node5" href="$struct_bitmap_info_header.html" title="BitmapInfoHeader" alt="" coords="88,5,212,32"/>
+</map>

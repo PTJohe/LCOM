@@ -20,6 +20,7 @@ enum {
 	CREDITS,
 };
 
+/// Represents a Button
 typedef struct {
 	Position* topLeft;
 	Position* bottomRight;
@@ -29,6 +30,7 @@ typedef struct {
 	int onClick;
 } Button;
 
+/// Represents the Main Menu
 typedef struct {
 	Bitmap* background;
 
@@ -46,6 +48,7 @@ typedef struct {
 	int done;
 } MainMenu;
 
+/// Represents a Stage
 typedef struct {
 	int arcadeMode;
 
@@ -63,6 +66,7 @@ typedef struct {
 	Position* odlaw;
 } Stage;
 
+/// Represents the ArcadeMode
 typedef struct {
 	int score;
 	Timer* timer;
@@ -84,6 +88,7 @@ typedef struct {
 	int done;
 } ArcadeMode;
 
+/// Represents the StageSelect Menu
 typedef struct {
 	int foundAll;
 	int currentStage;
@@ -114,12 +119,14 @@ typedef struct {
 
 } StageSelect;
 
+/// Represents a Score
 typedef struct {
 	int score;
 	char* name;
 	char* date;
 } Score;
 
+/// Represents the HighScores Menu
 typedef struct {
 	int draw;
 	int mouseSelection;
@@ -140,6 +147,7 @@ typedef struct {
 	Button* ok;
 } HighScores;
 
+/// Represents the Options Menu
 typedef struct {
 	int mouseSelection;
 	int option;
@@ -152,6 +160,7 @@ typedef struct {
 	Button* buttons[8];
 } Options;
 
+/// Represents the Credtis Menu
 typedef struct {
 	int mouseSelection;
 	int option;

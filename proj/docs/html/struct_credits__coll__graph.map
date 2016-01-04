@@ -1,0 +1,6 @@
+<map id="Credits" name="Credits">
+<area shape="rect" id="node2" href="$struct_bitmap.html" title="Represents a Bitmap. " alt="" coords="137,95,199,121"/>
+<area shape="rect" id="node4" href="$struct_button.html" title="Represents a Button. " alt="" coords="83,199,143,225"/>
+<area shape="rect" id="node3" href="$struct_bitmap_info_header.html" title="BitmapInfoHeader" alt="" coords="106,5,230,32"/>
+<area shape="rect" id="node5" href="$struct_position.html" title="Represents a position (x,y) " alt="" coords="5,95,75,121"/>
+</map>

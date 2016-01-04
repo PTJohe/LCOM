@@ -6,7 +6,7 @@
  * Functions to manipulate a position
  */
 
-// Represents a position
+/// Represents a position (x,y)
 typedef struct {
 	int x;
 	int y;

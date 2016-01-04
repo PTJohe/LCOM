@@ -11,7 +11,7 @@ static int hook_id_timer;
  * Functions to manipulate a timer
  */
 
-// Represents a Timer
+/// Represents a Timer
 typedef struct {
 	int counter;
 	int enabled;

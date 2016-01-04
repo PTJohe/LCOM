@@ -1,0 +1,15 @@
+<map id="WallyNIX" name="WallyNIX">
+<area shape="rect" id="node2" href="$struct_stage_select.html" title="Represents the StageSelect Menu. " alt="" coords="155,573,249,600"/>
+<area shape="rect" id="node3" href="$struct_stage.html" title="Represents a Stage. " alt="" coords="237,475,293,502"/>
+<area shape="rect" id="node14" href="$struct_arcade_mode.html" title="Represents the ArcadeMode. " alt="" coords="421,573,516,600"/>
+<area shape="rect" id="node4" href="$struct_position.html" title="Represents a position (x,y) " alt="" coords="63,95,133,121"/>
+<area shape="rect" id="node7" href="$struct_button.html" title="Represents a Button. " alt="" coords="521,215,581,241"/>
+<area shape="rect" id="node5" href="$struct_bitmap.html" title="Represents a Bitmap. " alt="" coords="520,95,583,121"/>
+<area shape="rect" id="node8" href="$struct_timer.html" title="Represents a Timer. " alt="" coords="5,475,60,502"/>
+<area shape="rect" id="node9" href="$struct_options.html" title="Represents the Options Menu. " alt="" coords="645,475,711,502"/>
+<area shape="rect" id="node10" href="$struct_high_scores.html" title="Represents the HighScores Menu. " alt="" coords="977,475,1067,502"/>
+<area shape="rect" id="node12" href="$struct_main_menu.html" title="Represents the Main Menu. " alt="" coords="823,475,906,502"/>
+<area shape="rect" id="node13" href="$struct_credits.html" title="Represents the Credtis Menu. " alt="" coords="736,475,799,502"/>
+<area shape="rect" id="node6" href="$struct_bitmap_info_header.html" title="BitmapInfoHeader" alt="" coords="489,5,613,32"/>
+<area shape="rect" id="node11" href="$struct_score.html" title="Represents a Score. " alt="" coords="1042,215,1098,241"/>
+</map>
