@@ -347,6 +347,7 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->arcadeMode->pause = 0;
 					resumeTimer(wally->arcadeMode->timer);
 				} else if (wally->arcadeMode->option == 1) {
+					wally->arcadeMode->gameOver = 1;
 					wally->arcadeMode->done = 1;
 				}
 			}
@@ -364,7 +365,7 @@ void updateKeyboard(WallyNIX* wally) {
 			} else if (wally->stageSelect->option == 9) {
 				wally->stageSelect->done = 1;
 			} else if (wally->stageSelect->option >= 0) {
-				pickStageSelect(wally->stageSelect, wally->stageSelect->option);
+				pickStageSelect(wally->stageSelect, wally->stageSelect->option + 1);
 			}
 			break;
 		case HIGH_SCORES:

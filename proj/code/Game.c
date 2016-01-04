@@ -221,6 +221,7 @@ void updateArcadeMode(ArcadeMode* arcadeMode) {
 			arcadeMode->pause = 0;
 			resumeTimer(arcadeMode->timer);
 		} else if (arcadeMode->pauseQuit->onClick) {
+			arcadeMode->gameOver = 1;
 			arcadeMode->done = 1;
 			resetMouseButton();
 			return;
