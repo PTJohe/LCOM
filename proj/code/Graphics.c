@@ -66,7 +66,6 @@ void *initGraphics(unsigned short mode) {
 	}
 	return NULL;
 }
-
 int exitGraphics() {
 	struct reg86u reg86;
 
@@ -84,11 +83,9 @@ int exitGraphics() {
 char* getVideoMem() {
 	return videoMem;
 }
-
 char* getDoubleBuffer() {
 	return doubleBuffer;
 }
-
 char* getMouseBuffer() {
 	return mouseBuffer;
 }
@@ -96,7 +93,6 @@ char* getMouseBuffer() {
 unsigned getHRes() {
 	return hRes;
 }
-
 unsigned getVRes() {
 	return vRes;
 }
@@ -117,24 +113,12 @@ int fillDisplay(unsigned long colour) {
 	return EXIT_SUCCESS;
 }
 
-void directPixel(int x, int y, unsigned long colour) {
-	*(videoMem + ((hRes * y) + x) * bytesPerPixel) = colour & 0xFF;
-	*(videoMem + (((hRes * y) + x) * bytesPerPixel) + 1) = (colour >> 8) & 0xFF;
-}
-
 void putPixel(int x, int y, unsigned long colour) {
 	//Color pixel of double buffer
 	*(doubleBuffer + ((hRes * y) + x) * bytesPerPixel) = colour & 0xFF;
 	*(doubleBuffer + (((hRes * y) + x) * bytesPerPixel) + 1) = (colour >> 8)
 			& 0xFF;
 
-}
-
-void putPixelMouseBuffer(int x, int y, unsigned long colour) {
-	//Color pixel of mouse buffer
-	*(mouseBuffer + ((hRes * y) + x) * bytesPerPixel) = colour & 0xFF;
-	*(mouseBuffer + (((hRes * y) + x) * bytesPerPixel) + 1) = (colour >> 8)
-			& 0xFF;
 }
 
 int drawRectangle(int xi, int yi, int xf, int yf, unsigned long colour) {
@@ -162,7 +146,6 @@ int drawRectangle(int xi, int yi, int xf, int yf, unsigned long colour) {
 
 	return EXIT_SUCCESS;
 }
-
 int drawSquare(int xi, int yi, int size, unsigned long colour) {
 	//Check if coordinates are valid
 	if ((xi >= hRes || xi < 0) || (yi >= vRes || yi < 0)) {
@@ -181,7 +164,6 @@ int drawSquare(int xi, int yi, int size, unsigned long colour) {
 
 	return EXIT_SUCCESS;
 }
-
 int drawLine(int xi, int yi, int xf, int yf, unsigned long colour) {
 	//Check if coordinates are valid
 	if ((xf >= hRes || xf < 0 || xi >= hRes || xi < 0)
@@ -229,7 +211,6 @@ int drawLine(int xi, int yi, int xf, int yf, unsigned long colour) {
 
 	return EXIT_SUCCESS;
 }
-
 int drawCircle(int xc, int yc, int radius, unsigned long colour) {
 
 	int r2 = radius * radius;
@@ -247,7 +228,6 @@ int drawCircle(int xc, int yc, int radius, unsigned long colour) {
 	}
 	return 0;
 }
-
 int drawCircleBorder(long xc, long yc, int radius, unsigned long color) {
 	int x = 0;
 	int y = radius;
@@ -303,14 +283,13 @@ int drawPixmap(int xi, int yi, char* pixmap, int width, int height) {
 
 	return EXIT_SUCCESS;
 }
-
 int clearPixmap(int xi, int yi, int width, int height) {
 //Check if coordinates are valid
 	if ((xi >= hRes || xi < 0) || (yi >= vRes || yi < 0)) {
 		return EXIT_FAILURE;
 	}
 
-//Draw a black rectangle in the pixmap's position
+	//Draw a black rectangle in the pixmap's position
 	int line, column;
 	for (line = 0; line < height; line++) {
 		for (column = 0; column < width; column++) {
@@ -323,44 +302,3 @@ int clearPixmap(int xi, int yi, int width, int height) {
 	return EXIT_SUCCESS;
 }
 
-int drawCursor(Bitmap* bmp, int x, int y) {
-	if (bmp == NULL)
-		return;
-
-	int width = bmp->bitmapInfoHeader.width;
-	int drawWidth = width;
-	int height = bmp->bitmapInfoHeader.height;
-
-	if (x + width < 0 || x > getHRes() || y + height < 0 || y > getVRes())
-		return;
-
-	int xCorrection = 0;
-	if (x < 0) {
-		xCorrection = -x;
-		drawWidth -= xCorrection;
-		x = 0;
-
-		if (drawWidth > getHRes())
-			drawWidth = getHRes();
-	} else if (x + drawWidth >= getHRes()) {
-		drawWidth = getHRes() - x;
-	}
-
-	char* bufferStartPos;
-	char* imgStartPos;
-
-	int i;
-	for (i = 0; i < height; i++) {
-		int pos = y + height - 1 - i;
-
-		if (pos < 0 || pos >= getVRes())
-			continue;
-
-		bufferStartPos = mouseBuffer;
-		bufferStartPos += x * 2 + pos * getHRes() * 2;
-
-		imgStartPos = bmp->bitmapData + xCorrection * 2 + i * width * 2;
-
-		memcpy(bufferStartPos, imgStartPos, drawWidth * 2);
-	}
-}

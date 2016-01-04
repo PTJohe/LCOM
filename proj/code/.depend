@@ -97,6 +97,7 @@ Game.o:	/usr/pkg/gcc44/lib/gcc/i686-pc-minix/4.4.3/include/stdarg.h
 Game.o:	Bitmap.h
 Game.o:	Game.c
 Game.o:	Game.h
+Game.o:	Keyboard.h
 Game.o:	Mouse.h
 Game.o:	Position.h
 Game.o:	RTC.h

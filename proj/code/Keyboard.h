@@ -3,6 +3,11 @@
 
 static int hook_id_keyboard;
 
+/** @defgroup Keyboard Keyboard
+ * @{
+ * Functions to manipulate the keyboard
+ */
+
 // Keys
 typedef enum {
 	KEY_ESC = 0x0001,
@@ -40,61 +45,43 @@ typedef enum {
 
 /**
  * @brief Subscribe the keyboard interrupts
- *
  * @return Return 0 upon success and non-zero otherwise
  */
 int subscribeKeyboard();
 
 /**
  * @brief Unsubscribe the keyboard interrupts
- *
  * @return Return 0 upon success and non-zero otherwise
  */
 int unsubscribeKeyboard();
 
 /**
- *
  * @brief Read KBC responses from Output Buffer
- *
  * @param data Stores KBC Response (ACK, RESEND, ERROR)
- *
  * @return Return 0 upon success and non-zero otherwise
- *
  */
-
 unsigned short read_data_OUTBUF_from_KBC(unsigned long* data);
 
 /**
- *
  * @brief Issues mouse command to KBC
- *
  * @param command Stores mouse command
- *
  * @return Return 0 upon success and non-zero otherwise
- *
  */
-
 unsigned short KBC_issue_command_mouse(unsigned char command);
 
 /**
- *
  * @brief Issues argument of any command to KBC
- *
  * @param argument Stores KBC argument from any command
- *
  * @return Return 0 upon success and non-zero otherwise
- *
  */
-
 unsigned short issue_argument_KBC(unsigned char argument);
 
 /**
  * @brief Handle keyboard interrupts
- *
  * Reads the scancode from the OUT_BUF
- *
  * @return Return 0 upon success and non-zero otherwise
  */
 unsigned long readScancode();
 
-#endif
+/** @} end of Keyboard */
+#endif /* __KEYBOARD_H */

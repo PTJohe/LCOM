@@ -6,10 +6,15 @@ static int hook_id_timer;
 
 #include "Bitmap.h"
 
+/** @defgroup Timer Timer
+ * @{
+ * Functions to manipulate a timer
+ */
+
 // Represents a Timer
 typedef struct {
-	int counter; ///< timer counter
-	int enabled; ///< bool indicating if timer is counting
+	int counter;
+	int enabled;
 	int ticked;
 
 	Bitmap* numbers[10];
@@ -37,33 +42,48 @@ Timer* createTimer();
 
 /**
  * @brief Returns current count
+ *
+ * @param timer Pointer to timer
  * @return int count
  */
 int getCount(Timer* timer);
 
 /**
- * @brief Timer 0 interrupt handler
- * Increments counter
+ * @brief Timer 0 interrupt handler, increments counter
+ * @param timer Pointer to timer
  */
 void timerCount(Timer* timer);
 /**
  * @brief Resets timer counter to 0
+ * @param timer Pointer to timer
  */
 void resetTimer(Timer* timer);
 /**
  * @brief Enables timer
+ * @param timer Pointer to timer
  */
 void startTimer(Timer* timer);
 /**
  * @brief Disables timer
+ * @param timer Pointer to timer
  */
 void stopTimer(Timer* timer);
-
+/**
+ * @brief Resumes timer count
+ * @param timer Pointer to timer
+ */
 void resumeTimer(Timer* timer);
-
+/**
+ * @brief Draws the timer countdown
+ * @param timer Pointer to timer
+ * @param timeLimit Starting number
+ */
+void drawTimeLeft(Timer* timer, int timeLimit);
 /**
  * @brief Deletes a timer
+ * @param timer Pointer to timer
  */
 void deleteTimer(Timer* timer);
 
-#endif
+/** @} end of Timer */
+#endif /* __TIMER_H */

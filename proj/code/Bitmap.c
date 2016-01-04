@@ -133,7 +133,6 @@ void drawBitmap(Bitmap* bmp, int x, int y, Alignment alignment) {
 		memcpy(bufferStartPos, imgStartPos, drawWidth * 2);
 	}
 }
-
 void drawBitmapAlpha(Bitmap* bmp, int x, int y, unsigned long alphaColour,
 		int mouseBuffer) {
 	if (bmp == NULL)

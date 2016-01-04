@@ -3,6 +3,11 @@
 
 #include <stdio.h>
 
+/** @defgroup Utilities Utilities
+ * @{
+ * Useful functions and macros for the project
+ */
+
 #define BIT(n) (0x01 << n)
 
 //==========================================================================================
@@ -231,23 +236,66 @@ extern FILE* logfd;
 #define NUM_CURSORS	4
 
 /**
- *  Converts RGB to Hex value.
+ *  @brief Converts RGB to Hex value.
+ *
+ *  @param r Red value
+ *  @param g Green value
+ *  @param b Blue value
+ *
+ *  @return Converted colour
  */
 int RGB(unsigned char r, unsigned char g, unsigned char b);
+
 /**
- * Swaps two values
+ * @brief Swaps two values
+ * @param xi Address of first value
+ * @param xf Address of second value
  */
 void swap(int* xi, int* xf);
+
 /**
- * Round function, introduced in Minix 3.3.0
+ * @brief Round function, introduced in Minix 3.3.0
+ * @param x Value to be rounded
+ * @return Rounded value
  */
 double round(double x);
+/**
+ * @brief Ceil function
+ * @param num Value to be rounded up
+ * @return Rounded up value
+ */
 double ceil(double num);
 
+/**
+ * @brief Returns string with the cursor path
+ * @param cursor Cursor number
+ * @return Cursor path
+ */
 const char* getMousePath(int cursor);
+/**
+ * @brief Returns string with the big numbers font path
+ * @param str Number
+ * @return Number font path
+ */
 const char* getNumbersPath(char* str);
+/**
+ * @brief Returns string with the font path
+ * @param character Character
+ * @return Font path
+ */
 const char* getFontPath(char character);
+/**
+ * @brief Returns string with the image path
+ * @param image Image
+ * @return Image path
+ */
 const char* getImagePath(char* image);
+/**
+ * @brief Returns string with the stage path
+ * @param number Stage number
+ * @return Stage path
+ */
 const char* getStagePath(int number);
 
-#endif
+/** @} end of Utilities */
+#endif /* __UTILITIES_H */

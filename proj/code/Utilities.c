@@ -60,7 +60,6 @@ const char* getNumbersPath(char* str) {
 	strcpy(path, num);
 	return path;
 }
-
 const char* getFontPath(char character) {
 	char num[256];
 	sprintf(num, PATH_FONT "%c.bmp", character);
@@ -69,7 +68,6 @@ const char* getFontPath(char character) {
 	strcpy(path, num);
 	return path;
 }
-
 const char* getImagePath(char* image) {
 	char num[256];
 	sprintf(num, PATH_IMAGE "%s.bmp", image);
@@ -78,7 +76,6 @@ const char* getImagePath(char* image) {
 	strcpy(path, num);
 	return path;
 }
-
 const char* getStagePath(int number) {
 	char num[256];
 	sprintf(num, PATH_STAGE "stage%02d.bmp", number);

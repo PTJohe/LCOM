@@ -10,6 +10,7 @@
 #include "RTC.h"
 
 FILE* logfd = NULL;
+
 void initLog() {
 	logfd = fopen(LOG_PATH, "w");
 	LOG("initLog", "logging successfully initialized");

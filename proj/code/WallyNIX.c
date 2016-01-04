@@ -83,12 +83,16 @@ void updateKeyboard(WallyNIX* wally) {
 
 	//READ KEYBOARD
 	switch (wally->scancode) {
+
 	case KEY_ESC:
 		wally->scancode = 0;
-		if (wally->menu == MAIN_MENU) {
+
+		switch (wally->menu) {
+		case MAIN_MENU:
 			getMouse()->draw = 0;
 			wally->mainMenu->option = 4;
-		} else if (wally->menu == ARCADE_MODE) {
+			break;
+		case ARCADE_MODE:
 			if (wally->arcadeMode->pause) {
 				wally->arcadeMode->pause = 0;
 				resumeTimer(wally->arcadeMode->timer);
@@ -97,7 +101,8 @@ void updateKeyboard(WallyNIX* wally) {
 				wally->arcadeMode->pause = 1;
 				wally->arcadeMode->option = -1;
 			}
-		} else if (wally->menu == STAGE_SELECT) {
+			break;
+		case STAGE_SELECT:
 			if (wally->stageSelect->currentStage) {
 				if (wally->stageSelect->pause) {
 					wally->stageSelect->pause = 0;
@@ -109,24 +114,36 @@ void updateKeyboard(WallyNIX* wally) {
 				}
 			} else
 				wally->stageSelect->option = 9;
-		} else if (wally->menu == HIGH_SCORES) {
+			break;
+		case HIGH_SCORES:
 			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
-		} else if (wally->menu == OPTIONS) {
+			break;
+		case OPTIONS:
 			wally->options->option = 7;
+			break;
+		case CREDITS:
+			wally->credits->option = 0;
+			break;
+		default:
+			break;
 		}
 		break;
+
 	case KEY_W:
 		wally->scancode = 0;
 		getMouse()->draw = 0;
 
-		if (wally->menu == MAIN_MENU) {
+		switch (wally->menu) {
+		case MAIN_MENU:
 			if (wally->mainMenu->option - 1 >= 0)
 				wally->mainMenu->option -= 1;
-		} else if (wally->menu == ARCADE_MODE) {
+			break;
+		case ARCADE_MODE:
 			if (wally->arcadeMode->option - 1 >= 0)
 				wally->arcadeMode->option -= 1;
-		} else if (wally->menu == STAGE_SELECT) {
+			break;
+		case STAGE_SELECT:
 			if (wally->stageSelect->currentStage == 0) {
 				if (wally->stageSelect->option < 0)
 					wally->stageSelect->option = 0;
@@ -139,10 +156,12 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option -= 3;
 			} else if (wally->stageSelect->option - 1 >= 0)
 				wally->stageSelect->option -= 1;
-		} else if (wally->menu == HIGH_SCORES) {
+			break;
+		case HIGH_SCORES:
 			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
-		} else if (wally->menu == OPTIONS) {
+			break;
+		case OPTIONS:
 			if (wally->options->option < 0)
 				wally->options->option = 0;
 			else if (wally->options->option < 4)
@@ -151,19 +170,29 @@ void updateKeyboard(WallyNIX* wally) {
 				wally->options->option = 0;
 			else
 				wally->options->option = 4;
+			break;
+		case CREDITS:
+			wally->credits->option = 0;
+			break;
+		default:
+			break;
 		}
 		break;
+
 	case KEY_S:
 		wally->scancode = 0;
 		getMouse()->draw = 0;
 
-		if (wally->menu == MAIN_MENU) {
-			if (wally->mainMenu->option + 1 <= 4)
+		switch (wally->menu) {
+		case MAIN_MENU:
+			if (wally->mainMenu->option + 1 <= 5)
 				wally->mainMenu->option += 1;
-		} else if (wally->menu == ARCADE_MODE) {
+			break;
+		case ARCADE_MODE:
 			if (wally->arcadeMode->option + 1 <= 1)
 				wally->arcadeMode->option += 1;
-		} else if (wally->menu == STAGE_SELECT) {
+			break;
+		case STAGE_SELECT:
 			if (wally->stageSelect->currentStage == 0) {
 				if (wally->stageSelect->option < 0)
 					wally->stageSelect->option = 0;
@@ -175,21 +204,32 @@ void updateKeyboard(WallyNIX* wally) {
 				if (wally->stageSelect->option + 1 <= 1)
 					wally->stageSelect->option += 1;
 			}
-		} else if (wally->menu == HIGH_SCORES) {
+			break;
+		case HIGH_SCORES:
 			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
-		} else if (wally->menu == OPTIONS) {
+			break;
+		case OPTIONS:
 			if (wally->options->option < 0)
 				wally->options->option = 0;
 			else if (wally->options->option < 4)
 				wally->options->option = 4;
 			else if (wally->options->option < 6)
 				wally->options->option = 6;
+			break;
+		case CREDITS:
+			wally->credits->option = 0;
+			break;
+		default:
+			break;
 		}
 		break;
+
 	case KEY_A:
 		wally->scancode = 0;
-		if (wally->menu == STAGE_SELECT) {
+
+		switch (wally->menu) {
+		case STAGE_SELECT:
 			if (wally->stageSelect->currentStage == 0) {
 				if (wally->stageSelect->option < 0)
 					wally->stageSelect->option = 0;
@@ -200,10 +240,12 @@ void updateKeyboard(WallyNIX* wally) {
 				else
 					wally->stageSelect->option--;
 			}
-		} else if (wally->menu == HIGH_SCORES) {
+			break;
+		case HIGH_SCORES:
 			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
-		} else if (wally->menu == OPTIONS) {
+			break;
+		case OPTIONS:
 			if (wally->options->option <= 0)
 				wally->options->option = 0;
 			else if (wally->options->option < 4)
@@ -212,11 +254,20 @@ void updateKeyboard(WallyNIX* wally) {
 				wally->options->option = 4;
 			else
 				wally->options->option = 6;
+			break;
+		case CREDITS:
+			wally->credits->option = 0;
+			break;
+		default:
+			break;
 		}
 		break;
+
 	case KEY_D:
 		wally->scancode = 0;
-		if (wally->menu == STAGE_SELECT) {
+
+		switch (wally->menu) {
+		case STAGE_SELECT:
 			if (wally->stageSelect->currentStage == 0) {
 				if (wally->stageSelect->option < 0)
 					wally->stageSelect->option = 0;
@@ -228,10 +279,11 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->stageSelect->option++;
 			}
 			break;
-		} else if (wally->menu == HIGH_SCORES) {
+		case HIGH_SCORES:
 			if (!wally->highScores->inputName)
 				wally->highScores->option = 0;
-		} else if (wally->menu == OPTIONS) {
+			break;
+		case OPTIONS:
 			if (wally->options->option < 0)
 				wally->options->option = 0;
 			else if (wally->options->option < 3)
@@ -242,11 +294,20 @@ void updateKeyboard(WallyNIX* wally) {
 				wally->options->option = 5;
 			else
 				wally->options->option = 7;
+			break;
+		case CREDITS:
+			wally->credits->option = 0;
+			break;
+		default:
+			break;
 		}
 		break;
+
 	case KEY_ENTER:
 		wally->scancode = 0;
-		if (wally->menu == MAIN_MENU) {
+
+		switch (wally->menu) {
+		case MAIN_MENU:
 			switch (wally->mainMenu->option) {
 			case 0:
 				deleteMainMenu(wally->mainMenu);
@@ -271,10 +332,16 @@ void updateKeyboard(WallyNIX* wally) {
 			case 4:
 				wally->exit = 1;
 				break;
+			case 5:
+				deleteMainMenu(wally->mainMenu);
+				wally->menu = CREDITS;
+				wally->credits = createCredits();
+				break;
 			default:
 				break;
 			}
-		} else if (wally->menu == ARCADE_MODE) {
+			break;
+		case ARCADE_MODE:
 			if (wally->arcadeMode->pause) {
 				if (wally->arcadeMode->option == 0) {
 					wally->arcadeMode->pause = 0;
@@ -283,7 +350,8 @@ void updateKeyboard(WallyNIX* wally) {
 					wally->arcadeMode->done = 1;
 				}
 			}
-		} else if (wally->menu == STAGE_SELECT) {
+			break;
+		case STAGE_SELECT:
 			if (wally->stageSelect->currentStage) {
 				if (wally->stageSelect->pause) {
 					if (wally->stageSelect->option == 0) {
@@ -298,10 +366,12 @@ void updateKeyboard(WallyNIX* wally) {
 			} else if (wally->stageSelect->option >= 0) {
 				pickStageSelect(wally->stageSelect, wally->stageSelect->option);
 			}
-		} else if (wally->menu == HIGH_SCORES) {
+			break;
+		case HIGH_SCORES:
 			if (!wally->highScores->inputName)
 				wally->highScores->done = 1;
-		} else if (wally->menu == OPTIONS) {
+			break;
+		case OPTIONS:
 			if (wally->options->option < 0)
 				break;
 			else if (wally->options->option < 4)
@@ -319,15 +389,22 @@ void updateKeyboard(WallyNIX* wally) {
 			} else if (wally->options->option == 7) {
 				wally->options->done = 1;
 			}
+			break;
+		case CREDITS:
+			wally->credits->done = 1;
+			break;
+		default:
+			break;
 		}
 		break;
+
 	default:
 		break;
 	}
 }
 void updateStates(WallyNIX* wally) {
 
-	//UPDATE STATES
+//UPDATE STATES
 	switch (wally->menu) {
 	case MAIN_MENU:
 		updateMainMenu(wally->mainMenu);
@@ -357,10 +434,16 @@ void updateStates(WallyNIX* wally) {
 		case 4:
 			wally->exit = 1;
 			break;
+		case 5:
+			deleteMainMenu(wally->mainMenu);
+			wally->menu = CREDITS;
+			wally->credits = createCredits();
+			break;
 		default:
 			break;
 		}
 		break;
+
 	case ARCADE_MODE:
 		updateArcadeMode(wally->arcadeMode);
 
@@ -377,6 +460,7 @@ void updateStates(WallyNIX* wally) {
 			return;
 		}
 		break;
+
 	case STAGE_SELECT:
 		updateStageSelect(wally->stageSelect);
 
@@ -393,6 +477,7 @@ void updateStates(WallyNIX* wally) {
 			}
 		}
 		break;
+
 	case HIGH_SCORES:
 		updateHighScores(wally->highScores);
 
@@ -409,6 +494,7 @@ void updateStates(WallyNIX* wally) {
 			wally->highScores->mouseSelection = -1;
 		}
 		break;
+
 	case OPTIONS:
 		updateOptions(wally->options);
 
@@ -441,6 +527,16 @@ void updateStates(WallyNIX* wally) {
 			wally->options->done = 1;
 		}
 		break;
+
+	case CREDITS:
+		updateCredits(wally->credits);
+		if (wally->credits->done || (wally->credits->mouseSelection == 0)) {
+			deleteCredits(wally->credits);
+			wally->menu = MAIN_MENU;
+			wally->mainMenu = createMainMenu();
+		}
+		break;
+
 	default:
 		break;
 	}
@@ -463,6 +559,9 @@ void drawWallyNIX(WallyNIX* wally) {
 	case OPTIONS:
 		drawOptions(wally->options);
 		break;
+	case CREDITS:
+		drawCredits(wally->credits);
+		break;
 	default:
 		break;
 	}
@@ -474,7 +573,7 @@ void stopWallyNIX(WallyNIX* wally) {
 
 	deleteMainMenu(wally->mainMenu);
 
-	//Unsubscribe devices
+//Unsubscribe devices
 	unsubscribeKeyboard();
 	unsubscribeTimer();
 	unsubscribeMouse();

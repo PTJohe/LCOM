@@ -16,7 +16,6 @@ int subscribeKeyboard() {
 	else
 		return EXIT_FAILURE;
 }
-
 int unsubscribeKeyboard() {
 	if (sys_irqdisable(&hook_id_keyboard) != OK
 			&& sys_irqrmpolicy(&hook_id_keyboard) != OK)
@@ -41,7 +40,6 @@ unsigned short read_data_OUTBUF_from_KBC(unsigned long* data) {
 	}
 
 }
-
 unsigned short KBC_issue_command_mouse(unsigned char command) {
 	unsigned long stat = 0;
 	if (sys_inb(KBC_STAT_REG, &stat) == OK) {
@@ -55,7 +53,6 @@ unsigned short KBC_issue_command_mouse(unsigned char command) {
 
 	}
 }
-
 unsigned short issue_argument_KBC(unsigned char argument) {
 	unsigned long stat = 0;
 	if (sys_inb(KBC_STAT_REG, &stat) == OK) {

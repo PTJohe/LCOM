@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//==========================================================================================
 Button* createButton(int xi, int yi, int xf, int yf, char* text) {
 	Button* button = (Button*) malloc(sizeof(Button));
 
@@ -27,7 +28,35 @@ Button* createButton(int xi, int yi, int xf, int yf, char* text) {
 
 	return button;
 }
+int mouseInButton(Button* button) {
+	Mouse* mouse = getMouse();
 
+	if ((button->topLeft->x < mouse->position->x
+			&& mouse->position->x < button->bottomRight->x)
+			&& (button->topLeft->y < mouse->position->y
+					&& mouse->position->y < button->bottomRight->y))
+		return 1; //Mouse inside button
+	else
+		return 0; //Mouse outside button
+}
+void updateButton(Button* button) {
+	if (getMouse()->draw)
+		if (mouseInButton(button) == 1) {
+			button->onHover = 1;
+
+			if (getMouse()->leftButtonReleased == 1) {
+				button->onClick = 1;
+			} else
+				button->onClick = 0;
+		} else {
+			button->onHover = 0;
+			button->onClick = 0;
+		}
+	else {
+		button->onHover = 0;
+		button->onClick = 0;
+	}
+}
 void drawButton(Button* button, int highlight) {
 	unsigned long colour = COLOUR_BLACK;
 
@@ -48,38 +77,6 @@ void drawButton(Button* button, int highlight) {
 	int y = button->topLeft->y + 5;
 	drawBitmap(button->text, x, y, ALIGN_CENTER);
 }
-
-int mouseInButton(Button* button) {
-	Mouse* mouse = getMouse();
-
-	if ((button->topLeft->x < mouse->position->x
-			&& mouse->position->x < button->bottomRight->x)
-			&& (button->topLeft->y < mouse->position->y
-					&& mouse->position->y < button->bottomRight->y))
-		return 1; //Mouse inside button
-	else
-		return 0; //Mouse outside button
-}
-
-void updateButton(Button* button) {
-	if (getMouse()->draw)
-		if (mouseInButton(button) == 1) {
-			button->onHover = 1;
-
-			if (getMouse()->leftButtonReleased == 1) {
-				button->onClick = 1;
-			} else
-				button->onClick = 0;
-		} else {
-			button->onHover = 0;
-			button->onClick = 0;
-		}
-	else {
-		button->onHover = 0;
-		button->onClick = 0;
-	}
-}
-
 void deleteButton(Button* button) {
 	deletePosition(button->topLeft);
 	deletePosition(button->bottomRight);
@@ -87,6 +84,7 @@ void deleteButton(Button* button) {
 	free(button);
 }
 
+//==========================================================================================
 MainMenu* createMainMenu() {
 	MainMenu* mainMenu = (MainMenu*) malloc(sizeof(MainMenu));
 
@@ -100,22 +98,23 @@ MainMenu* createMainMenu() {
 	Button* highScores = createButton(700, 460, 990, 530, "highScores");
 	Button* options = createButton(700, 540, 990, 610, "options");
 	Button* exit = createButton(700, 620, 990, 690, "exitGame");
+	Button* credits = createButton(515, 922, 765, 987, "creditsButton");
 
 	mainMenu->buttons[0] = arcadeMode;
 	mainMenu->buttons[1] = stageSelect;
 	mainMenu->buttons[2] = highScores;
 	mainMenu->buttons[3] = options;
 	mainMenu->buttons[4] = exit;
+	mainMenu->buttons[5] = credits;
 
 	return mainMenu;
 }
-
 void updateMainMenu(MainMenu* mainMenu) {
 	if (getMouse()->draw)
 		mainMenu->option = -1;
 
 	int i;
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < 6; i++) {
 		updateButton(mainMenu->buttons[i]);
 		if (mainMenu->buttons[i]->onClick) {
 			mainMenu->mouseSelection = i;
@@ -123,16 +122,15 @@ void updateMainMenu(MainMenu* mainMenu) {
 		}
 	}
 }
-
 void drawMainMenu(MainMenu* mainMenu) {
 	drawBitmap(mainMenu->background, 0, 0, ALIGN_LEFT);
 	int i;
 	if (getMouse()->draw) {
-		for (i = 0; i < 5; i++) {
+		for (i = 0; i < 6; i++) {
 			drawButton(mainMenu->buttons[i], 0);
 		}
 	} else {
-		for (i = 0; i < 5; i++) {
+		for (i = 0; i < 6; i++) {
 			if (mainMenu->option == i)
 				drawButton(mainMenu->buttons[i], 1);
 			else
@@ -140,17 +138,17 @@ void drawMainMenu(MainMenu* mainMenu) {
 		}
 	}
 }
-
 void deleteMainMenu(MainMenu* mainMenu) {
 	deleteBitmap(mainMenu->background);
 
 	int i;
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < 6; i++) {
 		deleteButton(mainMenu->buttons[i]);
 	}
 	free(mainMenu);
 }
 
+//==========================================================================================
 ArcadeMode* createArcadeMode() {
 	ArcadeMode* arcadeMode = (ArcadeMode*) malloc(sizeof(ArcadeMode));
 
@@ -196,7 +194,6 @@ ArcadeMode* createArcadeMode() {
 
 	return arcadeMode;
 }
-
 void updateArcadeMode(ArcadeMode* arcadeMode) {
 	if (getMouse()->draw)
 		arcadeMode->option = -1;
@@ -256,7 +253,6 @@ void updateArcadeMode(ArcadeMode* arcadeMode) {
 		arcadeMode->gameOver = 1;
 	}
 }
-
 void drawArcadeMode(ArcadeMode* arcadeMode) {
 	if (arcadeMode->foundWally) {
 		drawBitmap(arcadeMode->checkmark, 350, 25, ALIGN_LEFT);
@@ -296,7 +292,6 @@ void drawArcadeMode(ArcadeMode* arcadeMode) {
 	drawBitmap(arcadeMode->wally, 280, 10, ALIGN_LEFT);
 	drawStage(arcadeMode->stages[arcadeMode->currentStage - 1]);
 }
-
 void deleteArcadeMode(ArcadeMode* arcadeMode) {
 	int i;
 	for (i = 0; i < NUM_STAGES; i++) {
@@ -313,6 +308,7 @@ void deleteArcadeMode(ArcadeMode* arcadeMode) {
 	free(arcadeMode);
 }
 
+//==========================================================================================
 StageSelect* createStageSelect() {
 	StageSelect* stageSelect = (StageSelect*) malloc(sizeof(StageSelect));
 
@@ -470,7 +466,6 @@ void pickStageSelect(StageSelect* stageSelect, int option) {
 	startTimer(stageSelect->timer);
 	resetMouseButton();
 }
-
 void returnToStageSelect(StageSelect* stageSelect) {
 	stageSelect->foundAll = 0;
 	stageSelect->pause = 0;
@@ -481,7 +476,6 @@ void returnToStageSelect(StageSelect* stageSelect) {
 	stopTimer(stageSelect->timer);
 	resetMouseButton();
 }
-
 void drawStageSelect(StageSelect* stageSelect) {
 	if (stageSelect->currentStage) {
 		if (stageSelect->timer->counter < 5 && !stageSelect->foundAll)
@@ -580,6 +574,7 @@ void deleteStageSelect(StageSelect* stageSelect) {
 	free(stageSelect);
 }
 
+//==========================================================================================
 Stage* createStageArcadeMode(int stageNumber, Position* wally) {
 	Stage* stage = (Stage*) malloc(sizeof(Stage));
 
@@ -593,7 +588,6 @@ Stage* createStageArcadeMode(int stageNumber, Position* wally) {
 
 	return stage;
 }
-
 Stage* createStage(int stageNumber, Position* wally, Position* wenda,
 		Position* whitebeard, Position* odlaw) {
 	Stage* stage = (Stage*) malloc(sizeof(Stage));
@@ -614,7 +608,6 @@ Stage* createStage(int stageNumber, Position* wally, Position* wenda,
 
 	return stage;
 }
-
 int foundAll(Stage* stage) {
 	if (stage->foundWally && stage->foundWenda && stage->foundWhitebeard
 			&& stage->foundOdlaw)
@@ -622,7 +615,6 @@ int foundAll(Stage* stage) {
 	else
 		return 0;
 }
-
 void updateStage(Stage* stage) {
 	updateButton(stage->pause);
 
@@ -646,7 +638,6 @@ void updateStage(Stage* stage) {
 		}
 	}
 }
-
 void drawStage(Stage* stage) {
 	drawButton(stage->pause, 0);
 	drawBitmap(stage->image, 0, 213, ALIGN_LEFT);
@@ -670,14 +661,12 @@ void drawStage(Stage* stage) {
 		}
 	}
 }
-
 void resetStage(Stage* stage) {
 	stage->foundWally = 0;
 	stage->foundWenda = 0;
 	stage->foundWhitebeard = 0;
 	stage->foundOdlaw = 0;
 }
-
 void deleteStage(Stage* stage) {
 	deleteButton(stage->pause);
 	deleteBitmap(stage->image);
@@ -692,6 +681,7 @@ void deleteStage(Stage* stage) {
 	free(stage);
 }
 
+//==========================================================================================
 HighScores* createHighScores(int score) {
 	HighScores* highScores = (HighScores*) malloc(sizeof(HighScores));
 
@@ -775,7 +765,6 @@ void insertHighScore(HighScores* highScores, Score* score) {
 			break;
 	}
 }
-
 void updateHighScores(HighScores* highScores) {
 	if (highScores->inputName) {
 		updateButton(highScores->ok);
@@ -816,7 +805,6 @@ void updateHighScores(HighScores* highScores) {
 		resetMouseButton();
 	}
 }
-
 void inputName(HighScores* highScores, unsigned long scancode) {
 	if (scancode == KEY_ENTER) {
 		if (strlen(highScores->input) == 0)
@@ -916,7 +904,6 @@ void inputName(HighScores* highScores, unsigned long scancode) {
 		}
 	}
 }
-
 void drawName(char* name, int rank) {
 	int numChars = strlen(name); //max = 10
 	int xMin = 200, xMax = 470;
@@ -996,7 +983,6 @@ void drawDate(char* date, int rank) {
 			x += xInc2;
 	}
 }
-
 void drawInput(HighScores* highScores) {
 	int x = 530, y = 505;
 	int xInc = 20;
@@ -1009,7 +995,6 @@ void drawInput(HighScores* highScores) {
 		x += xInc;
 	}
 }
-
 void drawHighScores(HighScores* highScores) {
 	if (highScores->draw) {
 		highScores->draw = 0;
@@ -1037,7 +1022,6 @@ void drawHighScores(HighScores* highScores) {
 			drawButton(highScores->button, 0);
 	}
 }
-
 void deleteHighScores(HighScores* highScores) {
 	deleteBitmap(highScores->background);
 	deleteButton(highScores->button);
@@ -1061,6 +1045,7 @@ void deleteHighScores(HighScores* highScores) {
 	free(highScores);
 }
 
+//==========================================================================================
 Score* createScore(char* name, int points, char* date) {
 	Score* score = (Score*) malloc(sizeof(Score));
 
@@ -1076,6 +1061,7 @@ void deleteScore(Score* score) {
 	free(score);
 }
 
+//==========================================================================================
 Options* createOptions() {
 	Options* options = (Options*) malloc(sizeof(Options));
 
@@ -1176,4 +1162,42 @@ void deleteOptions(Options* options) {
 	}
 
 	free(options);
+}
+
+//==========================================================================================
+Credits* createCredits() {
+	Credits* credits = (Credits*) malloc(sizeof(Credits));
+
+	credits->background = loadBitmap((char*) getImagePath("credits"));
+	credits->mouseSelection = -1;
+	credits->option = -1;
+	credits->done = 0;
+
+	credits->button = createButton(535, 850, 745, 910, "mainMenuButton");
+
+	return credits;
+}
+void updateCredits(Credits* credits) {
+	if (getMouse()->draw)
+		credits->option = -1;
+
+	updateButton(credits->button);
+	if (credits->button->onClick) {
+		credits->mouseSelection = 0;
+		resetMouseButton();
+	}
+}
+void drawCredits(Credits* credits) {
+	drawBitmap(credits->background, 0, 0, ALIGN_LEFT);
+	if (getMouse()->draw)
+		drawButton(credits->button, 0);
+	else if (credits->option == 0)
+		drawButton(credits->button, 1);
+	else
+		drawButton(credits->button, 0);
+}
+void deleteCredits(Credits* credits) {
+	deleteBitmap(credits->background);
+	deleteButton(credits->button);
+	free(credits);
 }
